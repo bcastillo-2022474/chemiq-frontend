@@ -67,7 +67,7 @@ const MemberCard = ({ image, title }) => {
 const LandingPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-[#FFF8F0] ">
-      <nav className="bg-primary shadow-md ">
+      <nav className="bg-[#7DE2A6] shadow-md ">
         <div className="max-w-7xl mx-auto px-4  sm:px-6 lg:px-8 ">
           <div className="flex justify-between h-16 ">
             <div className="flex ">
@@ -166,8 +166,8 @@ const LandingPage = () => {
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
               <Button
-                variant="outline"
-                className="text-lime-600 bg-white hover:text-[#0B2F33] hover:bg-[#7DE2A6] shadow-xl"
+                variant="quimica"
+                
               >
                 Iniciar sesión
               </Button>
@@ -390,7 +390,7 @@ const LandingPage = () => {
           </div>
         </section>
       </main>
-      <footer className="w-full py-12 bg-primary text-white">
+      <footer className="w-full py-12 bg-[#7DE2A6] text-white">
         {" "}
         {/* Footer color */}
         <div className="container px-4 md:px-6 mx-auto">
