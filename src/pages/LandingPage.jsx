@@ -1,7 +1,7 @@
 import React from 'react';
 import AutoCarousel from '../components/AutoCarousel';
 import MemberCard from '../components/MemberCard';
-import BubbleButton from '../components/BublueButton';
+
 import {
   BeakerIcon,
   AtomIcon,
@@ -27,14 +27,14 @@ import {
 
 const cards = [
   { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Jos%C3%A9%20Paiz.png?csf=1&web=1&e=IBJsiC", hoverText: "José Pablo Paiz Hernández", cargo: "Presidente"},
-  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Eduardo.png?csf=1&web=1&e=hJXqoy", hoverText: "Eduardo José Quiñónez Ovando", cargo: "fa"},
-  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Valeria.png?csf=1&web=1&e=cvsReb", hoverText: "Valeria Fernanda Sierra Cano", cargo: "fa"},
-  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Carmen.png?csf=1&web=1&e=SSyP5r", hoverText: "Carmen Sofía Lizama de la Cruz", cargo: "fa" },
-  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Luis.png?csf=1&web=1&e=SuHsHc", hoverText: "Luis Pablo Avila Alvarado", cargo: "fa" },
-  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Arturo.png?csf=1&web=1&e=aa9nwG", hoverText: "Arturo René Joachín de León", cargo: "fa" },
-  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/JuanPa.png?csf=1&web=1&e=MCmEA7", hoverText: "Juan Pablo León Serrano", cargo: "fa" },
-  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Mijael.png?csf=1&web=1&e=f2LG8x", hoverText: "Mijael Roberto Juárez Monzón", cargo: "fa" },
-  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Andrea.png?csf=1&web=1&e=YQLIEl", hoverText: "Andrea Ximena Arévalo Lopez", cargo: "fa" }
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Eduardo.png?csf=1&web=1&e=hJXqoy", hoverText: "Eduardo José Quiñónez Ovando", cargo: "unknowm"},
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Valeria.png?csf=1&web=1&e=cvsReb", hoverText: "Valeria Fernanda Sierra Cano", cargo: "Tesorera"},
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Carmen.png?csf=1&web=1&e=SSyP5r", hoverText: "Carmen Sofía Lizama de la Cruz", cargo: "unknowm" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Luis.png?csf=1&web=1&e=SuHsHc", hoverText: "Luis Pablo Avila Alvarado", cargo: "unknowm" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Arturo.png?csf=1&web=1&e=aa9nwG", hoverText: "Arturo René Joachín de León", cargo: "unknowm" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/JuanPa.png?csf=1&web=1&e=MCmEA7", hoverText: "Juan Pablo León Serrano", cargo: "unknowm" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Mijael.png?csf=1&web=1&e=f2LG8x", hoverText: "Mijael Roberto Juárez Monzón", cargo: "unknowm" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Andrea.png?csf=1&web=1&e=YQLIEl", hoverText: "Andrea Ximena Arévalo Lopez", cargo: "unknowm" }
 ];
 const Button = ({ children, className, variant }) => (
   <button
