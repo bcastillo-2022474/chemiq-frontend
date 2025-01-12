@@ -10,6 +10,7 @@ export default {
         accent: '#0B2F33',
         tertiary: '#E0FFEC',
       },
+      
       plugins: [],
     }
   }

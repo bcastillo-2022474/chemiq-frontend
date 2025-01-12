@@ -1,7 +1,7 @@
 import React from 'react';
 import AutoCarousel from '../components/AutoCarousel';
 import MemberCard from '../components/MemberCard';
-
+import ButtonC from '../components/ButtonC';
 import {
   BeakerIcon,
   AtomIcon,
@@ -165,7 +165,8 @@ const LandingPage = () => {
                 </p>
               </div>
               <div className="space-x-4">
-                <Button className="bg-base text-white hover:bg-accent">Únete ahora</Button>
+                <Button className="bg-base text-white hover:bg-accent"><a href="">Únete ahora</a></Button>
+                
                 <Button
                   variant="outline"
                   className="border-base text-base hover:bg-accent hover:text-white"
