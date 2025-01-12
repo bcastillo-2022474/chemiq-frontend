@@ -14,13 +14,13 @@ const AutoCarousel = ({ images, interval = 3000 }) => {
   return (
     <div className="relative w-full m-0">
       {/* Contenedor de imágenes */}
-      <div className="relative w-full h-[500px] overflow-hidden">
+      <div className="relative w-full h-[500px] overflow-hidden bg-base bg-opacity-90 z-10">
         {images.map((image, index) => (
           <img
             key={index}
             src={image}
             alt={`Slide ${index + 1}`}
-            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${
+            className={`absolute top-0 left-0 w-full h-full object-cover z-1 transition-opacity duration-500 ${
               index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
             }`}
           />

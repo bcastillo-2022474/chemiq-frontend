@@ -1,5 +1,7 @@
 import React from 'react';
 import AutoCarousel from '../components/AutoCarousel';
+import MemberCard from '../components/MemberCard';
+import BubbleButton from '../components/BublueButton';
 import {
   BeakerIcon,
   AtomIcon,
@@ -13,6 +15,7 @@ import {
   Phone,
   MapPin,
 } from 'lucide-react';
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -22,23 +25,17 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-
+const cards = [
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Jos%C3%A9%20Paiz.png?csf=1&web=1&e=IBJsiC", hoverText: "José Pablo Paiz Hernández", cargo: "Presidente"},
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Eduardo.png?csf=1&web=1&e=hJXqoy", hoverText: "Eduardo José Quiñónez Ovando", cargo: "fa"},
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Valeria.png?csf=1&web=1&e=cvsReb", hoverText: "Valeria Fernanda Sierra Cano", cargo: "fa"},
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Carmen.png?csf=1&web=1&e=SSyP5r", hoverText: "Carmen Sofía Lizama de la Cruz", cargo: "fa" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Luis.png?csf=1&web=1&e=SuHsHc", hoverText: "Luis Pablo Avila Alvarado", cargo: "fa" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Arturo.png?csf=1&web=1&e=aa9nwG", hoverText: "Arturo René Joachín de León", cargo: "fa" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/JuanPa.png?csf=1&web=1&e=MCmEA7", hoverText: "Juan Pablo León Serrano", cargo: "fa" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Mijael.png?csf=1&web=1&e=f2LG8x", hoverText: "Mijael Roberto Juárez Monzón", cargo: "fa" },
+  { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Andrea.png?csf=1&web=1&e=YQLIEl", hoverText: "Andrea Ximena Arévalo Lopez", cargo: "fa" }
+];
 const Button = ({ children, className, variant }) => (
   <button
     className={`px-4 py-2 rounded ${className} ${variant === 'outline' ? 'border border-current' : ''
@@ -61,30 +58,6 @@ const images = [
   'https://greenecoera.com/wp-content/uploads/img/img/img/paisaje-naturales.jpg',
 ];
 
-const MemberCard = ({ image, title, cargo}) => {
-  return (
-    <Card className="w-[350px] h-[450px] p-0 bg-tertiary shadow-lg rounded-lg overflow-hidden">
-      <CardHeader className="p-0">
-        <img
-          src={image}
-          className="w-full h-[300px] object-cover p-0"
-        />
-      </CardHeader>
-      <CardContent className="w-full h-[85px] flex justify-center items-center border-b-4 border-b-accent p-2">
-        <h2 className="text-center text-accent text-[25px] font-bold">
-          {title}
-        </h2>
-      </CardContent>
-      <CardFooter className="w-full h-[85px] flex  items-center mx-auto">
-        <h2 className="text-center text-accent text-[20px] font-bold">
-          {cargo}
-        </h2>
-      </CardFooter>
-    </Card>
-
-  );
-};
-
 const LandingPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-white ">
@@ -93,7 +66,7 @@ const LandingPage = () => {
           <div className="flex justify-between h-16 ">
             <div className="flex ">
               <div className="flex-shrink-0 flex items-center">
-                <span className="text-2xl font-bold text-white "><img src="../assets/img/ChemiqLogo.png" /></span>
+                <span className="text-2xl font-bold text-white "><img src="./src/assets/img/ChemiqLogoNav.png" className="w-full h-[50px]" /></span>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8 ">
                 <NavigationMenu>
@@ -256,63 +229,18 @@ const LandingPage = () => {
           </div>
         </section>
 
-
+        {/* Junta directiva */}
         <section id="members" className="w-full py-12 md:py-12 lg:py-12 bg-background">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 text-accent">
-            Nuestros miembros
+            Nuestra junta directiva
           </h2>
-          <div className="App flex items-center justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Jos%C3%A9%20Paiz.png?csf=1&web=1&e=IBJsiC"
-                title="José Pablo Paiz Hernández"
-                cargo="cargo: Presidente"
-              />
 
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Eduardo.png?csf=1&web=1&e=hJXqoy"
-                title="Eduardo José Quiñónez Ovando"
-                cargo="cargo:"
-              />
-
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Valeria.png?csf=1&web=1&e=cvsReb"
-                title="Valeria Fernanda Sierra Cano"
-                cargo="cargo:"
-              />
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Carmen.png?csf=1&web=1&e=SSyP5r"
-                title="Carmen Sofía Lizama de la Cruz"
-                cargo="cargo:"
-              />
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Luis.png?csf=1&web=1&e=SuHsHc"
-                title="Luis Pablo Avila Alvarado"
-                cargo="cargo:"
-              />
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Arturo.png?csf=1&web=1&e=aa9nwG"
-                title="Arturo René Joachín de León"
-                cargo="cargo:"
-              />
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/JuanPa.png?csf=1&web=1&e=MCmEA7"
-                title="Juan Pablo León Serrano"
-                cargo="cargo:"
-              />
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Mijael.png?csf=1&web=1&e=f2LG8x"
-                title="Mijael Roberto Juárez Monzón"
-                cargo="cargo:"               
-              />
-              <MemberCard
-                image="https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Andrea.png?csf=1&web=1&e=YQLIEl"
-                title="Andrea Ximena Arévalo Lopez"
-                cargo="cargo:"
-              />
-            </div>
+          <div className="min-h-screen flex items-center justify-center bg-background">
+            <MemberCard cards={cards} />
           </div>
+
         </section>
+        {/* Junta directiva */}
         <section id="contact" className="w-full py-12 md:py-14 lg:py-12 bg-tertiary">
           <div className="container px-4 md:px-6 mx-auto">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-4 text-accent">
