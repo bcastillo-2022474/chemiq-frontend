@@ -4,14 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#28BC98',
-        secondary: '#7DE2A6',
+        base: '#28BC98',
+        subase: '#7DE2A6',
         background: '#FFF8F0',
         accent: '#0B2F33',
         tertiary: '#E0FFEC',
       },
-    },
-  },
-  plugins: [],
+      
+      plugins: [],
+    }
+  }
 }
 
