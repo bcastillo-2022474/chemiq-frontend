@@ -93,14 +93,7 @@ const LoginPage = () => {
               </button>
             </div>
           </form>
-          <p className={`mt-2 text-center text-sm text-gray-600 transition-all duration-700 delay-300 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}>
-            ¿No tienes una cuenta?{' '}
-            <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-              Regístrate
-            </a>
-          </p>
+          
         </div>
       </div>
     </div>
