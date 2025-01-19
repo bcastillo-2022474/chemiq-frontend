@@ -24,6 +24,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { Link } from 'react-router-dom';
 
 const cards = [
   { imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Jos%C3%A9%20Paiz.png?csf=1&web=1&e=IBJsiC", hoverText: "José Pablo Paiz Hernández", cargo: "Presidente"},
@@ -54,8 +55,11 @@ const Input = ({ placeholder, type = 'text' }) => (
 );
 
 const images = [
-  'https://www.subexpuesta.com/img/content/paisajes-naturales_1.webp',
-  'https://greenecoera.com/wp-content/uploads/img/img/img/paisaje-naturales.jpg',
+  'https://res.cloudinary.com/uvggt/image/upload/f_auto/v1619631396/2021/Abril/Biodi%C3%A9sel/Biodiesel-1.jpg',
+  'https://res.cloudinary.com/uvggt/image/upload/f_auto/v1707843136/2024/02%20Febrero/Premio%20ILAN/Premio-ILAN-Portada.jpg',
+  "https://res.cloudinary.com/webuvg/image/upload/f_auto,q_auto,w_329,c_scale,fl_lossy,dpr_2.63/v1602887269/WEB/Academico/Carreras/Ingenieria/Quimica/laboratorio-ing-quimica.jpg",
+  "https://res.cloudinary.com/uvggt/image/upload/f_auto/v1657039547/2022/Julio/Foro%20Desarrollo%20industrial%20verde/Ingenieria-Quimica-UVG-1.jpg",
+  "https://res.cloudinary.com/uvggt/image/upload/f_auto/v1649106331/2022/Abril/Bodi%C3%A9sel-Puma/Biodiesel-1.jpg"
 ];
 
 const LandingPage = () => {
@@ -72,7 +76,7 @@ const LandingPage = () => {
                 <NavigationMenu>
                   <NavigationMenuList>
                     <NavigationMenuItem >
-                      <NavigationMenuTrigger className="text-lime-600 ">Productos</NavigationMenuTrigger>
+                      <NavigationMenuTrigger className="text-lime-600 ">Proyectos Destacados</NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <ul className="grid gap-3 p-4 md:w-[400px] bg-background lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                           <li className="row-span-3 ">
@@ -82,10 +86,10 @@ const LandingPage = () => {
                                 href="/"
                               >
                                 <div className="mt-4 text-lg font-medium text-white">
-                                  Producto Destacado
+                                  BioDiesel
                                 </div>
                                 <p className="text-sm leading-tight text-white/90">
-                                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                La producción de biodiésel: una alternativa viable de reciclaje y una oportunidad de aprendizaje
                                 </p>
                               </a>
                             </NavigationMenuLink>
@@ -96,9 +100,9 @@ const LandingPage = () => {
                                 className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
                                 href="/"
                               >
-                                <div className="text-sm font-medium leading-none">Producto A</div>
+                                <div className="text-sm font-medium leading-none">Satelite Quetzal 1</div>
                                 <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                El primer satelite guatemalteco
                                 </p>
                               </a>
                             </NavigationMenuLink>
@@ -109,9 +113,22 @@ const LandingPage = () => {
                                 className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
                                 href="/"
                               >
-                                <div className="text-sm font-medium leading-none">Producto B</div>
+                                <div className="text-sm font-medium leading-none">Proyecto X</div>
                                 <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                  Proyecto X
+                                </p>
+                              </a>
+                            </NavigationMenuLink>
+                          </li>
+                          <li>
+                            <NavigationMenuLink asChild>
+                              <a
+                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
+                                href="/"
+                              >
+                                <div className="text-sm font-medium leading-none">Proyecto X</div>
+                                <p className="line-clamp-2 text-sm leading-snug text-gray-500">
+                                  Proyecto X
                                 </p>
                               </a>
                             </NavigationMenuLink>
@@ -139,7 +156,9 @@ const LandingPage = () => {
               </div>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
-              <Button variant="outline" className="mr-2 text-lime-600 border-white bg-white hover:bg-lime-700">Iniciar sesión</Button>
+              <Link to="/login">
+              <Button variant="quimica" className="mr-2  text-lime-700 shadow-lg bg-white hover:bg-accent hover:text-white rounded-md font-semibold">Iniciar sesión</Button>
+              </Link>
             </div>
             <div className="-mr-2 flex items-center sm:hidden">
               <Button variant="ghost" className="text-white">
@@ -161,15 +180,15 @@ const LandingPage = () => {
                   Asociación de Química
                 </h1>
                 <p className="mx-auto max-w-[700px] text-base md:text-xl">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris.
+                La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas. Nos enfocamos en impulsar el conocimiento científico, fomentando el intercambio de ideas y la colaboración entre estudiantes y profesionales del área.
                 </p>
               </div>
               <div className="space-x-4">
-                <Button className="bg-base text-white hover:bg-accent"><a href="">Únete ahora</a></Button>
+                <Button className="bg-base text-white hover:bg-accent rounded-md"><a href="">Únete ahora</a></Button>
                 
                 <Button
                   variant="outline"
-                  className="border-base text-base hover:bg-accent hover:text-white"
+                  className="border-base text-base hover:bg-accent hover:text-white rounded-md"
                 >
                   Saber más
                 </Button>
@@ -187,24 +206,21 @@ const LandingPage = () => {
                 <AtomIcon className="h-12 w-12 text-base mb-4" />
                 <h3 className="text-xl font-bold mb-2 text-accent">Investigación Innovadora</h3>
                 <p className="text-base">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua.
+                Fomentamos la investigación avanzada y la innovación en diversas áreas del conocimiento, brindando a nuestros estudiantes universitarios el acceso a recursos y herramientas para desarrollar proyectos.
                 </p>
               </div>
               <div className="flex flex-col items-center text-center">
                 <BookOpenIcon className="h-12 w-12 text-base mb-4" />
                 <h3 className="text-xl font-bold mb-2 text-accent">Recursos Educativos</h3>
                 <p className="text-base">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua.
+                Proveemos una amplia gama de recursos educativos diseñados para mejorar la experiencia de aprendizaje de nuestros estudiantes universitarios. Desde materiales didácticos hasta plataformas interactivas.
                 </p>
               </div>
               <div className="flex flex-col items-center text-center">
                 <UsersIcon className="h-12 w-12 text-base mb-4" />
                 <h3 className="text-xl font-bold mb-2 text-accent">Networking</h3>
                 <p className="text-base">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua.
+                Creamos espacios de conexión entre estudiantes, profesionales y académicos, donde nuestros estudiantes pueden expandir su red de contactos. Fomentamos la colaboración y el intercambio de ideas. 
                 </p>
               </div>
             </div>
@@ -218,9 +234,9 @@ const LandingPage = () => {
                 Sobre Nosotros
               </h2>
               <p className="text-base md:text-xl">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              La Asociación de Becados nació con el propósito de dar respuesta a la necesidad de apoyo en el ámbito educativo. Sabemos que la educación es la llave para cambiar vidas, y estamos convencidos de que cada estudiante tiene un potencial único. Nuestra misión es brindar recursos y una red de apoyo a estudiantes que se comprometen con su educación y desean transformar su futuro. 
               </p>
-              <Button className="bg-base text-white hover:bg-blue-700 w-fit">Conoce nuestro equipo</Button>
+              <Button className="bg-base text-white hover:bg-accent hover:text-white w-fit rounded-md" >Conoce nuestro equipo</Button>
             </div>
 
             {/* Columna 2 */}
@@ -243,35 +259,34 @@ const LandingPage = () => {
         </section>
         {/* Junta directiva */}
         <section id="contact" className="w-full py-12 md:py-14 lg:py-12 bg-tertiary">
-          <div className="container px-4 md:px-6 mx-auto">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-4 text-accent">
-              Contáctanos
-            </h2>
-            <p className="text-center text-base mb-8 max-w-md mx-auto">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua.
-            </p>
-            <div className="max-w-md mx-auto">
-              <form className="space-y-4">
-                <Input placeholder="Tu nombre" />
-                <Input type="email" placeholder="Tu email" />
-                <Input placeholder="Asunto" />
-                <textarea
-                  className="w-full h-32 px-3 py-2 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-base"
-                  placeholder="Tu mensaje"
-                ></textarea>
-                <Button className="w-full bg-base text-white hover:bg-accent">Enviar mensaje</Button>
-              </form>
-            </div>
-          </div>
-        </section>
+  <div className="container px-4 md:px-6 mx-auto">
+    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-4 text-accent">
+      ¿Tienes alguna pregunta?
+    </h2>
+    <p className="text-center text-base mb-8 max-w-md mx-auto">
+      Si tienes alguna duda o comentario, no dudes en enviarnos un mensaje. Nos encanta escuchar tus sugerencias y ayudarte con lo que necesites.
+    </p>
+    <div className="max-w-md mx-auto">
+      <form className="space-y-4">
+        <Input placeholder="Tu nombre" />
+        <Input type="email" placeholder="Tu email" />
+        <Input placeholder="Asunto" />
+        <textarea
+          className="w-full h-32 px-3 py-2 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-base"
+          placeholder="Tu mensaje"
+        ></textarea>
+        <Button className="w-full bg-base text-white hover:bg-accent rounded-md">Enviar mensaje</Button>
+      </form>
+    </div>
+  </div>
+</section>
       </main>
       <footer className="w-full py-12 bg-base text-white"> {/* Footer color */}
         <div className="container px-4 md:px-6 mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-4">Asociación de Química</h3>
-              <p className="text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <p className="text-sm">La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas.</p>
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">Enlaces rápidos</h4>
@@ -303,7 +318,7 @@ const LandingPage = () => {
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
-                  <span className="text-sm">Calle Falsa 123</span>
+                  <span className="text-sm">Universidad del Valle de Guatemala</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="h-5 w-5" />

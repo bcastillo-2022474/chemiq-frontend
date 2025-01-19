@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-
+const Button = ({ children, className, variant }) => (
+  <button
+    className={`px-4 py-2 rounded ${className} ${variant === 'outline' ? 'border border-current' : ''
+      }`}
+  >
+    {children}
+  </button>
+);
 const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -14,7 +21,7 @@ const LoginPage = () => {
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}>
         <img
-          src="/public/laboratorio-ing-quimica.webp"
+          src="https://res.cloudinary.com/uvggt/image/upload/f_auto/v1565039253/2019/Agosto/Girls%20STEAM%20club%203/Steam-club-1.jpg"
           alt="Laboratorio de química"
           className={`absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out ${
             isVisible ? 'translate-x-0' : '-translate-x-full'
@@ -29,8 +36,8 @@ const LoginPage = () => {
           <div className={`text-center transition-all duration-700 delay-100 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
-            <h1 className="text-3xl font-bold text-gray-800">Iniciar Sesión</h1>
-            <p className="mt-2 text-sm text-gray-600">Accede a tu portal de química</p>
+            <h1 className="text-5xl font-bold text-gray-800">Iniciar Sesión</h1>
+            <p className="mt-2 text-xl text-gray-600">Accede a tu portal de química</p>
           </div>
           <form className={`mt-8 space-y-6 transition-all duration-700 delay-200 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -46,7 +53,7 @@ const LoginPage = () => {
                   type="email"
                   required
                   className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="tu@ejemplo.com"
+                  placeholder="prueba11111@uvg.edu.gt"
                 />
               </div>
               <div>
@@ -85,13 +92,20 @@ const LoginPage = () => {
             </div>
 
             <div>
-              <button
+              <Button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                className="w-full bg-base text-white hover:bg-accent rounded-md"
               >
                 Iniciar Sesión
-              </button>
+              </Button>
             </div>
+            <div className="mt-4">
+  <Link to="/" className="w-full block">
+    <Button className="w-full bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-md">
+      Regresar a la Página Principal
+    </Button>
+  </Link>
+</div>
           </form>
           
         </div>
