@@ -5,6 +5,7 @@ import RecoveryPage from './pages/RecoveryPage';
 import Home from './pages/DashboardUserControll';
 import Dashboard from './pages/DashboardStatsControll';
 import NotFound from './components/NotFound404';
+import { Projects } from './pages/DashboardProjectsControll';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/recovery" element={<RecoveryPage />} />
         <Route path="/dashboard/users" element={<Home />} />
         <Route path="/dashboard/stats" element={<Dashboard />} />
+        <Route path="/dashboard/projects" element={<Projects />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
@@ -22,3 +24,4 @@ function App() {
 }
 
 export default App;
+

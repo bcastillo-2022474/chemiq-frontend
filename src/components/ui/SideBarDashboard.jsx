@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router';
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/stats' },
   { name: 'Users', icon: Users, href: '/dashboard/users' },
-  { name: 'Projects', icon: Flask, href: '/projects' },
+  { name: 'Projects', icon: Flask, href: '/dashboard/projects' },
   { name: 'Settings', icon: Settings, href: '/settings' }
 ];
 
