@@ -46,13 +46,17 @@ const RecoveryPage = () => {
     }
   };
 
-  const handleResetPassword = () => {
-    // Simulate password reset
-    Swal.fire("Contraseña actualizada", "Tu contraseña ha sido actualizada exitosamente", "success");
-    setStep(1);
-    setEmail("");
-    setCode("");
-    setNewPassword("");
+  const handleResetPassword = async () => {
+    try {
+      await axios.post('https://backend-postgresql.vercel.app/reset-password', { email, newPassword });
+      Swal.fire("Contraseña actualizada", "Tu contraseña ha sido actualizada exitosamente", "success");
+      setStep(1);
+      setEmail("");
+      setCode("");
+      setNewPassword("");
+    } catch (error) {
+      Swal.fire("Error", "No se pudo actualizar la contraseña", "error");
+    }
   };
 
   return (
