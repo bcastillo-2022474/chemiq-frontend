@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RecoveryPage from './pages/RecoveryPage';
 import Home from './pages/DashboardUserControll';
 import Dashboard from './pages/DashboardStatsControll';
+import Reset from './pages/Reset';
 import NotFound from './components/NotFound404';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/recovery" element={<RecoveryPage />} />
         <Route path="/dashboard/users" element={<Home />} />
         <Route path="/dashboard/stats" element={<Dashboard />} />
+        <Route path="/reset" element={<Reset />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
