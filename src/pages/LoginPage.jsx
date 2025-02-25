@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { jwtDecode } from "jwt-decode";
 
 const Button = ({ children, className, variant, ...props }) => (
   <button
@@ -35,7 +36,11 @@ const LoginPage = () => {
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
-        navigate('/dashboard/stats');
+        const decodedToken = jwtDecode(response.data.token);
+        console.log(decodedToken);
+        if (decodedToken.rol_id == '1') navigate('/dashboard/stats');
+        if (decodedToken.rol_id == '2') navigate('/dashboard/junta');
+        if (decodedToken.rol_id == '3') navigate('/userPage');
       } else {
         Swal.fire("Error", "No se pudo iniciar sesión", "error");
       }
