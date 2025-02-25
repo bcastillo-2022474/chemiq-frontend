@@ -35,6 +35,11 @@ export function Sidebar() {
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  }
+
   return (
     <aside className="flex flex-col h-screen w-64 bg-background drop-shadow-lg rounded-r-tl-lg rounded-r-bl-lg text-text" 
            style={{ boxShadow: '0 5px 9px rgba(40, 188, 152, 0.5), 0 2px 4px rgba(116, 116, 116, 0.7)' }}>
@@ -78,7 +83,7 @@ export function Sidebar() {
               <span>Configuración</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">
+            <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Cerrar Sesión</span>
             </DropdownMenuItem>
