@@ -41,7 +41,7 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="flex flex-col h-screen w-64 bg-background drop-shadow-lg rounded-r-tl-lg rounded-r-bl-lg text-text" 
+    <aside className="flex flex-col h-screen w-1/4 bg-background drop-shadow-lg rounded-r-tl-lg rounded-r-bl-lg text-text pl-8 pr-8" 
            style={{ boxShadow: '0 5px 9px rgba(40, 188, 152, 0.5), 0 2px 4px rgba(116, 116, 116, 0.7)' }}>
       <div className="p-5 flex items-center space-x-2">
         <img src="/src/assets/img/ChemiqLogo.png" className="w-1/4" alt="Logo Nav" />
@@ -61,7 +61,7 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      <div className="p-5 border-t border-background">
+      <div className="p-5 border-t border-background space-y-1">
         <DropdownMenu>
           <DropdownMenuTrigger className="flex pl-2 items-center w-full p-2 hover:bg-[#28BC98] rounded-md transition-colors group">
             <img src={userData.img} 
@@ -81,14 +81,15 @@ export function Sidebar() {
             <DropdownMenuItem>
               <Settings className="mr-2 h-4 w-4" />
               <span>Configuración</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Cerrar Sesión</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem>           
           </DropdownMenuContent>
         </DropdownMenu>
+        
+
+        <button className="text-white flex pl-2 items-center w-full p-2 bg-[#d1081c] hover:bg-[#a1020a] rounded-md transition-colors group " onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Cerrar Sesión</span>
+        </button>
       </div>
     </aside>
   );

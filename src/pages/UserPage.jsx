@@ -9,7 +9,7 @@ export default function UserPage() {
       <Sidebar />
       <main className="flex-1 p-8 overflow-auto bg-background text-text">
         <div className="max-w-6xl mx-auto">
-          <div className="relative h-64 mb-8 rounded-xl overflow-hidden">
+          <div className="relative h-80 mb-8 rounded-xl overflow-hidden">
             <img
               src="/public/banner.jpg"
               alt="Química Banner"
