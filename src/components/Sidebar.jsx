@@ -1,23 +1,23 @@
 import { Link } from "react-router-dom";
 import { Home, Podcast, Newspaper, Beaker, User, ChevronDown, LogOut, Settings } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
+import PropTypes from 'prop-types';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 
 const navItems = [
-  { name: "Inicio", href: "/", icon: Home },
-  { name: "Podcast", href: "/podcast", icon: Podcast },
-  { name: "Noticias", href: "/noticias", icon: Newspaper },
-  { name: "Proyectos", href: "/proyectos", icon: Beaker },
+  { name: "Inicio", component: "home", icon: Home },
+  { name: "Podcast", component: "podcast", icon: Podcast },
+  { name: "Noticias", component: "news", icon: Newspaper },
+  { name: "Proyectos", component: "project", icon: Beaker },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onSelect }) {
   const [userData, setUserData] = useState({ nombre: "Usuario", img: "/placeholder.svg" });
 
   useEffect(() => {
@@ -49,13 +49,13 @@ export function Sidebar() {
       </div>
       
       <nav className="flex-1 overflow-y-auto">
-        <ul className="space-y-2 p-5">
+        <ul className="space-y-5 p-5">
           {navItems.map((item) => (
             <li key={item.name}>
-              <Link to={item.href} className="flex items-center space-x-6 p-3 rounded-lg hover:bg-background hover:text-[#28bc98] transition-all duration-300 group">
-                <item.icon className="h-6 w-6 group-hover:scale-110 transition-transform" />
-                <span className="font-medium">{item.name}</span>
-              </Link>
+              <button onClick={() => onSelect(item.component)} className="flex items-center space-x-6 p-3 rounded-lg hover:bg-background hover:text-[#28bc98] transition-all duration-300 group">
+                <item.icon className="h-8 w-8 group-hover:scale-110 transition-transform" />
+                <span className="font-medium text-xl">{item.name}</span>
+              </button>
             </li>
           ))}
         </ul>
@@ -85,7 +85,6 @@ export function Sidebar() {
           </DropdownMenuContent>
         </DropdownMenu>
         
-
         <button className="text-white flex pl-2 items-center w-full p-2 bg-[#d1081c] hover:bg-[#a1020a] rounded-md transition-colors group " onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Cerrar Sesión</span>
@@ -94,3 +93,7 @@ export function Sidebar() {
     </aside>
   );
 }
+
+Sidebar.propTypes = {
+  onSelect: PropTypes.func.isRequired,
+};
