@@ -20,9 +20,15 @@ export default function UserPage() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-background to-transparent" style={{backdropFilter: "blur(2px)"}} />
-              <h1 className="absolute bottom-12 left-8 text-5xl font-bold text-accent animate-fade-in">
+              <h1 className="absolute bottom-16 left-8 text-5xl font-bold text-accent animate-fade-in">
                 Bienvenido a la Asociación de Química
               </h1>
+              <p className="text-xl text-gray-600 mb-8 text-right absolute bottom-1 left-9">
+              Novedades: Noticias, proyectos y podcasts más recientes
+              </p>
+            </div>
+            <div className="text-right">
+            
             </div>
             <FeaturedNews />
             <FeaturedProject />
