@@ -4,6 +4,7 @@ import { FeaturedPodcast } from "@/components/FeaturedPodcast";
 import { FeaturedNews } from "@/components/FeaturedNews";
 import { FeaturedProject } from "@/components/FeaturedProject";
 import NewsSection from "@/components/NewsSection"
+import YouTubeVideos from "../components/YouTubeVideos";
 
 export default function UserPage() {
   const [selectedComponent, setSelectedComponent] = useState("home");
@@ -36,7 +37,7 @@ export default function UserPage() {
           </>
         );
       case "podcast":
-        return <FeaturedPodcast />;
+        return <YouTubeVideos />;
       case "news":
         return <NewsSection />;
       case "project":
