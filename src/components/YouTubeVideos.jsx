@@ -67,7 +67,7 @@ const YouTubeVideos = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-2 flex items-center">
-        <Podcast className="h-8 w-8 mr-2 text-blue-500" />
+        <Podcast className="h-8 w-8 mr-2 text-[#1d896e]" />
         Últimos Podcasts
       </h1>
       <p className="text-gray-600 mb-8">Explora los últimos episodios de nuestro canal</p>
@@ -115,7 +115,7 @@ const YouTubeVideos = () => {
                         <span>{parseInt(video.views).toLocaleString()} vistas</span>
                       </div>
                     </div>
-                    <div className="bg-blue-500 text-white px-3 py-1 rounded-full group-hover:bg-blue-700 transition-colors duration-300 flex items-center">
+                    <div className="bg-[#1d896e] text-white px-3 py-1 rounded-full group-hover:bg-blue-700 transition-colors duration-300 flex items-center">
                       <Play className="h-4 w-4 mr-1" />
                       <span className="text-sm font-medium">Ver más</span>
                     </div>
@@ -149,7 +149,7 @@ const YouTubeVideos = () => {
                         <span>{parseInt(video.views).toLocaleString()} vistas</span>
                       </div>
                     </div>
-                    <div className="bg-blue-500 text-white px-3 py-1 rounded-full group-hover:bg-blue-700 transition-colors duration-300 flex items-center">
+                    <div className="bg-[#1d896e] text-white px-3 py-1 rounded-full group-hover:bg-blue-700 transition-colors duration-300 flex items-center">
                       <Play className="h-4 w-4 mr-1" />
                       <span className="text-sm font-medium">Ver más</span>
                     </div>

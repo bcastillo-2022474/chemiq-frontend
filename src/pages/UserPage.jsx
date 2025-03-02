@@ -5,6 +5,7 @@ import { FeaturedNews } from "@/components/FeaturedNews";
 import { FeaturedProject } from "@/components/FeaturedProject";
 import NewsSection from "@/components/NewsSection"
 import YouTubeVideos from "../components/YouTubeVideos";
+import ProjectsSection from "../components/ProjectsSection";
 
 export default function UserPage() {
   const [selectedComponent, setSelectedComponent] = useState("home");
@@ -41,7 +42,7 @@ export default function UserPage() {
       case "news":
         return <NewsSection />;
       case "project":
-        return <FeaturedProject />;
+        return <ProjectsSection />;
       default:
         return null;
     }

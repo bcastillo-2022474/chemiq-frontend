@@ -37,7 +37,6 @@ const LoginPage = () => {
         localStorage.setItem('token', response.data.token);
         Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
         const decodedToken = jwtDecode(response.data.token);
-        console.log(decodedToken);
         if (decodedToken.rol_id == '1') navigate('/dashboard/stats');
         if (decodedToken.rol_id == '2') navigate('/dashboard/junta');
         if (decodedToken.rol_id == '3') navigate('/userPage');
