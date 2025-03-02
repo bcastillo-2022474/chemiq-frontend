@@ -30,7 +30,7 @@ const NewsSection = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Noticias</h1>
+      <h1 className="text-4xl font-bold text-accent mb-2">Noticias</h1>
       <p className="text-gray-600 mb-8">
         Mantente actualizado con noticias, anuncios y más de la Asociación de Química UVG
       </p>
