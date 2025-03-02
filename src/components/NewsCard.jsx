@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const NewsCard = ({ title, description, date, imageUrl, onReadMore, showReadMore }) => {
+const NewsCard = ({ title, description, date, imageUrl, onReadMore, showReadMore, createdAt }) => {
   return (
     <div className="flex flex-col md:flex-row gap-6 mb-8 bg-white rounded-lg overflow-hidden h-64">
       <div className="md:w-1/3">
@@ -12,7 +12,10 @@ const NewsCard = ({ title, description, date, imageUrl, onReadMore, showReadMore
           <p className="text-gray-600 mb-4">{description}</p>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-gray-500 text-sm">{date}</span>
+          <div>
+            <span className="text-gray-500 text-sm">{date}</span>
+            <span className="text-gray-400 text-xs block">{createdAt}</span>
+          </div>
           {showReadMore && (
             <button
               onClick={onReadMore}
@@ -34,6 +37,7 @@ NewsCard.propTypes = {
   imageUrl: PropTypes.string,
   onReadMore: PropTypes.func,
   showReadMore: PropTypes.bool,
+  createdAt: PropTypes.string.isRequired,
 };
 
 NewsCard.defaultProps = {

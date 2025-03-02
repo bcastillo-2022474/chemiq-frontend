@@ -49,6 +49,7 @@ const NewsSection = () => {
                   imageUrl={item.img}
                   onReadMore={() => handleReadMore(item)}
                   showReadMore={showReadMore}
+                  createdAt={item.created_at}
                 />
               </div>
             );

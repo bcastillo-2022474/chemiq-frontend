@@ -32,8 +32,11 @@ export default function UserPage() {
             <div className="text-right">
             
             </div>
-            <FeaturedNews />
-            <FeaturedProject />
+
+            <div className="mb-8">
+            <FeaturedNews/></div>
+            <div className="mb-8">
+            <FeaturedProject /></div>
             <FeaturedPodcast />
           </>
         );

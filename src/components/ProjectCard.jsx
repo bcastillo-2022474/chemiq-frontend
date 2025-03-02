@@ -25,10 +25,9 @@ const ProjectCard = ({ proyecto, onReadMore }) => {
           </p>
         </div>
         <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center text-gray-500 space-x-4">
-            <div className="flex items-center">
-              <span>{proyecto.integrantes[0]?.nombre}</span>
-            </div>
+          <div>
+            <span className="text-gray-500 text-sm">{proyecto.integrantes[0]?.nombre}</span>
+            <span className="text-gray-400 text-xs block">{proyecto.created_at}</span>
           </div>
           <div className="bg-[#28bc98] text-white px-3 py-1 rounded-full group-hover:bg-[#1d896e] transition-colors duration-300 flex items-center">
             <span className="text-sm font-medium">Ver más</span>
