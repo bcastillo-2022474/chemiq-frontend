@@ -1,13 +1,10 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useUsers } from "../../hooks/useUsers"
-
 export function ProjectDetails({ project, onAddMember }) {
   const ownerDetails = project.dueno || null
 
   // Asegurarse de que integrantes sea un array, incluso si es null o undefined
   const integrantes = Array.isArray(project.integrantes) ? project.integrantes : []
+
+  const youtubeVideoId = project.youtube ? project.youtube.split("youtu.be/")[1]?.split("?")[0] : null;
 
   return (
     <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-lg overflow-hidden">
@@ -50,16 +47,17 @@ export function ProjectDetails({ project, onAddMember }) {
           )}
           <p className="text-gray-600">{project.informacion}</p>
         </div>
-        {project.youtube && (
+        {youtubeVideoId && (
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-2">YouTube Video</h3>
             <div className="aspect-w-16 aspect-h-9">
               <iframe
-                src={`https://www.youtube.com/embed/${project.youtube.split("v=")[1] || project.youtube}`}
+                src={`https://www.youtube.com/embed/${youtubeVideoId}`}
+                title="YouTube video player"
+                className="w-full h-full"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                className="w-full h-full"
               ></iframe>
             </div>
           </div>
@@ -70,7 +68,6 @@ export function ProjectDetails({ project, onAddMember }) {
             <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {integrantes.map((integrante) => (
                 <li key={integrante} className="flex items-center space-x-2">
-                  {/* Aquí necesitarías otra fuente de datos o un hook adicional si quieres mostrar imágenes de cada miembro */}
                   <img
                     src="/placeholder.svg"
                     alt={`Team member ${integrante}`}

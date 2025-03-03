@@ -1,84 +1,119 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Beaker, Users, Home, Settings, ChevronLeft, ChevronRight, Search } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Beaker, Users, Home, Settings, ChevronLeft, ChevronRight, Search, LogOut } from "lucide-react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const sideNavItems = [
   { icon: Home, label: "Inicio", href: "#" },
   { icon: Users, label: "Usuarios", href: "#" },
-  { icon: Beaker, label: "Experimentos", href: "#" },
+  { icon: Beaker, label: "Proyectos", href: "#" },
   { icon: Settings, label: "Configuración", href: "#" },
-]
-
-const initialUsers = [
-  { id: 1, name: "María García", email: "maria@example.com", role: "Estudiante" },
-  { id: 2, name: "Carlos Rodríguez", email: "carlos@example.com", role: "Profesor" },
-  { id: 3, name: "Ana Martínez", email: "ana@example.com", role: "Investigador" },
-  { id: 4, name: "Juan López", email: "juan@example.com", role: "Estudiante" },
-  { id: 5, name: "Laura Sánchez", email: "laura@example.com", role: "Profesor" },
-  { id: 6, name: "Pedro Gómez", email: "pedro@example.com", role: "Estudiante" },
-  { id: 7, name: "Sofía Ruiz", email: "sofia@example.com", role: "Investigador" },
-  { id: 8, name: "Diego Fernández", email: "diego@example.com", role: "Profesor" },
-  { id: 9, name: "Lucía Torres", email: "lucia@example.com", role: "Estudiante" },
-  { id: 10, name: "Javier Moreno", email: "javier@example.com", role: "Investigador" },
-  { id: 11, name: "Carmen Ortiz", email: "carmen@example.com", role: "Profesor" },
-  { id: 12, name: "Andrés Navarro", email: "andres@example.com", role: "Estudiante" },
-]
+];
 
 function JuntaPage() {
-  const [activeNavItem, setActiveNavItem] = useState("Usuarios")
-  const [users, setUsers] = useState(initialUsers)
-  const [editingId, setEditingId] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [roleFilter, setRoleFilter] = useState("")
-  const usersPerPage = 10
+  const [activeNavItem, setActiveNavItem] = useState("Usuarios");
+  const [users, setUsers] = useState([]); // Estado para almacenar los usuarios
+  const [editingId, setEditingId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const usersPerPage = 10;
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Limpiar el localStorage
+    localStorage.clear();
+    navigate("/login")
+  };
+  // Función para obtener usuarios desde el backend
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("https://backend-postgresql.vercel.app/api/users"); // Asegúrate de que la URL apunte a tu servidor backend
+      const data = response.data;
+
+      // Mapea los usuarios para agregar la propiedad 'role' con base en 'rol_id'
+      const mappedUsers = data.map((user) => {
+        let role = "";
+        switch (user.rol_id) {
+          case 1:
+            role = "Administrator";
+            break;
+          case 2:
+            role = "Junta Directiva";
+            break;
+          case 3:
+            role = "Usuario";
+            break;
+          default:
+            role = "Desconocido";
+        }
+
+        return {
+          ...user,
+          role,
+        };
+      });
+
+      setUsers(mappedUsers);
+    } catch (error) {
+      console.error('Error al obtener usuarios:', error);
+    }
+  };
+
+  // Llamada a la API para obtener usuarios cuando se monta el componente
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const filteredUsers = users.filter(
     (user) =>
-      (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.role.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (roleFilter === "" || user.role === roleFilter),
-  )
+  );
 
-  const indexOfLastUser = currentPage * usersPerPage
-  const indexOfFirstUser = indexOfLastUser - usersPerPage
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser)
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage)
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, []) //Corrected useEffect dependency array
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
   const handleEdit = (id, field, value) => {
-    setUsers(users.map((user) => (user.id === id ? { ...user, [field]: value } : user)))
-  }
+    setUsers(users.map((user) => (user.carne === id ? { ...user, [field]: value } : user)));
+  };
 
   const handleSave = (id) => {
-    setEditingId(null)
-    // Aquí podrías implementar la lógica para guardar en el backend
-    console.log("Guardando cambios para el usuario con ID:", id)
-  }
+    setEditingId(null);
+    console.log("Guardando cambios para el usuario con ID:", id);
+  };
 
   return (
     <div className="flex h-screen bg-white">
       {/* SideNav */}
       <nav className="w-64 bg-tertiary py-8 px-4">
-        <h1 className="text-xl font-light mb-8 px-4 text-gray-700"><img src="./src/assets/img/ChemiqTextLogo.png" className="w-full h-[50px]" /></h1>
+        <h1 className="text-xl font-light mb-8 px-4 text-gray-700">
+          <img src="./src/assets/img/ChemiqTextLogo.png" className="w-full h-[50px]" />
+        </h1>
         {sideNavItems.map((item, index) => (
           <button
             key={index}
-            className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${
-              activeNavItem === item.label ? "bg-subase text-accent" : "text-gray-600 hover:bg-base"
-            }`}
+            className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${activeNavItem === item.label ? "bg-subase text-accent" : "text-gray-600 hover:bg-base"}`}
             onClick={() => setActiveNavItem(item.label)}
           >
             <item.icon className="h-5 w-5 mr-3" />
             <span className="text-sm">{item.label}</span>
           </button>
         ))}
+              <button
+        onClick={handleLogout}
+        className="mt-5 w-full flex items-center gap-3 bg-red-500 p-3 rounded-lg text-gray-300 hover:text-white transition-colors"
+      >
+        <LogOut className="h-5 w-5" />
+        <span>Logout</span>
+      </button>
       </nav>
 
       {/* Main Content */}
@@ -103,9 +138,9 @@ function JuntaPage() {
             className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Todos los roles</option>
-            <option value="Estudiante">Estudiante</option>
-            <option value="Profesor">Profesor</option>
-            <option value="Investigador">Investigador</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Junta Directiva">Profesor</option>
+            <option value="Usuario">Usuario</option>
           </select>
         </div>
 
@@ -122,36 +157,36 @@ function JuntaPage() {
             </thead>
             <tbody>
               {currentUsers.map((user) => (
-                <tr key={user.id} className="border-b last:border-b-0">
+                <tr key={user.carne} className="border-b last:border-b-0">
                   <td className="py-4 pr-4">
-                    {editingId === user.id ? (
+                    {editingId === user.carne ? (
                       <input
                         type="text"
-                        value={user.name}
-                        onChange={(e) => handleEdit(user.id, "name", e.target.value)}
+                        value={user.nombre}
+                        onChange={(e) => handleEdit(user.carne, "nombre", e.target.value)}
                         className="border-b border-gray-300 focus:border-blue-500 outline-none"
                       />
                     ) : (
-                      user.name
+                      user.nombre
                     )}
                   </td>
                   <td className="py-4 pr-4 text-gray-500">
-                    {editingId === user.id ? (
+                    {editingId === user.carne ? (
                       <input
                         type="email"
-                        value={user.email}
-                        onChange={(e) => handleEdit(user.id, "email", e.target.value)}
+                        value={user.correo}
+                        onChange={(e) => handleEdit(user.carne, "correo", e.target.value)}
                         className="border-b border-gray-300 focus:border-blue-500 outline-none"
                       />
                     ) : (
-                      user.email
+                      user.correo
                     )}
                   </td>
                   <td className="py-4">
-                    {editingId === user.id ? (
+                    {editingId === user.carne ? (
                       <select
                         value={user.role}
-                        onChange={(e) => handleEdit(user.id, "role", e.target.value)}
+                        onChange={(e) => handleEdit(user.carne, "role", e.target.value)}
                         className="border-b border-gray-300 focus:border-blue-500 outline-none"
                       >
                         <option value="Estudiante">Estudiante</option>
@@ -163,12 +198,12 @@ function JuntaPage() {
                     )}
                   </td>
                   <td className="py-4">
-                    {editingId === user.id ? (
-                      <button onClick={() => handleSave(user.id)} className="text-blue-600 hover:text-blue-800">
+                    {editingId === user.carne ? (
+                      <button onClick={() => handleSave(user.carne)} className="text-blue-600 hover:text-blue-800">
                         Guardar
                       </button>
                     ) : (
-                      <button onClick={() => setEditingId(user.id)} className="text-gray-600 hover:text-gray-800">
+                      <button onClick={() => setEditingId(user.carne)} className="text-gray-600 hover:text-gray-800">
                         Editar
                       </button>
                     )}
@@ -201,8 +236,7 @@ function JuntaPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
-export default JuntaPage
-
+export default JuntaPage;

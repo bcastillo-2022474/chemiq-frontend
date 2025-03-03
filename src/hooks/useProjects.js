@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3001/api/proyects";
+const BASE_URL = "https://backend-postgresql.vercel.app/api/proyects";
 
 export function useProyectos() {
   const [proyectos, setProyectos] = useState([]);
