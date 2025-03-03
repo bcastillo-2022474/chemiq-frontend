@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000/api/proyects";
+const BASE_URL = "http://localhost:3001/api/proyects";
 
 export function useProyectos() {
   const [proyectos, setProyectos] = useState([]);
@@ -13,6 +13,7 @@ export function useProyectos() {
     setLoading(true);
     try {
       const response = await axios.get(BASE_URL);
+      console.log(response.data);
       setProyectos(response.data);
     } catch (err) {
       setError(err.message);
@@ -34,16 +35,20 @@ export function useProyectos() {
     }
   };
 
-  // Create a new proyecto
   const createProyecto = async (proyectoData) => {
     try {
       const response = await axios.post(`${BASE_URL}/create`, proyectoData);
-      fetchProyectos(); // Refresh the proyectos list
-      return response.data; // Return the created proyecto data
+    
+  
+      await fetchProyectos();
+      return response.data;
     } catch (err) {
       setError(err.message);
+      console.error("Error al crear proyecto:", err.message);
     }
   };
+  
+  
 
   // Update a proyecto
   const updateProyecto = async (id, proyectoData) => {

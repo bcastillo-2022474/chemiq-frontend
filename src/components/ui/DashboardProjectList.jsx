@@ -1,7 +1,18 @@
-import React from "react";
-import { Plus } from "lucide-react";
+import { Plus } from "lucide-react"
+import { useProyectos } from "../../hooks/useProjects"
 
-export function ProjectList({ projects, onProjectClick, onAddProject }) {
+
+export function ProjectList({ onProjectClick, onAddProject }) {
+  const { proyectos, loading: projectsLoading, error: projectsError } = useProyectos()
+
+  if (projectsLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (projectsError) {
+    return <div>Error: {projectsError}</div>
+  }
+
   return (
     <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col relative">
       <h2 className="text-2xl font-semibold p-6 bg-[#1e2532] text-white">Projects</h2>
@@ -14,7 +25,7 @@ export function ProjectList({ projects, onProjectClick, onAddProject }) {
       </button>
       <div className="overflow-y-auto max-h-[calc(100vh-12rem)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
         <ul className="divide-y divide-gray-200">
-          {projects.map((project) => (
+          {proyectos.map((project) => (
             <li
               key={project.id}
               className="flex items-center p-6 hover:bg-gray-50 cursor-pointer transition duration-150 ease-in-out"
@@ -22,17 +33,19 @@ export function ProjectList({ projects, onProjectClick, onAddProject }) {
             >
               <img
                 src={project.proyecto_img || "/placeholder.svg"}
-                alt={project.proyecto_nombre}
+                alt={project.nombre}
                 className="w-16 h-16 rounded-lg object-cover mr-4"
               />
-              <div>
+              <div className="flex-1">
                 <h3 className="text-lg font-medium text-gray-900">{project.nombre}</h3>
-                <p className="text-sm text-gray-500">Click to view details</p>
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{project.informacion}</p>
+                <p className="text-xs text-indigo-600 mt-1">Click to view details</p>
               </div>
             </li>
           ))}
         </ul>
       </div>
     </div>
-  );
+  )
 }
+

@@ -38,6 +38,8 @@ export function Projects() {
   const handleAddProject = async (newProject) => {
     try {
       await createProyecto(newProject)
+
+    await fetchProyectos()
       setIsAddProjectModalOpen(false)
     } catch (error) {
       console.error("Error al crear proyecto:", error)
