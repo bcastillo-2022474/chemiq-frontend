@@ -4,8 +4,10 @@ import LoginPage from './pages/LoginPage';
 import RecoveryPage from './pages/RecoveryPage';
 import Home from './pages/DashboardUserControll';
 import Dashboard from './pages/DashboardStatsControll';
+import Reset from './pages/Reset';
 import NotFound from './components/NotFound404';
 import JuntaPage from './pages/JuntaPage';
+import UserPage from './pages/UserPage';
 function App() {
   return (
     <Router>
@@ -16,6 +18,8 @@ function App() {
         <Route path="/dashboard/users" element={<Home />} />
         <Route path="/dashboard/stats" element={<Dashboard />} />
         <Route path="/juntapage" element={<JuntaPage/>}/>
+        <Route path="/userPage" element={<UserPage />} />
+        <Route path="/reset" element={<Reset />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
