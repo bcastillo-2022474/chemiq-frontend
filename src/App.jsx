@@ -8,6 +8,9 @@ import Reset from './pages/Reset';
 import NotFound from './components/NotFound404';
 import JuntaPage from './pages/JuntaPage';
 import UserPage from './pages/UserPage';
+import { Projects } from './pages/DashboardProjectsControll';
+
+
 function App() {
   return (
     <Router>
@@ -20,6 +23,8 @@ function App() {
         <Route path="/juntapage" element={<JuntaPage/>}/>
         <Route path="/userPage" element={<UserPage />} />
         <Route path="/reset" element={<Reset />} />
+
+        <Route path="/dashboard/projects" element={<Projects />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
@@ -27,3 +32,4 @@ function App() {
 }
 
 export default App;
+
