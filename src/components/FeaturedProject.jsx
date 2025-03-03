@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Beaker, Users, Target, Zap } from "lucide-react";
+import { Beaker, Users, Target, Zap } from 'lucide-react';
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -12,7 +12,7 @@ export function FeaturedProject() {
       try {
         const response = await axios.get('https://backend-postgresql.vercel.app/api/proyects');
         const projects = response.data;
-        const mostRecentProject = projects[projects.length - 1]; // Obtener el proyecto más reciente
+        const mostRecentProject = projects[projects.length - 1];
         setProject(mostRecentProject);
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -23,58 +23,50 @@ export function FeaturedProject() {
   }, []);
 
   if (!project) {
-    return null; // O un indicador de carga
+    return <Card className="h-64 animate-pulse bg-[#7DE2A6]/10" />;
   }
 
   return (
     <Link to={`/proyectos/${project.id}`}>
-      <Card className="bg-surface text-text hover:shadow-2xl transition-all duration-300 transform hover:scale-102 cursor-pointer overflow-hidden group">
-        <div className="flex h-64">
-          <div className="w-1/2 relative">
+      <Card className="h-64 overflow-hidden bg-white hover:shadow-md transition-all duration-300">
+        <div className="flex h-full">
+          <div className="w-1/3 relative">
             <img
               src={project.proyecto_img || "/placeholder.svg"}
               alt={project.proyecto_nombre}
               className="object-cover w-full h-full"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-surface to-transparent" />
+            <div className="absolute inset-0" />
           </div>
-          <CardContent className="w-1/2 p-6 flex flex-col justify-between">
+          <CardContent className="w-2/3 p-4 flex flex-col justify-between">
             <div>
               <div className="flex items-center mb-2">
-                <Beaker className="h-6 w-6 mr-2 text-accent" />
-                <h3 className="text-2xl font-bold text-accent">
+                <Beaker className="h-5 w-5 mr-2 text-[#28BC98]" />
+                <h3 className="text-xl font-semibold text-[#0B2F33] truncate">
                   {project.proyecto_nombre}
                 </h3>
               </div>
-              <p className="text-text-muted mb-4">
-                {project.informacion.length > 100
-                  ? `${project.informacion.substring(0, 100)}...`
-                  : project.informacion}
+              <p className="text-sm text-[#0B2F33]/70 line-clamp-2">
+                {project.informacion}
               </p>
             </div>
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-2">
-                <div className="flex flex-col items-center p-2 bg-background rounded-lg">
-                  <Target className="h-4 w-4 text-primary mb-1" />
-                  <span className="text-xs font-medium text-text-muted">
-                    Reducir plásticos
-                  </span>
-                </div>
-                <div className="flex flex-col items-center p-2 bg-background rounded-lg">
-                  <Users className="h-4 w-4 text-secondary mb-1" />
-                  <span className="text-xs font-medium text-text-muted">
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex space-x-4">
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 text-[#28BC98] mr-1" />
+                  <span className="text-xs text-[#0B2F33]/70">
                     {project.integrantes.length} miembros
                   </span>
                 </div>
-                <div className="flex flex-col items-center p-2 bg-background rounded-lg">
-                  <Zap className="h-4 w-4 text-accent mb-1" />
-                  <span className="text-xs font-medium text-text-muted">
-                    75% completado
+                <div className="flex items-center">
+                  <Target className="h-4 w-4 text-[#28BC98] mr-1" />
+                  <span className="text-xs text-[#0B2F33]/70">
+                    En progreso
                   </span>
                 </div>
               </div>
-              <div className="bg-background flex items-center bg-accent text-background px-3 py-1 rounded-full group-hover:bg-accent transition-colors duration-300">
-                <span className="text-sm font-medium">Unirse al proyecto</span>
+              <div className="bg-[#28BC98] text-white px-3 py-1 rounded-full text-xs font-medium hover:bg-[#7DE2A6] transition-colors duration-300">
+                Ver proyecto
               </div>
             </div>
           </CardContent>
