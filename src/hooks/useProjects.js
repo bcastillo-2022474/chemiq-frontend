@@ -13,6 +13,7 @@ export function useProyectos() {
   const fetchProyectos = async () => {
     setLoading(true);
     try {
+      console.log({API_URL})
       const response = await axios.get(API_URL);
       console.log(response.data);
       setProyectos(response.data);
@@ -81,6 +82,7 @@ export function useProyectos() {
     proyectos,
     loading,
     error,
+    fetchProyectos,
     fetchProyectoById,
     createProyecto,
     updateProyecto,
