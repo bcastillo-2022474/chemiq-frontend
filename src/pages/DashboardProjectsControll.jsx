@@ -7,7 +7,7 @@ import { useProyectos } from "../hooks/useProjects"
 import { AddProjectModal } from "../components/ui/DashboardModalAddProject"
 
 export function Projects() {
-  const { proyectos, loading, error, createProyecto, updateProyecto, deleteProyecto } = useProyectos()
+  const { proyectos, loading, error, createProyecto, updateProyecto, fetchProyectos } = useProyectos()
 
   const [selectedProject, setSelectedProject] = useState(null)
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false)
