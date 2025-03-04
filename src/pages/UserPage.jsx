@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Sidebar } from "@/components/sidebar"
+import { Sidebar } from "@/components/Sidebar"
 import { FeaturedPodcast } from "@/components/FeaturedPodcast"
 import { FeaturedNews } from "@/components/FeaturedNews"
 import { FeaturedProject } from "@/components/FeaturedProject"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import ProjectCard from "./ProjectCard";
+import { BASE_URL } from "@/lib/constants.js";
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("proyectos");
@@ -12,7 +13,7 @@ const ProjectsSection = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('https://backend-postgresql.vercel.app/api/proyects');
+        const response = await axios.get(`${BASE_URL}/api/proyects`);
         setProjects(response.data);
 
         const token = localStorage.getItem('token');

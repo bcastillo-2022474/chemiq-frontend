@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Newspaper, Calendar, ArrowRight } from "lucide-react"
 import { Link } from "react-router-dom"
 import axios from "axios"
+import { BASE_URL } from "@/lib/constants.js";
 
 export function FeaturedNews() {
   const [news, setNews] = useState(null)
@@ -12,7 +13,7 @@ export function FeaturedNews() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await axios.get("https://backend-postgresql.vercel.app/api/news")
+        const response = await axios.get(`${BASE_URL}/api/news`)
         const newsItems = response.data
         const mostRecentNews = newsItems[newsItems.length - 1]
         setNews(mostRecentNews)
