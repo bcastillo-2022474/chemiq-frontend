@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Beaker, Users, Target, Zap } from 'lucide-react';
+import { Beaker, Users, Target } from 'lucide-react';
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { BASE_URL } from "@/lib/constants.js";
 
 export function FeaturedProject() {
   const [project, setProject] = useState(null);
@@ -10,7 +11,7 @@ export function FeaturedProject() {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get('https://backend-postgresql.vercel.app/api/proyects');
+        const response = await axios.get(`${BASE_URL}/api/proyects`);
         const projects = response.data;
         const mostRecentProject = projects[projects.length - 1];
         setProject(mostRecentProject);

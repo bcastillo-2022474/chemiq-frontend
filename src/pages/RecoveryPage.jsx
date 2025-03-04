@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { BASE_URL } from "@/lib/constants.js";
 
 const Button = ({ children, className, variant, ...props }) => (
   <button
@@ -43,7 +44,7 @@ const RecoveryPage = () => {
 
   const handleResetPassword = async () => {
     try {
-      await axios.post('https://backend-postgresql.vercel.app/reset-password', { token, newPassword });
+      await axios.post(`${BASE_URL}/reset-password`, { token, newPassword });
       Swal.fire("Contraseña actualizada", "Tu contraseña ha sido actualizada exitosamente", "success");
       setStep(1);
       setEmail("");

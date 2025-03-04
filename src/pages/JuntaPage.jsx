@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Beaker, Users, Home, Settings, ChevronLeft, ChevronRight, Search, LogOut } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "@/lib/constants.js";
 
 const sideNavItems = [
   { icon: Home, label: "Inicio", href: "#" },
@@ -30,7 +31,7 @@ function JuntaPage() {
   // Función para obtener usuarios desde el backend
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("https://backend-postgresql.vercel.app/api/users"); // Asegúrate de que la URL apunte a tu servidor backend
+      const response = await axios.get(`${BASE_URL}/api/users`); // Asegúrate de que la URL apunte a tu servidor backend
       const data = response.data;
 
       // Mapea los usuarios para agregar la propiedad 'role' con base en 'rol_id'

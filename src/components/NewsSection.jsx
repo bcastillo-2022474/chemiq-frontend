@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import NewsCard from "./NewsCard";
+import { BASE_URL } from "@/lib/constants.js";
 
 const NewsSection = () => {
   const [newsItems, setNewsItems] = useState([]);
@@ -9,7 +10,7 @@ const NewsSection = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await axios.get('https://backend-postgresql.vercel.app/api/news');
+        const response = await axios.get(`${BASE_URL}/api/news`);
         setNewsItems(response.data);
       } catch (error) {
         console.error("Error fetching news:", error);

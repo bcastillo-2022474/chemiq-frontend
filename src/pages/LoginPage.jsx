@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
+import { BASE_URL } from "@/lib/constants.js";
 
 const Button = ({ children, className, variant, ...props }) => (
   <button
@@ -27,7 +28,7 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://backend-postgresql.vercel.app/api/login', {
+      const response = await axios.post(`${BASE_URL}/api/login`, {
         correo: email,
         password: password,
         obtenerToken: 'true'
@@ -37,9 +38,10 @@ const LoginPage = () => {
         localStorage.setItem('token', response.data.token);
         Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
         const decodedToken = jwtDecode(response.data.token);
-        if (decodedToken.rol_id == '1') navigate('/dashboard/stats');
-        if (decodedToken.rol_id == '2') navigate('/juntapage');
-        if (decodedToken.rol_id == '3') navigate('/userPage');
+        const { data: rol } = await axios.get(`${BASE_URL}/api/roles/${decodedToken.rol_id}`)
+        if (rol.nombre == 'Admin') navigate('/dashboard/stats');
+        if (rol.nombre == 'Junta') navigate('/juntapage');
+        if (rol.nombre == 'User') navigate('/userPage');
       } else {
         Swal.fire("Error", "No se pudo iniciar sesión", "error");
       }
