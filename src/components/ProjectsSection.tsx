@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import * as axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import ProjectCard from "./ProjectCard";
 import { BASE_URL } from "@/lib/constants.js";
+import { Member, Project } from "@/types/dto";
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("proyectos");
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [myProjects, setMyProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/proyects`);
+        const response: { data: Project[] } = await axios.get(`${BASE_URL}/api/proyects`);
         setProjects(response.data);
 
         const token = localStorage.getItem('token');
@@ -21,10 +22,10 @@ const ProjectsSection = () => {
           const decodedToken = jwtDecode(token);
           const carne = decodedToken.sub;
 
-          const userProjects = response.data.filter(project =>
-            project.integrantes.some(integrante => integrante.carne === carne)
-          );
-          setMyProjects(userProjects);
+          // const userProjects = response.data.filter(project =>
+          //   project.integrantes.some(integrante => integrante.carne === carne)
+          // );
+          // setMyProjects(userProjects);
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -48,7 +49,7 @@ const ProjectsSection = () => {
     <div className="max-w-6xl mx-auto mt-8">
       {/* Tabs */}
       <p className="text-gray-600 mb-8">
-        Mantente informado sobre los proyectos de la Asociación de Química 
+        Mantente informado sobre los proyectos de la Asociación de Química
       </p>
       <div className="flex border-b">
         <button
@@ -71,7 +72,7 @@ const ProjectsSection = () => {
       {!selectedProject ? (
         <div className="grid grid-cols-1 gap-4 mt-6">
           {displayedProjects.map((proyecto) => (
-            <ProjectCard key={proyecto.id} proyecto={proyecto} onReadMore={() => handleReadMore(proyecto)} />
+            <ProjectCard key={proyecto.id} proyecto={proyecto} onReadMore={() => handleReadMore(proyecto)}/>
           ))}
         </div>
       ) : (
@@ -94,17 +95,7 @@ const ProjectsSection = () => {
                 <h2 className="text-3xl font-bold mb-4">{selectedProject.proyecto_nombre}</h2>
                 <p className="text-gray-700 text-lg leading-relaxed mb-4 text-justify">{selectedProject.informacion}</p>
               </div>
-              <div className="ml-8">
-                <h3 className="text-2xl font-bold text-accent mb-2 text-[#1d896e]">Integrantes</h3>
-                <ul className="list-disc list-inside">
-                  {selectedProject.integrantes.map((integrante) => (
-                    <li key={integrante.carne} className="text-gray-700 text-lg flex items-center space-x-4">
-                      <img src={integrante.img || "/placeholder.svg"} alt={integrante.nombre} className="w-10 h-10 rounded-full object-cover" />
-                      <span>{integrante.nombre} ({integrante.carne})</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <MembersSection projectId={selectedProject.id}/>
             </div>
           </div>
         </div>
@@ -112,5 +103,34 @@ const ProjectsSection = () => {
     </div>
   );
 };
+
+
+function MembersSection({ projectId }: { projectId: number }) {
+  const [members, setMembers] = useState<Member[]>([]);
+
+  useEffect(() => {
+    axios.get(`${BASE_URL}/api/members/by-project/${projectId}`).then((response) => {
+      setMembers(response.data as Member[]);
+    }).catch((error) => {
+      // @TODO: handle error
+    });
+  }, []);
+
+  return (
+    <div className="ml-8">
+      <h3 className="text-2xl font-bold text-accent mb-2 text-[#1d896e]">Integrantes</h3>
+      <ul className="list-disc list-inside">
+        {members.map(({ user: member }) => (
+          <li key={member.carne} className="text-gray-700 text-lg flex items-center space-x-4">
+            <img src={member?.img || "/placeholder.svg"} alt={member.name}
+                 className="w-10 h-10 rounded-full object-cover"/>
+            <span>{member.name} ({member.carne})</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+  )
+}
 
 export default ProjectsSection;
