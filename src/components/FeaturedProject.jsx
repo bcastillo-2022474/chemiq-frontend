@@ -56,7 +56,7 @@ export function FeaturedProject() {
                 <div className="flex items-center">
                   <Users className="h-4 w-4 text-[#28BC98] mr-1" />
                   <span className="text-xs text-[#0B2F33]/70">
-                    {project.integrantes.length} miembros
+                    {project.count_members} miembros
                   </span>
                 </div>
                 <div className="flex items-center">

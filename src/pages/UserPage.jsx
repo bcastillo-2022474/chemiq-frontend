@@ -7,7 +7,7 @@ import { FeaturedNews } from "@/components/FeaturedNews"
 import { FeaturedProject } from "@/components/FeaturedProject"
 import NewsSection from "@/components/NewsSection"
 import YouTubeVideos from "@/components/YouTubeVideos"
-import ProjectsSection from "@/components/ProjectsSection"
+import ProjectsSection from "@/components/ProjectsSection.js"
 
 export default function UserPage() {
   const [selectedComponent, setSelectedComponent] = useState("home")
