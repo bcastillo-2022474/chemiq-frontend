@@ -6,8 +6,11 @@
         "@/*": [
           "./src/*"
         ]
-      }
+      },
+      "module": "esnext",
+      "jsx": "react",
       // ...
+      "allowSyntheticDefaultImports": true
     }
   }
   
