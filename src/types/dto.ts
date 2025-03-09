@@ -1,3 +1,5 @@
+import { JwtPayload as JWTPayload } from "jwt-decode";
+
 export interface Project {
   id: number,
   proyecto_nombre: string,
@@ -20,3 +22,12 @@ export interface Member {
   is_owner: boolean,
   user: NestedUser
 }
+
+export interface Project {
+  proyecto_img: string
+  proyecto_nombre: string
+  informacion: string
+  created_at: Date
+}
+
+export type JwtPayload = JWTPayload & { rol: "Admin" | "Junta" | "User" }

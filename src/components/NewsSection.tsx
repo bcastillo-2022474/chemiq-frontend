@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import NewsCard from "./NewsCard";
+import NewsCard from "./NewsCard.js";
 import { BASE_URL } from "@/lib/constants.js";
 
 const NewsSection = () => {

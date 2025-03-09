@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Swal from 'sweetalert2';
-import { Sidebar } from '../components/ui/SideBarDashboard';
-import { Modal } from '../components/ui/DashboardModalEditUsers';
-import { UserTable } from '../components/ui/DashboardTableUsers';
+import { Sidebar } from '../components/ui/SideBarDashboard.js';
+import { Modal } from '../components/ui/DashboardModalEditUsers.js';
+import { UserTable } from '../components/ui/DashboardTableUsers.js';
 import { useUsers } from '../hooks/useUsers';
 
 

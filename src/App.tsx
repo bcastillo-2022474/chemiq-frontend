@@ -1,14 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RecoveryPage from './pages/RecoveryPage';
-import Home from './pages/DashboardUserControll';
-import Dashboard from './pages/DashboardStatsControll';
-import Reset from './pages/Reset';
-import NotFound from './components/NotFound404';
-import JuntaPage from './pages/JuntaPage';
-import UserPage from './pages/UserPage';
-import { Projects } from './pages/DashboardProjectsControll';
+import LandingPage from './pages/LandingPage.js';
+import LoginPage from './pages/LoginPage.js';
+import RecoveryPage from './pages/RecoveryPage.js';
+import Home from './pages/DashboardUserControll.js';
+import Dashboard from './pages/DashboardStatsControll.js';
+import Reset from './pages/Reset.js';
+import NotFound from './components/NotFound404.js';
+import JuntaPage from './pages/JuntaPage.js';
+import UserPage from './pages/UserPage.js';
+import { Projects } from './pages/DashboardProjectsControll.js';
 
 
 function App() {

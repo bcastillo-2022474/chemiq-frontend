@@ -1,8 +1,8 @@
 import { Users, Activity, CheckSquare, DollarSign } from 'lucide-react';
-import { Sidebar } from '../components/ui/SideBarDashboard';
-import { MetricCard } from '../components/ui/DashboardCardsSstats';
-import { OverviewChart } from '../components/ui/DashboardChardStats';
-import { RecentProjects } from '../components/ui/DashboardProjectsStats';
+import { Sidebar } from '../components/ui/SideBarDashboard.js';
+import { MetricCard } from '../components/ui/DashboardCardsSstats.js';
+import { OverviewChart } from '../components/ui/DashboardChardStats.js';
+import { RecentProjects } from '../components/ui/DashboardProjectsStats.js';
 
 
 const metrics = [

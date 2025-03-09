@@ -4,6 +4,7 @@ import { Beaker, Users, Target } from 'lucide-react';
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "@/lib/constants.js";
+import type { Project } from "@/types/dto";
 
 export function FeaturedProject() {
   const [project, setProject] = useState(null);
@@ -12,7 +13,7 @@ export function FeaturedProject() {
     const fetchProject = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/api/proyects`);
-        const projects = response.data;
+        const projects = response.data as Project[];
         const mostRecentProject = projects[projects.length - 1];
         setProject(mostRecentProject);
       } catch (error) {
@@ -20,7 +21,7 @@ export function FeaturedProject() {
       }
     };
 
-    fetchProject();
+    void fetchProject();
   }, []);
 
   if (!project) {

@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Home, Podcast, Newspaper, Beaker, User, ChevronDown, LogOut, Settings, FlaskRound } from 'lucide-react';
 import { jwtDecode } from "jwt-decode";
 import PropTypes from 'prop-types';

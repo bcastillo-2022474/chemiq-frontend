@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import * as axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import ProjectCard from "./ProjectCard";
+import  { jwtDecode, type JwtPayload } from "jwt-decode";
+import { ProjectCard } from "@/components/ProjectCard";
 import { BASE_URL } from "@/lib/constants.js";
 import { Member, Project } from "@/types/dto";
 
@@ -19,7 +19,7 @@ const ProjectsSection = () => {
 
         const token = localStorage.getItem('token');
         if (token) {
-          const decodedToken = jwtDecode(token);
+          const decodedToken = jwtDecode<JwtPayload>(token);
           const carne = decodedToken.sub;
 
           // const userProjects = response.data.filter(project =>
@@ -32,7 +32,7 @@ const ProjectsSection = () => {
       }
     };
 
-    fetchProjects();
+    void fetchProjects();
   }, []);
 
   const handleReadMore = (project) => {

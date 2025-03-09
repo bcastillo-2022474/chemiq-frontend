@@ -1,7 +1,11 @@
-import React from "react";
-import PropTypes from "prop-types";
+import type { Project } from "@/types/dto";
 
-const ProjectCard = ({ proyecto, onReadMore }) => {
+export interface ProjectCardProps {
+  proyecto: Project;
+  onReadMore: () => void;
+}
+
+export const ProjectCard = ({ proyecto, onReadMore }: ProjectCardProps) => {
   return (
     <div 
       className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row hover:shadow-2xl transition-all duration-300 cursor-pointer group w-full h-64 mb-4"
@@ -26,8 +30,9 @@ const ProjectCard = ({ proyecto, onReadMore }) => {
         </div>
         <div className="flex justify-between items-center mt-4">
           <div>
-            <span className="text-gray-500 text-sm">{proyecto.integrantes[0]?.nombre}</span>
-            <span className="text-gray-400 text-xs block">{proyecto.created_at}</span>
+            {/*OWNER GOES HERE*/}
+            {/*<span className="text-gray-500 text-sm">{proyecto.integrantes[0]?.nombre}</span>*/}
+            <span className="text-gray-400 text-xs block">{Intl.DateTimeFormat('es-GT').format(proyecto.created_at)}</span>
           </div>
           <div className="bg-[#28bc98] text-white px-3 py-1 rounded-full group-hover:bg-[#1d896e] transition-colors duration-300 flex items-center">
             <span className="text-sm font-medium">Ver más</span>
@@ -37,10 +42,3 @@ const ProjectCard = ({ proyecto, onReadMore }) => {
     </div>
   );
 };
-
-ProjectCard.propTypes = {
-  proyecto: PropTypes.object.isRequired,
-  onReadMore: PropTypes.func.isRequired,
-};
-
-export default ProjectCard;

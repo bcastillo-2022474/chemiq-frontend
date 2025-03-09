@@ -1,8 +1,6 @@
-"use client"
-
 import { useState, useEffect } from "react"
-import AutoCarousel from "../components/AutoCarousel"
-import MemberCard from "../components/MemberCard"
+import AutoCarousel from "@/components/AutoCarousel"
+import MemberCard from "@/components/MemberCard"
 import {
   AtomIcon,
   BookOpenIcon,
@@ -33,7 +31,7 @@ import { Skeleton,
   TextSectionSkeleton,
   FormSkeleton,
   FeatureSkeleton,
-  TitleSkeleton, } from "../components/SkeletonsLanding"
+  TitleSkeleton, } from "@/components/SkeletonsLanding"
 
 const cards = [
   {

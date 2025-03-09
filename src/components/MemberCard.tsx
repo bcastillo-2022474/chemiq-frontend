@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Card = ({ imageUrl, hoverText, cargo }) => (
     <div className="relative overflow-hidden rounded-lg shadow-lg group aspect-w-3 aspect-h-4">
         <img

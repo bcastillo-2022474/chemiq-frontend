@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Beaker, Users, Home, Settings, ChevronLeft, ChevronRight, Search, LogOut } from "lucide-react";
 import axios from "axios";

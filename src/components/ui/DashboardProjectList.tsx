@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react"
-import { useProyectos } from "../../hooks/useProjects"
+import { useProyectos } from "@/hooks/useProjects"
 
 
 export function ProjectList({ onProjectClick, onAddProject }) {

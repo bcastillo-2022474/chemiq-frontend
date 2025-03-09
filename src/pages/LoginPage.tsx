@@ -3,9 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
+import { JwtPayload } from "@/types/dto";
 import { BASE_URL } from "@/lib/constants.js";
+import React from "react";
 
-const Button = ({ children, className, variant, ...props }) => (
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'outline';
+}
+
+const Button = ({ children, className, variant, ...props }: ButtonProps) => (
   <button
     className={`px-4 py-2 rounded ${className} ${variant === 'outline' ? 'border border-current' : ''
       }`}
@@ -28,7 +34,7 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${BASE_URL}/api/login`, {
+      const response = await axios.post<{token?: string}>(`${BASE_URL}/api/login`, {
         correo: email,
         password: password,
         obtenerToken: 'true'
@@ -36,17 +42,17 @@ const LoginPage = () => {
 
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
-        Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
-        const decodedToken = jwtDecode(response.data.token);
-        const { data: rol } = await axios.get(`${BASE_URL}/api/roles/${decodedToken.rol_id}`)
-        if (rol.nombre == 'Admin') navigate('/dashboard/stats');
-        if (rol.nombre == 'Junta') navigate('/juntapage');
-        if (rol.nombre == 'User') navigate('/userPage');
+        void Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
+        const decodedToken = jwtDecode<JwtPayload>(response.data.token);
+        // const { data: rol } = await axios.get(`${BASE_URL}/api/roles/${decodedToken.rol_id}`)
+        if (decodedToken.rol === 'Admin') navigate('/dashboard/stats');
+        if (decodedToken.rol === 'Junta') navigate('/juntapage');
+        if (decodedToken.rol === 'User') navigate('/userPage');
       } else {
-        Swal.fire("Error", "No se pudo iniciar sesión", "error");
+        void Swal.fire("Error", "No se pudo iniciar sesión", "error");
       }
     } catch (error) {
-      Swal.fire("Error", error.response.data.mensaje || "Error al iniciar sesión", "error");
+      void Swal.fire("Error", error.response.data.mensaje || "Error al iniciar sesión", "error");
     }
   };
 

@@ -1,10 +1,10 @@
-import React, { useState } from "react"
-import { ProjectList } from "../components/ui/DashboardProjectList"
-import { ProjectDetails } from "../components/ui/DashboardProjectsDetails"
-import { AddMemberModal } from "../components/ui/DashboardModalProjectMember"
-import { Sidebar } from "../components/ui/SideBarDashboard"
-import { useProyectos } from "../hooks/useProjects"
-import { AddProjectModal } from "../components/ui/DashboardModalAddProject"
+import { useState } from "react"
+import { ProjectList } from "@/components/ui/DashboardProjectList"
+import { ProjectDetails } from "@/components/ui/DashboardProjectsDetails"
+import { AddMemberModal } from "@/components/ui/DashboardModalProjectMember"
+import { Sidebar } from "@/components/ui/SideBarDashboard"
+import { useProyectos } from "@/hooks/useProjects"
+import { AddProjectModal } from "@/components/ui/DashboardModalAddProject"
 
 export function Projects() {
   const { proyectos, loading, error, createProyecto, updateProyecto, fetchProyectos } = useProyectos()
