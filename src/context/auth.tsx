@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
     if (claims.rol === 'Admin') navigate('/dashboard/stats');
     if (claims.rol === 'Junta') navigate('/juntapage');
-    if (claims.rol === 'User') navigate('/userPage');
+    if (claims.rol === 'User') navigate('/portal');
 
     return true;
   };
