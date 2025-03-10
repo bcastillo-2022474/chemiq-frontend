@@ -64,7 +64,7 @@ function HomePage() {
   )
 }
 
-export function UserRoutes() {
+export function PortalRoutes() {
   return (
     <Routes>
       <Route path="/" element={<UserPage/>}>

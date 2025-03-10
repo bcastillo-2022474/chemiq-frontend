@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import Swal from 'sweetalert2';
-import { Sidebar } from '../components/ui/SideBarDashboard.js';
 import { Modal } from '../components/ui/DashboardModalEditUsers.js';
 import { UserTable } from '../components/ui/DashboardTableUsers.js';
 import { useUsers } from '../hooks/useUsers';
-
 
 
 export default function Home() {
@@ -46,33 +44,25 @@ export default function Home() {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-md">
-        <Sidebar />
-      </div>
+    <main className="flex-1 overflow-auto p-8">
+      <h1 className="text-2xl font-bold mb-6">Usuarios</h1>
+      {loading ? (
+        <div>Cargando..</div>
 
-      {/* Contenido principal */}
-      <main className="flex-1 overflow-auto p-8">
-        <h1 className="text-2xl font-bold mb-6">Usuarios</h1>
-        {loading ? (
-          <div>Cargando..</div>
-         
-        ) : (
-          // Muestra la tabla cuando la data está lista
-          <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
+      ) : (
+        // Muestra la tabla cuando la data está lista
+        <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete}/>
+      )}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Editar Usuario">
+        {editingUser && (
+          <EditUserForm
+            user={editingUser}
+            onSave={handleSave}
+            onCancel={() => setIsModalOpen(false)}
+          />
         )}
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Editar Usuario">
-          {editingUser && (
-            <EditUserForm
-              user={editingUser}
-              onSave={handleSave}
-              onCancel={() => setIsModalOpen(false)}
-            />
-          )}
-        </Modal>
-      </main>
-    </div>
+      </Modal>
+    </main>
   );
 }
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import React from "react";
-import { loginRequest } from "@/actions/auth";
+import { useAuth } from "@/context/auth";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'outline';
@@ -22,7 +22,7 @@ const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const { login } = useAuth()
 
   useEffect(() => {
     setIsVisible(true);
@@ -30,18 +30,14 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const [error, claims] = await loginRequest({ email, password });
+    const logged = await login({ email, password });
 
-    if (error) {
+    if (!logged) {
       void Swal.fire("Error", "No se pudo iniciar sesión", "error");
       return;
     }
 
     void Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
-    if (claims.rol === 'Admin') navigate('/dashboard/stats');
-    if (claims.rol === 'Junta') navigate('/juntapage');
-    if (claims.rol === 'User') navigate('/userPage');
-
   };
 
   return (

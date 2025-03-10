@@ -1,27 +1,33 @@
-import { BASE_URL } from "@/lib/constants";
-import { jwtDecode } from "jwt-decode";
-import { JwtPayload, Result } from "@/types/dto";
-import axios from "axios";
+import type { Credentials, JwtPayload, Result } from "@/types/dto";
+import { api } from "@/lib/http";
 
-export interface Credentials {
-  email: string;
-  password: string;
-}
-
-export const loginRequest = async ({ email, password }: Credentials): Promise<Result<JwtPayload>> => {
-  return axios.post<{ token?: string }>(`${BASE_URL}/api/login`, {
+export const loginRequest = async ({ email, password }: Credentials): Promise<Result<undefined>> => {
+  return api.post<{ token?: string }>(`login`, {
     correo: email,
     password: password,
     obtenerToken: 'true'
-  }).then(response => {
-    return [null, jwtDecode<JwtPayload>(response.data.token)];
+  }).then(() => {
+    return [null];
   }).catch(error => {
+    console.log(error);
     return [error, null]
   })
 }
 
-export const resetPasswordRequest = async ({password}: {password: string}): Promise<Result<{message: string}>> => {
-  return axios.post<{ message: string }>(`${BASE_URL}/api/resetPassword`, { password })
+export const resetPasswordRequest = async ({ password }: { password: string }): Promise<Result<{
+  message: string
+}>> => {
+  return api.post<{ message: string }>(`resetPassword`, { password })
+    .then(response => {
+      return [null, response.data];
+    })
+    .catch(error => {
+      return [error, null];
+    });
+}
+
+export const verifyAuthRequest = async (): Promise<Result<JwtPayload>> => {
+  return api.get(`verify-auth`)
     .then(response => {
       return [null, response.data];
     })

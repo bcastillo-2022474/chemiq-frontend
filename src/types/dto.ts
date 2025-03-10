@@ -1,5 +1,7 @@
 import { JwtPayload as JWTPayload } from "jwt-decode";
 
+type Rol = "Admin" | "Junta" | "User";
+
 export interface Project {
   id: number,
   nombre: string,
@@ -43,7 +45,7 @@ export interface User {
   nombre: string,
   correo: string,
   rol_id: string,
-  rol: string,
+  rol: Rol,
   img?: string
   created_at: Date,
   updated_at: Date,
@@ -60,6 +62,11 @@ export interface YouTubeVideo {
   duration: string;
 }
 
+export interface Credentials {
+  email: string;
+  password: string;
+}
+
 
 export type CreateProjectDTO = Omit<Project, 'id' | 'count_members' | 'created_by' | 'created_at' | 'updated_at'>
 
@@ -69,4 +76,4 @@ export type CreateUserDTO = Omit<User, 'id' | 'rol' | 'created_at' | 'created_by
 export type Result<T> = [error: Error, value: null] | [error: null, value: T];
 
 
-export type JwtPayload = JWTPayload & { rol: "Admin" | "Junta" | "User", nombre: string, correo: string, img: string }
+export type JwtPayload = JWTPayload & { rol: Rol, nombre: string, correo: string, img: string }
