@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { BASE_URL } from "@/lib/constants.js";
-
-const API_URL = `${BASE_URL}/api/proyects`;
+import { createProjectRequest, deleteProjectRequest, getProjectByIdRequest, getProjectsRequest, updateProjectRequest } from "@/actions/projects";
+import type { CreateProjectDTO } from "@/types/dto";
 
 export function useProyectos() {
   const [proyectos, setProyectos] = useState([]);
@@ -12,70 +10,65 @@ export function useProyectos() {
   // Fetch all proyectos
   const fetchProyectos = async () => {
     setLoading(true);
-    try {
-      console.log({API_URL})
-      const response = await axios.get(API_URL);
-      console.log(response.data);
-      setProyectos(response.data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    const [error, projects] = await getProjectsRequest();
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setProyectos(projects);
     }
+    setLoading(false);
   };
 
   // Fetch a single proyecto by ID
-  const fetchProyectoById = async (id) => {
+  const fetchProyectoById = async (id: string) => {
     setLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/${id}`);
-      return response.data; // Return the proyecto data
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    const [error, project] = await getProjectByIdRequest({ id });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setProyectos([project]);
     }
+    setLoading(false);
+    return project;
   };
 
-  const createProyecto = async (proyectoData) => {
-    try {
-      const response = await axios.post(`${API_URL}/create`, proyectoData);
-    
-  
-      await fetchProyectos();
-      return response.data;
-    } catch (err) {
-      setError(err.message);
-      console.error("Error al crear proyecto:", err.message);
+  const createProyecto = async (projectDTO: CreateProjectDTO) => {
+    const [error, project] = await createProjectRequest(projectDTO);
+    if (error) {
+      setError(error.message);
+      return;
     }
+    void fetchProyectos();
+    return project;
   };
-  
-  
+
 
   // Update a proyecto
-  const updateProyecto = async (id, proyectoData) => {
-    try {
-      const response = await axios.put(`${API_URL}/${id}`, proyectoData);
-      fetchProyectos(); // Refresh the proyectos list
-      return response.data; // Return the updated proyecto data
-    } catch (err) {
-      setError(err.message);
+  const updateProyecto = async (id: string, projectDTO: CreateProjectDTO) => {
+    const [error, project] = await updateProjectRequest({ id, project: projectDTO });
+    if (error) {
+      setError(error.message);
+      return;
     }
+    void fetchProyectos();
+    return project;
   };
 
   // Delete a proyecto
-  const deleteProyecto = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      fetchProyectos(); // Refresh the proyectos list
-    } catch (err) {
-      setError(err.message);
+  const deleteProyecto = async (id: string) => {
+    const [error] = await deleteProjectRequest({ id });
+    if (error) {
+      setError(error.message);
+      return;
     }
+    void fetchProyectos();
   };
 
   // Fetch proyectos on component mount
   useEffect(() => {
-    fetchProyectos();
+    void fetchProyectos();
   }, []);
 
   return {

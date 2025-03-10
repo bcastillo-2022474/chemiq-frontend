@@ -7,7 +7,7 @@ import Dashboard from './pages/DashboardStatsControll.js';
 import Reset from './pages/Reset.js';
 import NotFound from './components/NotFound404.js';
 import JuntaPage from './pages/JuntaPage.js';
-import UserPage from './pages/UserPage.js';
+import { UserRoutes } from './pages/UserPage.js';
 import { Projects } from './pages/DashboardProjectsControll.js';
 
 
@@ -22,7 +22,7 @@ function App() {
         <Route path="/dashboard/projects" element={<Projects />} />
         <Route path="/dashboard/stats" element={<Dashboard />} />
         <Route path="/juntapage" element={<JuntaPage/>}/>
-        <Route path="/userPage" element={<UserPage />} />
+        <Route path="/portal/*" element={<UserRoutes />} />
         <Route path="/reset" element={<Reset />} />
 
         <Route path="/dashboard/projects" element={<Projects />} />

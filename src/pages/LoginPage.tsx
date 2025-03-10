@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Swal from "sweetalert2";
-import { jwtDecode } from "jwt-decode";
-import { JwtPayload } from "@/types/dto";
-import { BASE_URL } from "@/lib/constants.js";
 import React from "react";
+import { loginRequest } from "@/actions/auth";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'outline';
@@ -14,7 +11,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = ({ children, className, variant, ...props }: ButtonProps) => (
   <button
     className={`px-4 py-2 rounded ${className} ${variant === 'outline' ? 'border border-current' : ''
-      }`}
+    }`}
     {...props}
   >
     {children}
@@ -33,27 +30,18 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post<{token?: string}>(`${BASE_URL}/api/login`, {
-        correo: email,
-        password: password,
-        obtenerToken: 'true'
-      });
+    const [error, claims] = await loginRequest({ email, password });
 
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        void Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
-        const decodedToken = jwtDecode<JwtPayload>(response.data.token);
-        // const { data: rol } = await axios.get(`${BASE_URL}/api/roles/${decodedToken.rol_id}`)
-        if (decodedToken.rol === 'Admin') navigate('/dashboard/stats');
-        if (decodedToken.rol === 'Junta') navigate('/juntapage');
-        if (decodedToken.rol === 'User') navigate('/userPage');
-      } else {
-        void Swal.fire("Error", "No se pudo iniciar sesión", "error");
-      }
-    } catch (error) {
-      void Swal.fire("Error", error.response.data.mensaje || "Error al iniciar sesión", "error");
+    if (error) {
+      void Swal.fire("Error", "No se pudo iniciar sesión", "error");
+      return;
     }
+
+    void Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
+    if (claims.rol === 'Admin') navigate('/dashboard/stats');
+    if (claims.rol === 'Junta') navigate('/juntapage');
+    if (claims.rol === 'User') navigate('/userPage');
+
   };
 
   return (

@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import * as axios from "axios";
-import  { jwtDecode, type JwtPayload } from "jwt-decode";
 import { ProjectCard } from "@/components/ProjectCard";
-import { BASE_URL } from "@/lib/constants.js";
-import { Member, Project } from "@/types/dto";
+import type { Member, Project } from "@/types/dto";
+import { getProjectsRequest } from "@/actions/projects";
+import { getMembersByProjectIdRequest } from "@/actions/members";
 
-const ProjectsSection = () => {
+export const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("proyectos");
   const [projects, setProjects] = useState<Project[]>([]);
   const [myProjects, setMyProjects] = useState([]);
@@ -13,23 +12,12 @@ const ProjectsSection = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      try {
-        const response: { data: Project[] } = await axios.get(`${BASE_URL}/api/proyects`);
-        setProjects(response.data);
-
-        const token = localStorage.getItem('token');
-        if (token) {
-          const decodedToken = jwtDecode<JwtPayload>(token);
-          const carne = decodedToken.sub;
-
-          // const userProjects = response.data.filter(project =>
-          //   project.integrantes.some(integrante => integrante.carne === carne)
-          // );
-          // setMyProjects(userProjects);
-        }
-      } catch (error) {
-        console.error("Error fetching projects:", error);
+      const [error, projects] = await getProjectsRequest();
+      if (error) {
+        console.error("Error fetching project:", error);
+        return;
       }
+      setProjects(projects);
     };
 
     void fetchProjects();
@@ -105,20 +93,27 @@ const ProjectsSection = () => {
 };
 
 
-function MembersSection({ projectId }: { projectId: number }) {
+function MembersSection({ projectId }: { projectId: string }) {
   const [members, setMembers] = useState<Member[]>([]);
 
   useEffect(() => {
-    axios.get(`${BASE_URL}/api/members/by-project/${projectId}`).then((response) => {
-      setMembers(response.data as Member[]);
-    }).catch((error) => {
-      // @TODO: handle error
-    });
+    async function fetchMembers() {
+      const [error, members] = await getMembersByProjectIdRequest({ id: projectId });
+
+      if (error) {
+        console.error("Error fetching members:", error);
+        return;
+      }
+
+      setMembers(members);
+    }
+
+    void fetchMembers();
   }, []);
 
   return (
     <div className="ml-8">
-      <h3 className="text-2xl font-bold text-accent mb-2 text-[#1d896e]">Integrantes</h3>
+      <h3 className="text-2xl font-bold mb-2 text-[#1d896e]">Integrantes</h3>
       <ul className="list-disc list-inside">
         {members.map(({ user: member }) => (
           <li key={member.carne} className="text-gray-700 text-lg flex items-center space-x-4">
@@ -132,5 +127,3 @@ function MembersSection({ projectId }: { projectId: number }) {
 
   )
 }
-
-export default ProjectsSection;

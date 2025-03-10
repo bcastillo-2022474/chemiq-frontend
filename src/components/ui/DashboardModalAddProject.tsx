@@ -2,8 +2,14 @@ import { useState } from "react"
 import { X } from "lucide-react"
 import { useProyectos } from "@/hooks/useProjects"
 import { useUsers } from "@/hooks/useUsers"
+import { Project } from "@/types/dto";
 
-export function AddProjectModal({ onClose }) {
+interface Props {
+  onClose: () => void
+  onAddProject: (newProject: Omit<Project, 'id'>) => void
+}
+
+export function AddProjectModal({ onClose, onAddProject }: Props) {
   const [projectName, setProjectName] = useState("")
   const [projectInfo, setProjectInfo] = useState("")
   const [projectImage, setProjectImage] = useState("")

@@ -1,13 +1,21 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { BASE_URL } from "@/lib/constants.js";
+import { VariantProps } from "class-variance-authority";
+import { buttonVariants } from "@/components/ui/button";
 
-const Button = ({ children, className, variant, ...props }) => (
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+}
+
+const Button = ({ children, className, variant, ...props }: ButtonProps) => (
   <button
     className={`px-4 py-2 rounded ${className} ${variant === 'outline' ? 'border border-current' : ''
-      }`}
+    }`}
     {...props}
   >
     {children}
@@ -70,10 +78,10 @@ const RecoveryPage = () => {
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-          <div 
+          <div
             className={`sm:mx-auto sm:w-full sm:max-w-md transition-all duration-700 ease-out transform ${
-              isVisible 
-                ? 'opacity-100 translate-y-0' 
+              isVisible
+                ? 'opacity-100 translate-y-0'
                 : 'opacity-0 translate-y-4'
             }`}
           >
@@ -84,9 +92,13 @@ const RecoveryPage = () => {
                   <p className="text-gray-600 text-center text-md text-gray-600 mb-6">
                     Ingresa tu correo electrónico y te enviaremos un enlace para recuperar tu contraseña.
                   </p>
-                  <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleSendCode(); }}>
+                  <form className="space-y-6" onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendCode();
+                  }}>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo
+                        Electrónico</label>
                       <div className="mt-1">
                         <input
                           id="email"

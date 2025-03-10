@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Beaker, Users, Home, Settings, ChevronLeft, ChevronRight, Search, LogOut } from "lucide-react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { BASE_URL } from "@/lib/constants.js";
+import { getUsers } from "@/actions/users";
 
 const sideNavItems = [
   { icon: Home, label: "Inicio", href: "#" },
@@ -26,39 +25,15 @@ function JuntaPage() {
     localStorage.clear();
     navigate("/login")
   };
-  // Función para obtener usuarios desde el backend
+
   const fetchUsers = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/api/users`); // Asegúrate de que la URL apunte a tu servidor backend
-      const data = response.data;
-
-      // Mapea los usuarios para agregar la propiedad 'role' con base en 'rol_id'
-      const mappedUsers = data.map((user) => {
-        let role = "";
-        switch (user.rol_id) {
-          case 1:
-            role = "Administrator";
-            break;
-          case 2:
-            role = "Junta Directiva";
-            break;
-          case 3:
-            role = "Usuario";
-            break;
-          default:
-            role = "Desconocido";
-        }
-
-        return {
-          ...user,
-          role,
-        };
-      });
-
-      setUsers(mappedUsers);
-    } catch (error) {
-      console.error('Error al obtener usuarios:', error);
+    const [error, users] = await getUsers()
+    if (error) {
+      console.error("Error fetching users:", error);
+      return;
     }
+
+    setUsers(users);
   };
 
   // Llamada a la API para obtener usuarios cuando se monta el componente

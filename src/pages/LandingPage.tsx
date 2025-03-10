@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import AutoCarousel from "@/components/AutoCarousel"
 import MemberCard from "@/components/MemberCard"
 import {
@@ -89,7 +89,11 @@ const cards = [
     cargo: "Vocal de redes sociales",
   },
 ]
-const Button = ({ children, className, variant }) => (
+const Button = ({ children, className, variant }: {
+  children: React.ReactNode;
+  className: string;
+  variant?: string;
+}) => (
   <button className={`px-4 py-2 rounded ${className} ${variant === "outline" ? "border border-current" : ""}`}>
     {children}
   </button>

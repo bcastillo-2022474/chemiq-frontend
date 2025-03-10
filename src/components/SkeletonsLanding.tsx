@@ -13,7 +13,7 @@ function ShimmerEffect() {
 }
 
 // Skeleton para el Carousel
-function CarouselSkeleton({ className }) {
+function CarouselSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn("w-full relative overflow-hidden", className)}>
       <div className="w-full h-[400px] bg-gradient-to-r from-tertiary via-background to-tertiary rounded-lg relative overflow-hidden">
@@ -43,7 +43,7 @@ function CarouselSkeleton({ className }) {
 }
 
 // Skeleton para Member Cards
-function MemberCardSkeleton({ count = 9, className }) {
+function MemberCardSkeleton({ count = 9, className }: { count?: number; className?: string }) {
   return (
     <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl px-4", className)}>
       {Array(count)
@@ -82,7 +82,7 @@ function MemberCardSkeleton({ count = 9, className }) {
 }
 
 // Skeleton para Secciones de Texto
-function TextSectionSkeleton({ lines = 4, title = true, className }) {
+function TextSectionSkeleton({ lines = 4, title = true, className }: { lines?: number; title?: boolean; className?: string }) {
   return (
     <div className={cn("space-y-4", className)}>
       {title && (
@@ -109,7 +109,7 @@ function TextSectionSkeleton({ lines = 4, title = true, className }) {
 }
 
 // Skeleton para Formularios
-function FormSkeleton({ className }) {
+function FormSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn("space-y-4 w-full max-w-md mx-auto", className)}>
       {/* Campos de entrada */}
@@ -139,7 +139,7 @@ function FormSkeleton({ className }) {
 }
 
 // Skeleton para Características (Features)
-function FeatureSkeleton({ count = 3, className }) {
+function FeatureSkeleton({ count = 3, className }: { count?: number; className?: string }) {
   return (
     <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-8", className)}>
       {Array(count)
@@ -176,7 +176,7 @@ function FeatureSkeleton({ count = 3, className }) {
 }
 
 // Skeleton para Título
-function TitleSkeleton({ className }) {
+function TitleSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
