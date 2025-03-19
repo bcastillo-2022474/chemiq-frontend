@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { ProjectCard } from "@/components/ProjectCard.jsx"
+import { ProjectCard } from "@/components/ProjectCard"
 import { getProjectsRequest } from "@/actions/projects"
 import { getMembersByProjectIdRequest } from "@/actions/members"
 

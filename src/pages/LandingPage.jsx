@@ -21,7 +21,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger
-} from "@/components/ui/navigation-menu.jsx"
+} from "@/components/ui/navigation-menu"
 import { Link } from "react-router-dom"
 
 // Importamos los skeletons mejorados

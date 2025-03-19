@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import NewsCard from "./NewsCard.jsx"
-import { getNewByIdRequest, getNewsRequest } from "@/actions/news.js"
+import NewsCard from "./NewsCard"
+import { getNewByIdRequest, getNewsRequest } from "@/actions/news"
 import { Link, Outlet, Route, Routes, useParams } from "react-router-dom"
 
 function NewsSection() {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card.jsx"
+import { Card, CardContent } from "@/components/ui/card"
 import { Podcast, Play, Clock, Users } from "lucide-react"
 import { getVideosRequest } from "@/actions/youtube"
 

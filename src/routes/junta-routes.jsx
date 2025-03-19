@@ -1,5 +1,5 @@
-import { useAuth } from "@/context/auth.jsx";
-import { NotEnoughPermissions } from "@/components/NotEnoughPermissions.jsx";
+import { useAuth } from "@/context/auth";
+import { NotEnoughPermissions } from "@/components/NotEnoughPermissions";
 import { Outlet } from "react-router-dom";
 
 

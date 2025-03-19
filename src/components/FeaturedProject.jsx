@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card.jsx"
+import { Card, CardContent } from "@/components/ui/card"
 import { Beaker, Users, Target } from "lucide-react"
 import { Link } from "react-router-dom"
 import { getProjectsRequest } from "@/actions/projects"

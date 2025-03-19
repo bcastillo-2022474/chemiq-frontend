@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu.jsx"
+} from "@/components/ui/dropdown-menu"
 import { useEffect, useState } from "react"
 
 const navItems = [

@@ -2,7 +2,7 @@ import { useState } from "react"
 import Swal from "sweetalert2"
 import { Modal } from "../components/ui/DashboardModalEditUsers"
 import { UserTable } from "../components/ui/DashboardTableUsers"
-import { useUsers } from "../hooks/useUsers.js"
+import { useUsers } from "../hooks/useUsers"
 
 export default function Home() {
   const {

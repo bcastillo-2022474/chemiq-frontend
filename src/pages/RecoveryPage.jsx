@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useLocation } from "react-router-dom"
 import Swal from "sweetalert2"
 import axios from "axios"
-import { BASE_URL } from "@/lib/constants.js"
+import { BASE_URL } from "@/lib/constants"
 
 const Button = ({ children, className, variant, ...props }) => (
   <button
