@@ -1,37 +1,20 @@
-"use client"
-
-import { useState } from "react"
-import { Sidebar } from "@/components/sidebar"
+import { Sidebar } from "@/components/Sidebar"
 import { FeaturedPodcast } from "@/components/FeaturedPodcast"
 import { FeaturedNews } from "@/components/FeaturedNews"
 import { FeaturedProject } from "@/components/FeaturedProject"
-import NewsSection from "@/components/NewsSection"
-import YouTubeVideos from "@/components/YouTubeVideos"
-import ProjectsSection from "@/components/ProjectsSection"
+import { NewsRoutes } from "@/components/NewsSection"
+import { YouTubeVideos } from "@/components/YouTubeVideos"
+import { ProjectsSection } from "@/components/ProjectsSection"
+import { Outlet, Route, Routes } from "react-router-dom"
 
-export default function UserPage() {
-  const [selectedComponent, setSelectedComponent] = useState("home")
-
-  const renderComponent = () => {
-    switch (selectedComponent) {
-      case "home":
-        return <HomePage />
-      case "podcast":
-        return <YouTubeVideos />
-      case "news":
-        return <NewsSection />
-      case "project":
-        return <ProjectsSection />
-      default:
-        return null
-    }
-  }
-
+function UserPage() {
   return (
     <div className="flex h-screen bg-[#FFF8F0]">
-      <Sidebar onSelect={setSelectedComponent} />
+      <Sidebar />
       <main className="flex-1 p-6 overflow-auto">
-        <div className="max-w-5xl mx-auto">{renderComponent()}</div>
+        <div className="max-w-5xl mx-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   )
@@ -48,9 +31,18 @@ function HomePage() {
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="url(#header-gradient)" />
+            <path
+              d="M0,0 L100,0 L100,100 L0,100 Z"
+              fill="url(#header-gradient)"
+            />
             <defs>
-              <linearGradient id="header-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient
+                id="header-gradient"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
                 <stop offset="0%" stopColor="#7DE2A6" />
                 <stop offset="100%" stopColor="#28BC98" />
               </linearGradient>
@@ -61,7 +53,9 @@ function HomePage() {
           <h1 className="text-5xl font-light text-center tracking-tight text-[#0B2F33]">
             <span className="font-bold">Asociación de Química</span>
           </h1>
-          <p className="mt-2 text-center text-lg text-[#0B2F33]/80">Novedades: Noticias, proyectos y podcasts más recientes</p>
+          <p className="mt-2 text-center text-lg text-[#0B2F33]/80">
+            Novedades: Noticias, proyectos y podcasts más recientes
+          </p>
         </div>
       </header>
 
@@ -80,3 +74,15 @@ function HomePage() {
   )
 }
 
+export function PortalRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<UserPage />}>
+        <Route index element={<HomePage />} />
+        <Route path="podcast" element={<YouTubeVideos />} />
+        <Route path="news/*" element={<NewsRoutes />} />
+        <Route path="project" element={<ProjectsSection />} />
+      </Route>
+    </Routes>
+  )
+}

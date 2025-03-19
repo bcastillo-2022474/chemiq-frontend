@@ -1,29 +1,28 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Beaker, Users, Target, Zap } from 'lucide-react';
-import { Link } from "react-router-dom";
-import axios from "axios";
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Beaker, Users, Target } from "lucide-react"
+import { Link } from "react-router-dom"
+import { getProjectsRequest } from "@/actions/projects"
 
 export function FeaturedProject() {
-  const [project, setProject] = useState(null);
+  const [project, setProject] = useState(null)
 
   useEffect(() => {
     const fetchProject = async () => {
-      try {
-        const response = await axios.get('https://backend-postgresql.vercel.app/api/proyects');
-        const projects = response.data;
-        const mostRecentProject = projects[projects.length - 1];
-        setProject(mostRecentProject);
-      } catch (error) {
-        console.error("Error fetching project:", error);
+      const [error, projects] = await getProjectsRequest()
+      if (error) {
+        console.error("Error fetching project:", error)
+        return
       }
-    };
+      const lastProject = projects[projects.length - 1]
+      setProject(lastProject)
+    }
 
-    fetchProject();
-  }, []);
+    void fetchProject()
+  }, [])
 
   if (!project) {
-    return <Card className="h-64 animate-pulse bg-[#7DE2A6]/10" />;
+    return <Card className="h-64 animate-pulse bg-[#7DE2A6]/10" />
   }
 
   return (
@@ -55,14 +54,12 @@ export function FeaturedProject() {
                 <div className="flex items-center">
                   <Users className="h-4 w-4 text-[#28BC98] mr-1" />
                   <span className="text-xs text-[#0B2F33]/70">
-                    {project.integrantes.length} miembros
+                    {project.count_members} miembros
                   </span>
                 </div>
                 <div className="flex items-center">
                   <Target className="h-4 w-4 text-[#28BC98] mr-1" />
-                  <span className="text-xs text-[#0B2F33]/70">
-                    En progreso
-                  </span>
+                  <span className="text-xs text-[#0B2F33]/70">En progreso</span>
                 </div>
               </div>
               <div className="bg-[#28BC98] text-white px-3 py-1 rounded-full text-xs font-medium hover:bg-[#7DE2A6] transition-colors duration-300">
@@ -73,5 +70,5 @@ export function FeaturedProject() {
         </div>
       </Card>
     </Link>
-  );
+  )
 }

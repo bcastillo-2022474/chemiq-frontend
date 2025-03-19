@@ -1,5 +1,3 @@
-import React from 'react';
-
 const ButtonC = (text, url) => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -7,7 +5,7 @@ const ButtonC = (text, url) => {
         ¡Descubre la química!
       </button>
     </div>
-  );
-};
+  )
+}
 
-export default ButtonC;
+export default ButtonC

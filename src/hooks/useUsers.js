@@ -1,59 +1,62 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BASE_URL = "https://backend-postgresql.vercel.app/api/users";
+import { useState, useEffect } from "react"
+import {
+  createUserRequest,
+  deleteUserRequest,
+  getUsers,
+  updateUserRequest
+} from "@/actions/users"
 
 export function useUsers() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   // Fetch all users
   const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(BASE_URL);
-      setUsers(response.data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    setLoading(true)
+    const [error, users] = await getUsers()
+    if (error) {
+      setError(error)
+    } else {
+      setUsers(users)
     }
-  };
+
+    setLoading(false)
+  }
 
   // Create a new user
-  const createUser = async (userData) => {
-    try {
-      await axios.post(`${BASE_URL}/create`, userData);
-      fetchUsers(); // Refresh the user list
-    } catch (err) {
-      setError(err.message);
+  const createUser = async userDTO => {
+    const [error] = await createUserRequest(userDTO)
+    if (error) {
+      setError(error)
+    } else {
+      void fetchUsers() // Refresh the user list
     }
-  };
+  }
 
   // Update user data
-  const updateUser = async (userId, userData) => {
-    try {
-      await axios.put(`${BASE_URL}/${userId}`, userData);
-      fetchUsers(); // Refresh the user list
-    } catch (err) {
-      setError(err.message);
+  const updateUser = async (userId, userDTO) => {
+    const [error] = await updateUserRequest({ id: userId, user: userDTO })
+    if (error) {
+      setError(error)
+    } else {
+      void fetchUsers() // Refresh the user list
     }
-  };
+  }
 
   // Delete a user
-  const deleteUser = async (userId) => {
-    try {
-      await axios.delete(`${BASE_URL}/${userId}`);
-      fetchUsers(); // Refresh the user list
-    } catch (err) {
-      setError(err.message);
+  const deleteUser = async id => {
+    const [error] = await deleteUserRequest({ id: id })
+    if (error) {
+      setError(error)
+    } else {
+      void fetchUsers() // Refresh the user list
     }
-  };
+  }
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    void fetchUsers()
+  }, [])
 
-  return { users, loading, error, createUser, updateUser, deleteUser };
+  return { users, loading, error, createUser, updateUser, deleteUser }
 }

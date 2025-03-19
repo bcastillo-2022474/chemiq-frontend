@@ -1,35 +1,81 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RecoveryPage from './pages/RecoveryPage';
-import Home from './pages/DashboardUserControll';
-import Dashboard from './pages/DashboardStatsControll';
-import Reset from './pages/Reset';
-import NotFound from './components/NotFound404';
-import JuntaPage from './pages/JuntaPage';
-import UserPage from './pages/UserPage';
-import { Projects } from './pages/DashboardProjectsControll';
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { useEffect } from "react";
+import { setUpInterceptors } from "@/lib/http";
+import { AuthProvider } from "@/context/auth";
+import { NoAuth } from "@/routes/no-auth";
+import { Auth } from "@/routes/auth";
+import NotFound from "@/components/NotFound404";
+
+import LandingPage from "@/pages/LandingPage";
+import LoginPage from "@/pages/LoginPage";
+import RecoveryPage from "@/pages/RecoveryPage";
+import Reset from "@/pages/Reset";
+import Home from '@/pages/DashboardUserControll';
+import Stats from '@/pages/DashboardStatsControll';
+import JuntaPage from '@/pages/JuntaPage';
+import { PortalRoutes } from '@/pages/UserPage';
+import { Projects } from '@/pages/DashboardProjectsControll';
+import { JuntaRoutes } from "@/routes/junta-routes";
+import { Dashboard } from "@/pages/Dashboard";
 
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/recovery" element={<RecoveryPage />} />
-        <Route path="/dashboard/users" element={<Home />} />
-        <Route path="/dashboard/projects" element={<Projects />} />
-        <Route path="/dashboard/stats" element={<Dashboard />} />
-        <Route path="/juntapage" element={<JuntaPage/>}/>
-        <Route path="/userPage" element={<UserPage />} />
-        <Route path="/reset" element={<Reset />} />
-
-        <Route path="/dashboard/projects" element={<Projects />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <RoutesWrapper/>
     </Router>
   );
+}
+
+function RoutesWrapper() {
+  const navigate = useNavigate();
+  // get current route
+
+  useEffect(() => {
+    setUpInterceptors(navigate)
+  }, []);
+
+
+  return (
+    <>
+      <AuthProvider>
+        <Routes>
+          <Route path="/*" element={<GeneralRoutes/>}/>
+          <Route path="*" element={<NotFound/>}/>
+        </Routes>
+      </AuthProvider>
+    </>
+  )
+}
+
+function GeneralRoutes() {
+  return (
+    <Routes>
+      {/*NO AUTH PAGES*/}
+      <Route path="" element={<NoAuth/>}>
+        <Route path="/" element={<LandingPage/>}/>
+        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/recovery" element={<RecoveryPage/>}/>
+        <Route path="/reset" element={<Reset/>}/>
+      </Route>
+      <Route path="" element={<Auth/>}>
+        <Route path="/juntapage" element={<JuntaPage/>}/>
+        <Route path="/portal/*" element={<PortalRoutes/>}/>
+        <Route path="/dashboard" element={<Navigate to="/dashboard/stats"/>}/>
+
+        {/* @TODO: here goes the protected routes */}
+        <Route path="" element={<JuntaRoutes/>}>
+          <Route path="/dashboard" element={<Dashboard/>}>
+            <Route path="projects" element={<Projects/>}/>
+            <Route path="stats" element={<Stats/>}/>
+            <Route path="users" element={<Home/>}/>
+          </Route>
+        </Route>
+        {/*<UserRoutes/>*/}
+        {/*<JuntaRoutes/>*/}
+      </Route>
+    </Routes>
+  )
 }
 
 export default App;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { resetPasswordRequest } from "@/actions/auth";
 
 const Reset = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -17,16 +17,15 @@ const Reset = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      console.log('Sending request with token:', token, 'and newPassword:', newPassword);
-      const response = await axios.post('http://localhost:3000/api/resetPassword', { token, newPassword });
-      console.log('Response:', response.data);
-      setMessage(response.data.message);
-      navigate('/login');
-    } catch (error) {
-      console.error('Error response:', error.response);
-      setMessage(error.response.data.error);
+    const [error, { message }] = await resetPasswordRequest({ password: newPassword });
+    if (error) {
+      setMessage(error.message);
+      return;
     }
+
+    // @TODO: remove this or do something with the message
+    console.log('Password reset:', message);
+    navigate('/login');
   };
 
   return (

@@ -1,6 +1,5 @@
-import React from 'react'
-import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 
 export default function NotFound() {
   return (
@@ -18,12 +17,34 @@ export default function NotFound() {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <rect x="40" y="40" width="120" height="120" rx="20" fill="#28bc98" />
+            <rect
+              x="40"
+              y="40"
+              width="120"
+              height="120"
+              rx="20"
+              fill="#28bc98"
+            />
             <circle cx="80" cy="85" r="15" fill="#e8f7f3" />
             <circle cx="120" cy="85" r="15" fill="#e8f7f3" />
-            <path d="M70 130 Q100 150 130 130" stroke="#e8f7f3" strokeWidth="8" strokeLinecap="round" />
-            <path d="M60 30 L80 50 M140 30 L120 50" stroke="#28bc98" strokeWidth="8" strokeLinecap="round" />
-            <path d="M30 90 L50 90 M150 90 L170 90" stroke="#28bc98" strokeWidth="8" strokeLinecap="round" />
+            <path
+              d="M70 130 Q100 150 130 130"
+              stroke="#e8f7f3"
+              strokeWidth="8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M60 30 L80 50 M140 30 L120 50"
+              stroke="#28bc98"
+              strokeWidth="8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M30 90 L50 90 M150 90 L170 90"
+              stroke="#28bc98"
+              strokeWidth="8"
+              strokeLinecap="round"
+            />
           </svg>
         </motion.div>
         <motion.h1
@@ -40,7 +61,7 @@ export default function NotFound() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          ¡Ups! Parece que esta pagina no existe    
+          ¡Ups! Parece que esta pagina no existe
         </motion.p>
         <motion.div
           initial={{ opacity: 0 }}
@@ -58,4 +79,3 @@ export default function NotFound() {
     </div>
   )
 }
-

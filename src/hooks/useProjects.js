@@ -1,88 +1,91 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BASE_URL = "https://backend-postgresql.vercel.app/api/proyects";
+import { useState, useEffect } from "react"
+import {
+  createProjectRequest,
+  deleteProjectRequest,
+  getProjectByIdRequest,
+  getProjectsRequest,
+  updateProjectRequest
+} from "@/actions/projects"
 
 export function useProyectos() {
-  const [proyectos, setProyectos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [proyectos, setProyectos] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   // Fetch all proyectos
   const fetchProyectos = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(BASE_URL);
-      console.log(response.data);
-      setProyectos(response.data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    setLoading(true)
+    const [error, projects] = await getProjectsRequest()
+
+    if (error) {
+      setError(error.message)
+    } else {
+      setProyectos(projects)
     }
-  };
+    setLoading(false)
+  }
 
   // Fetch a single proyecto by ID
-  const fetchProyectoById = async (id) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${BASE_URL}/${id}`);
-      return response.data; // Return the proyecto data
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchProyectoById = async id => {
+    setLoading(true)
+    const [error, project] = await getProjectByIdRequest({ id })
 
-  const createProyecto = async (proyectoData) => {
-    try {
-      const response = await axios.post(`${BASE_URL}/create`, proyectoData);
-    
-  
-      await fetchProyectos();
-      return response.data;
-    } catch (err) {
-      setError(err.message);
-      console.error("Error al crear proyecto:", err.message);
+    if (error) {
+      setError(error.message)
+    } else {
+      setProyectos([project])
     }
-  };
-  
-  
+    setLoading(false)
+    return project
+  }
+
+  const createProyecto = async projectDTO => {
+    const [error, project] = await createProjectRequest(projectDTO)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    void fetchProyectos()
+    return project
+  }
 
   // Update a proyecto
-  const updateProyecto = async (id, proyectoData) => {
-    try {
-      const response = await axios.put(`${BASE_URL}/${id}`, proyectoData);
-      fetchProyectos(); // Refresh the proyectos list
-      return response.data; // Return the updated proyecto data
-    } catch (err) {
-      setError(err.message);
+  const updateProyecto = async (id, projectDTO) => {
+    const [error, project] = await updateProjectRequest({
+      id,
+      project: projectDTO
+    })
+    if (error) {
+      setError(error.message)
+      return
     }
-  };
+    void fetchProyectos()
+    return project
+  }
 
   // Delete a proyecto
-  const deleteProyecto = async (id) => {
-    try {
-      await axios.delete(`${BASE_URL}/${id}`);
-      fetchProyectos(); // Refresh the proyectos list
-    } catch (err) {
-      setError(err.message);
+  const deleteProyecto = async id => {
+    const [error] = await deleteProjectRequest({ id })
+    if (error) {
+      setError(error.message)
+      return
     }
-  };
+    void fetchProyectos()
+  }
 
   // Fetch proyectos on component mount
   useEffect(() => {
-    fetchProyectos();
-  }, []);
+    void fetchProyectos()
+  }, [])
 
   return {
     proyectos,
     loading,
     error,
+    fetchProyectos,
     fetchProyectoById,
     createProyecto,
     updateProyecto,
-    deleteProyecto,
-  };
+    deleteProyecto
+  }
 }

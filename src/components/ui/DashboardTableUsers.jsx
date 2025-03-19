@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 
 export function UserTable({ users, onEdit, onDelete }) {
   const [filteredUsers, setFilteredUsers] = useState(users)
@@ -14,23 +14,21 @@ export function UserTable({ users, onEdit, onDelete }) {
     img: ""
   })
 
-  // Mapa de roles
-  const roleMapping = {
-    1: "Admin",
-    2: "Junta",
-    3: "User"
-  }
+  const roleMapping = users.reduce((map, user) => {
+    map[user.rol_id] = user.rol
+    return map
+  }, {})
 
   // Obtener roles únicos de los usuarios
-  const roles = [...new Set(users.map((user) => user.rol_id))]
+  const roles = [...new Set(users.map(user => user.rol_id))]
 
   useEffect(() => {
     const filtered = users.filter(
-      (user) =>
+      user =>
         (user.carne.toLowerCase().includes(filterText.toLowerCase()) ||
           user.nombre.toLowerCase().includes(filterText.toLowerCase()) ||
           user.correo.toLowerCase().includes(filterText.toLowerCase())) &&
-        (filterRole === "" || user.rol_id === filterRole),
+        (filterRole === "" || user.rol_id === filterRole)
     )
     setFilteredUsers(filtered)
   }, [users, filterText, filterRole])
@@ -41,27 +39,27 @@ export function UserTable({ users, onEdit, onDelete }) {
     fetch("/users/create", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(newUser),
+      body: JSON.stringify(newUser)
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then(response => response.json())
+      .then(data => {
         if (data) {
-          alert("Usuario creado correctamente");
-          setIsModalOpen(false);  // Cerrar el modal después de agregar el usuario
+          alert("Usuario creado correctamente")
+          setIsModalOpen(false) // Cerrar el modal después de agregar el usuario
         }
       })
-      .catch((error) => {
-        console.error("Error al crear el usuario:", error);
-      });
+      .catch(error => {
+        console.error("Error al crear el usuario:", error)
+      })
   }
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target
-    setNewUser((prevUser) => ({
+    setNewUser(prevUser => ({
       ...prevUser,
-      [name]: value,
+      [name]: value
     }))
   }
 
@@ -86,18 +84,18 @@ export function UserTable({ users, onEdit, onDelete }) {
             type="text"
             placeholder="Filter by Carne, Name, or Email"
             value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
+            onChange={e => setFilterText(e.target.value)}
             className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div className="w-48">
           <select
             value={filterRole}
-            onChange={(e) => setFilterRole(e.target.value)}
+            onChange={e => setFilterRole(e.target.value)}
             className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Roles</option>
-            {roles.map((role) => (
+            {roles.map(role => (
               <option key={role} value={role}>
                 {roleMapping[role]} {/* Mostrar el texto en lugar del ID */}
               </option>
@@ -109,53 +107,58 @@ export function UserTable({ users, onEdit, onDelete }) {
       <div className="w-full overflow-x-auto">
         <table className="w-full text-left border-separate border-spacing-y-2">
           <thead>
-            <tr className="bg-gray-100 text-gray-600">
-              <th className="py-4 px-6 rounded-tl-lg">Avatar</th>
-              <th className="py-4 px-6">Carne</th>
-              <th className="py-4 px-6">Nombre estudiante</th>
-              <th className="py-4 px-6">Email</th>
-              <th className="py-4 px-6">Role</th>
-              <th className="py-4 px-6 rounded-tr-lg">Actions</th>
-            </tr>
+          <tr className="bg-gray-100 text-gray-600">
+            <th className="py-4 px-6 rounded-tl-lg">Avatar</th>
+            <th className="py-4 px-6">Carne</th>
+            <th className="py-4 px-6">Nombre estudiante</th>
+            <th className="py-4 px-6">Email</th>
+            <th className="py-4 px-6">Role</th>
+            <th className="py-4 px-6 rounded-tr-lg">Actions</th>
+          </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.carne} className="bg-white shadow-sm rounded-lg">
-                <td className="py-4 px-6">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                    {user.img ? (
-                      <img
-                        src={user.img || "/placeholder.svg"}
-                        alt={`Avatar de ${user.nombre}`}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-gray-700 font-semibold">{user.nombre[0]}</span>
-                    )}
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-gray-800">{user.carne}</td>
-                <td className="py-4 px-6 text-gray-600">{user.nombre}</td>
-                <td className="py-4 px-6 text-gray-700">{user.correo}</td>
-                <td className="py-4 px-6 text-gray-700">{roleMapping[user.rol_id]}</td> {/* Mostrar el texto del rol */}
-                <td className="py-4 px-6">
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => onEdit(user)}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onDelete(user.carne)}
-                      className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+          {filteredUsers.map(user => (
+            <tr key={user.carne} className="bg-white shadow-sm rounded-lg">
+              <td className="py-4 px-6">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  {user.img ? (
+                    <img
+                      src={user.img || "/placeholder.svg"}
+                      alt={`Avatar de ${user.nombre}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-700 font-semibold">
+                        {user.nombre[0]}
+                      </span>
+                  )}
+                </div>
+              </td>
+              <td className="py-4 px-6 text-gray-800">{user.carne}</td>
+              <td className="py-4 px-6 text-gray-600">{user.nombre}</td>
+              <td className="py-4 px-6 text-gray-700">{user.correo}</td>
+              <td className="py-4 px-6 text-gray-700">
+                {roleMapping[user.rol_id]}
+              </td>
+              {/* Mostrar el texto del rol */}
+              <td className="py-4 px-6">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => onEdit(user)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(user.carne)}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
           </tbody>
         </table>
       </div>
@@ -164,7 +167,9 @@ export function UserTable({ users, onEdit, onDelete }) {
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-w-full">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Add New User</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+              Add New User
+            </h2>
             <div className="space-y-4">
               <div className="mb-4">
                 <input
@@ -214,7 +219,7 @@ export function UserTable({ users, onEdit, onDelete }) {
                   className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Role</option>
-                  {roles.map((role) => (
+                  {roles.map(role => (
                     <option key={role} value={role}>
                       {roleMapping[role]}
                     </option>

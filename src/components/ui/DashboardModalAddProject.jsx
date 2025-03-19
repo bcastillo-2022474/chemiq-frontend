@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { X } from "lucide-react"
-import { useProyectos } from "../../hooks/useProjects"
-import { useUsers } from "../../hooks/useUsers"
+import { useProyectos } from "@/hooks/useProjects"
+import { useUsers } from "@/hooks/useUsers"
 
-export function AddProjectModal({ onClose }) {
+export function AddProjectModal({ onClose, onAddProject }) {
   const [projectName, setProjectName] = useState("")
   const [projectInfo, setProjectInfo] = useState("")
   const [projectImage, setProjectImage] = useState("")
@@ -14,7 +14,7 @@ export function AddProjectModal({ onClose }) {
   const { createProyecto } = useProyectos()
   const { users, loading: usersLoading, error: usersError } = useUsers()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
 
     setErrorMessage("") // Limpiar error previo
@@ -28,8 +28,8 @@ export function AddProjectModal({ onClose }) {
       informacion: projectInfo,
       img: projectImage || null,
       youtube: youtubeLink || null,
-      dueno_id: Number.parseInt(dueno_id, 10), 
-      integrantes: [], 
+      dueno_id: Number.parseInt(dueno_id, 10),
+      integrantes: []
     }
 
     try {
@@ -52,88 +52,103 @@ export function AddProjectModal({ onClose }) {
         >
           <X className="w-6 h-6" />
         </button>
-  
+
         {/* Título */}
         <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
           Add New Project
         </h2>
-  
+
         {/* Mensaje de error */}
         {errorMessage && (
           <div className="mb-4 text-red-600 text-sm bg-red-100 p-2 rounded-md text-center">
             {errorMessage}
           </div>
         )}
-  
+
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Nombre del proyecto */}
           <div>
-            <label htmlFor="projectName" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="projectName"
+              className="block text-sm font-medium text-gray-700"
+            >
               Project Name
             </label>
             <input
               type="text"
               id="projectName"
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={e => setProjectName(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 shadow-sm px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
               required
             />
           </div>
-  
+
           {/* Información del proyecto */}
           <div>
-            <label htmlFor="projectInfo" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="projectInfo"
+              className="block text-sm font-medium text-gray-700"
+            >
               Project Information
             </label>
             <textarea
               id="projectInfo"
               value={projectInfo}
-              onChange={(e) => setProjectInfo(e.target.value)}
+              onChange={e => setProjectInfo(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 shadow-sm px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
               rows={3}
               required
             />
           </div>
-  
+
           {/* Imagen del proyecto */}
           <div>
-            <label htmlFor="projectImage" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="projectImage"
+              className="block text-sm font-medium text-gray-700"
+            >
               Project Image URL
             </label>
             <input
               type="url"
               id="projectImage"
               value={projectImage}
-              onChange={(e) => setProjectImage(e.target.value)}
+              onChange={e => setProjectImage(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 shadow-sm px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
             />
           </div>
-  
+
           {/* Enlace de YouTube */}
           <div>
-            <label htmlFor="youtubeLink" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="youtubeLink"
+              className="block text-sm font-medium text-gray-700"
+            >
               YouTube Link
             </label>
             <input
               type="url"
               id="youtubeLink"
               value={youtubeLink}
-              onChange={(e) => setYoutubeLink(e.target.value)}
+              onChange={e => setYoutubeLink(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 shadow-sm px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
             />
           </div>
-  
+
           {/* Dueño del proyecto */}
           <div>
-            <label htmlFor="dueno" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="dueno"
+              className="block text-sm font-medium text-gray-700"
+            >
               Project Owner
             </label>
             <select
               id="dueno"
               value={dueno_id}
-              onChange={(e) => setDueno(e.target.value)}
+              onChange={e => setDueno(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 shadow-sm px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
               required
             >
@@ -143,7 +158,7 @@ export function AddProjectModal({ onClose }) {
               ) : usersError ? (
                 <option disabled>Error loading users</option>
               ) : (
-                users.map((usuario) => (
+                users.map(usuario => (
                   <option key={usuario.carne} value={usuario.carne}>
                     {usuario.nombre} ({usuario.carne})
                   </option>
@@ -151,7 +166,7 @@ export function AddProjectModal({ onClose }) {
               )}
             </select>
           </div>
-  
+
           {/* Botón de enviar */}
           <div className="flex justify-center mt-4">
             <button
@@ -164,6 +179,5 @@ export function AddProjectModal({ onClose }) {
         </form>
       </div>
     </div>
-  );
-  
+  )
 }
