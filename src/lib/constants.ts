@@ -1,1 +1,0 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL as string || "https://backend-postgresql.vercel.app";

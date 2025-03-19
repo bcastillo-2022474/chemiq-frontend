@@ -1,19 +1,13 @@
 {
-  "compilerOptions": {
-    // ...
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "module": "ES2022",
-    "moduleResolution": "Bundler",
-    // ...
-    "allowSyntheticDefaultImports": true,
-    "target": "ES2018",
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "compilerOptions": {
+      // ...
+      "baseUrl": ".",
+      "paths": {
+        "@/*": [
+          "./src/*"
+        ]
+      }
+      // ...
+    }
   }
-}
   

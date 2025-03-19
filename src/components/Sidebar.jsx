@@ -1,0 +1,117 @@
+import { Link, useLocation } from "react-router-dom";
+import { Home, Podcast, Newspaper, Beaker, User, ChevronDown, LogOut, Settings, FlaskRound } from 'lucide-react';
+import { jwtDecode } from "jwt-decode";
+import PropTypes from 'prop-types';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+
+const navItems = [
+  { name: "Inicio", component: "home", icon: Home },
+  { name: "Podcast", component: "podcast", icon: Podcast },
+  { name: "Noticias", component: "news", icon: Newspaper },
+  { name: "Proyectos", component: "project", icon: Beaker },
+];
+
+export function Sidebar({ onSelect }) {
+  const [userData, setUserData] = useState({ nombre: "Usuario", img: "/placeholder.svg" });
+  const location = useLocation();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserData({
+          nombre: decoded.nombre || "Usuario",
+          img: decoded.img || "/placeholder.svg?height=40&width=40",
+        });
+      } catch (error) {
+        console.error("Error al decodificar el token:", error);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  }
+
+  return (
+    <aside className="flex flex-col h-screen w-16 md:w-64 bg-[#0B2F33] text-[#FFF8F0] transition-all duration-300">
+      <div className="p-4 border-b border-[#FFF8F0]/10 flex items-center justify-center md:justify-start">
+        <div className="w-8 h-8 rounded-full bg-[#28BC98] flex items-center justify-center">
+          <FlaskRound className="w-4 h-4 text-[#0B2F33]" />
+        </div>
+        <h1 className="ml-3 text-xl font-bold text-[#FFF8F0] hidden md:block">CHEMIQ</h1>
+      </div>
+      
+      <nav className="flex-1 overflow-y-auto py-4">
+        <ul className="space-y-1 px-2">
+          {navItems.map((item) => {
+            const isActive = location.pathname === `/${item.component}`;
+            return (
+              <li key={item.name}>
+                <button 
+                  onClick={() => onSelect(item.component)} 
+                  className={`flex items-center justify-center md:justify-start w-full p-2 rounded-lg transition-all duration-200 ${
+                    isActive 
+                      ? "bg-[#28BC98] text-[#0B2F33]" 
+                      : "hover:bg-[#28BC98]/10"
+                  }`}
+                >
+                  <item.icon className={`w-5 h-5 ${isActive ? "" : "text-[#FFF8F0]"}`} />
+                  <span className="ml-3 font-medium hidden md:block">{item.name}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <div className="p-4 border-t border-[#FFF8F0]/10">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center justify-center md:justify-start w-full p-2 rounded-lg hover:bg-[#28BC98]/10 transition-colors">
+            <div className="relative w-8 h-8 rounded-full bg-[#28BC98]/20 flex items-center justify-center overflow-hidden">
+              {userData.img ? (
+                <img 
+                  src={userData.img || "/placeholder.svg"} 
+                  alt="Avatar"
+                  className="w-full h-full object-cover" 
+                />
+              ) : (
+                <User className="w-4 h-4 text-[#FFF8F0]" />
+              )}
+            </div>
+            <span className="ml-3 hidden md:block truncate">{userData.nombre}</span>
+            <ChevronDown size={16} className="ml-auto hidden md:block" />
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent className="w-56 bg-[#0B2F33] border border-[#28BC98]/20 text-[#FFF8F0]" align="end">
+            <DropdownMenuItem className="hover:bg-[#28BC98]/10 focus:bg-[#28BC98]/10 cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              <span>Mi Perfil</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-[#28BC98]/10 focus:bg-[#28BC98]/10 cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Configuración</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-[#FFF8F0]/10" />
+            <DropdownMenuItem 
+              className="text-[#7DE2A6] hover:bg-[#28BC98]/10 focus:bg-[#28BC98]/10 cursor-pointer"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Cerrar Sesión</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </aside>
+  );
+}
