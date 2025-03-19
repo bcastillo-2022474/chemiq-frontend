@@ -37,9 +37,9 @@ const LoginPage = () => {
         localStorage.setItem('token', response.data.token);
         Swal.fire("Login exitoso", "Has iniciado sesión correctamente", "success");
         const decodedToken = jwtDecode(response.data.token);
-        if (decodedToken.rol_id == '1') navigate('/dashboard/stats');
-        if (decodedToken.rol_id == '2') navigate('/juntapage');
-        if (decodedToken.rol_id == '3') navigate('/userPage');
+        if (decodedToken.rol_id == 'ADMIN') navigate('/dashboard/stats');
+        if (decodedToken.rol_id == 'JUNTA') navigate('/juntapage');
+        if (decodedToken.rol_id == 'USER') navigate('/userPage');
       } else {
         Swal.fire("Error", "No se pudo iniciar sesión", "error");
       }
