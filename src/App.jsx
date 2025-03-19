@@ -19,7 +19,6 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/recovery" element={<RecoveryPage />} />
         <Route path="/dashboard/users" element={<Home />} />
-        <Route path="/dashboard/projects" element={<Projects />} />
         <Route path="/dashboard/stats" element={<Dashboard />} />
         <Route path="/juntapage" element={<JuntaPage/>}/>
         <Route path="/userPage" element={<UserPage />} />

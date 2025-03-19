@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { BASE_URL } from "@/lib/constants.js";
 
-const API_URL = `${BASE_URL}/api/proyects`;
+const BASE_URL = "http://localhost:3001/api/proyects";
 
 export function useProyectos() {
   const [proyectos, setProyectos] = useState([]);
@@ -13,8 +12,7 @@ export function useProyectos() {
   const fetchProyectos = async () => {
     setLoading(true);
     try {
-      console.log({API_URL})
-      const response = await axios.get(API_URL);
+      const response = await axios.get(BASE_URL);
       console.log(response.data);
       setProyectos(response.data);
     } catch (err) {
@@ -28,7 +26,7 @@ export function useProyectos() {
   const fetchProyectoById = async (id) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/${id}`);
+      const response = await axios.get(`${BASE_URL}/${id}`);
       return response.data; // Return the proyecto data
     } catch (err) {
       setError(err.message);
@@ -39,7 +37,7 @@ export function useProyectos() {
 
   const createProyecto = async (proyectoData) => {
     try {
-      const response = await axios.post(`${API_URL}/create`, proyectoData);
+      const response = await axios.post(`${BASE_URL}/create`, proyectoData);
     
   
       await fetchProyectos();
@@ -55,7 +53,7 @@ export function useProyectos() {
   // Update a proyecto
   const updateProyecto = async (id, proyectoData) => {
     try {
-      const response = await axios.put(`${API_URL}/${id}`, proyectoData);
+      const response = await axios.put(`${BASE_URL}/${id}`, proyectoData);
       fetchProyectos(); // Refresh the proyectos list
       return response.data; // Return the updated proyecto data
     } catch (err) {
@@ -66,7 +64,7 @@ export function useProyectos() {
   // Delete a proyecto
   const deleteProyecto = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await axios.delete(`${BASE_URL}/${id}`);
       fetchProyectos(); // Refresh the proyectos list
     } catch (err) {
       setError(err.message);
@@ -82,7 +80,6 @@ export function useProyectos() {
     proyectos,
     loading,
     error,
-    fetchProyectos,
     fetchProyectoById,
     createProyecto,
     updateProyecto,
