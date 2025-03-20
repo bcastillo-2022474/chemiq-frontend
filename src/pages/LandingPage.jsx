@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import AutoCarousel from "@/components/AutoCarousel"
 import MemberCard from "@/components/MemberCard"
 import {

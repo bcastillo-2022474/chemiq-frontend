@@ -3,7 +3,7 @@ import { X } from "lucide-react"
 import { useProyectos } from "@/hooks/useProjects"
 import { useUsers } from "@/hooks/useUsers"
 
-export function AddProjectModal({ onClose, onAddProject }) {
+export function AddProjectModal({ onClose, /*onAddProject*/ }) {
   const [projectName, setProjectName] = useState("")
   const [projectInfo, setProjectInfo] = useState("")
   const [projectImage, setProjectImage] = useState("")

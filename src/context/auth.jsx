@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from "react"
-import { loginRequest, verifyAuthRequest } from "@/actions/auth"
+import { loginRequest, logoutRequest, verifyAuthRequest } from "@/actions/auth"
 import { useNavigate } from "react-router-dom"
 
 const AuthContext = createContext(null)
@@ -50,13 +50,17 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = async () => {
-    // Call logout endpoint to clear cookies
-    // await ap.post('/api/logout');
+    const [error] = await logoutRequest()
+    if (error) {
+      return false
+    }
+
     setAuthState({
       loading: false,
       authenticated: false,
       user: null
     })
+    navigate("/login")
   }
 
   useEffect(() => {

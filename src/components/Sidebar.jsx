@@ -10,7 +10,6 @@ import {
   Settings,
   FlaskRound
 } from "lucide-react"
-import { jwtDecode } from "jwt-decode"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import { useEffect, useState } from "react"
+import { useAuth } from "@/context/auth.jsx";
 
 const navItems = [
   { name: "Inicio", component: "", icon: Home },
@@ -28,31 +27,9 @@ const navItems = [
 ]
 
 export function Sidebar() {
-  const [userData, setUserData] = useState({
-    nombre: "Usuario",
-    img: "/placeholder.svg"
-  })
+  const { user, logout } = useAuth()
   const location = useLocation()
-
-  useEffect(() => {
-    const token = localStorage.getItem("token")
-    if (token) {
-      try {
-        const decoded = jwtDecode(token)
-        setUserData({
-          nombre: decoded.nombre || "Usuario",
-          img: decoded.img || "/placeholder.svg?height=40&width=40"
-        })
-      } catch (error) {
-        console.error("Error al decodificar el token:", error)
-      }
-    }
-  }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    window.location.href = "/login"
-  }
+  const isSectionSelected = navItems.some(item => item.component === location.pathname.split("/")[2])
 
   return (
     <aside className="flex flex-col h-screen w-16 md:w-64 bg-[#0B2F33] text-[#FFF8F0] transition-all duration-300">
@@ -68,10 +45,11 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-1 px-2">
           {navItems.map(item => {
-            const isActive = location.pathname === `/${item.component}`
+            const isActive = isSectionSelected ? item.component === location.pathname.split("/")[2] : item.component === ""
+
             return (
               <Link
-                to={`./${item.component}`}
+                to={item.component && `./${item.component}`}
                 key={item.name}
                 className={`flex items-center justify-center md:justify-start w-full p-2 rounded-lg transition-all duration-200 ${
                   isActive
@@ -95,9 +73,9 @@ export function Sidebar() {
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center justify-center md:justify-start w-full p-2 rounded-lg hover:bg-[#28BC98]/10 transition-colors">
             <div className="relative w-8 h-8 rounded-full bg-[#28BC98]/20 flex items-center justify-center overflow-hidden">
-              {userData.img ? (
+              {user.img ? (
                 <img
-                  src={userData.img || "/placeholder.svg"}
+                  src={user.img || "/placeholder.svg"}
                   alt="Avatar"
                   className="w-full h-full object-cover"
                 />
@@ -106,7 +84,7 @@ export function Sidebar() {
               )}
             </div>
             <span className="ml-3 hidden md:block truncate">
-              {userData.nombre}
+              {user.nombre}
             </span>
             <ChevronDown size={16} className="ml-auto hidden md:block" />
           </DropdownMenuTrigger>
@@ -126,7 +104,7 @@ export function Sidebar() {
             <DropdownMenuSeparator className="bg-[#FFF8F0]/10" />
             <DropdownMenuItem
               className="text-[#7DE2A6] hover:bg-[#28BC98]/10 focus:bg-[#28BC98]/10 cursor-pointer"
-              onClick={handleLogout}
+              onClick={logout}
             >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Cerrar Sesión</span>

@@ -5,7 +5,8 @@ import {
   Settings,
   LogOut
 } from "lucide-react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
+import { useAuth } from "@/context/auth.jsx";
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard/stats" },
@@ -15,13 +16,8 @@ const navItems = [
 ]
 
 export function Sidebar() {
-  const navigate = useNavigate()
   const location = useLocation()
-  const handleLogout = () => {
-    // Limpiar el localStorage
-    localStorage.clear()
-    navigate("/login")
-  }
+  const { logout } = useAuth()
 
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-[#1e2532] text-white p-6">
@@ -43,7 +39,7 @@ export function Sidebar() {
         ))}
       </nav>
       <button
-        onClick={handleLogout}
+        onClick={logout}
         className="mt-5 w-full flex items-center gap-3 bg-red-500 p-3 rounded-lg text-gray-300 hover:text-white transition-colors"
       >
         <LogOut className="h-5 w-5" />
