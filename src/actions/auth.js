@@ -5,13 +5,24 @@ export const loginRequest = async ({ email, password }) => {
     .post(`login`, {
       correo: email,
       password: password,
-      obtenerToken: "true"
+      // obtenerToken: "true"
     })
     .then(() => {
       return [null]
     })
     .catch(error => {
       console.log(error)
+      return [error, null]
+    })
+}
+
+export const logoutRequest = async () => {
+  return api
+    .post(`logout`)
+    .then(() => {
+      return [null]
+    })
+    .catch(error => {
       return [error, null]
     })
 }
