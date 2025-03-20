@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import Swal from "sweetalert2"
-import React from "react"
 import { useAuth } from "@/context/auth"
 
 const Button = ({ children, className, variant, ...props }) => (

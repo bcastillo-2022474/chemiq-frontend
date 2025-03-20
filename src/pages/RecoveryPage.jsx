@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { useLocation } from "react-router-dom"
 import Swal from "sweetalert2"
 import axios from "axios"
-import { BASE_URL } from "@/lib/constants"
 
 const Button = ({ children, className, variant, ...props }) => (
   <button
@@ -19,9 +18,8 @@ const RecoveryPage = () => {
   const [isVisible, setIsVisible] = useState(false)
   const [step, setStep] = useState(1)
   const [email, setEmail] = useState("")
-  const [code, setCode] = useState("")
-  const [token, setToken] = useState(null)
-  const [newPassword, setNewPassword] = useState("")
+  // const [code, setCode] = useState("")
+  // const [newPassword, setNewPassword] = useState("")
   const location = useLocation()
 
   useEffect(() => {
@@ -29,7 +27,7 @@ const RecoveryPage = () => {
     const queryParams = new URLSearchParams(location.search)
     const tokenFromUrl = queryParams.get("token")
     if (tokenFromUrl) {
-      setToken(tokenFromUrl)
+      // setToken(tokenFromUrl)
       setStep(3)
     }
   }, [location.search])
@@ -42,11 +40,12 @@ const RecoveryPage = () => {
         `Se ha enviado un enlace a ${email} para recuperar tu contraseña.`,
         "success"
       )
-    } catch (error) {
+    } catch {
       Swal.fire("Error", "No se pudo enviar el correo electrónico", "error")
     }
   }
 
+/*
   const handleResetPassword = async () => {
     try {
       await axios.post(`${BASE_URL}/reset-password`, { token, newPassword })
@@ -58,10 +57,11 @@ const RecoveryPage = () => {
       setStep(1)
       setEmail("")
       setNewPassword("")
-    } catch (error) {
+    } catch {
       Swal.fire("Error", "No se pudo actualizar la contraseña", "error")
     }
   }
+*/
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">

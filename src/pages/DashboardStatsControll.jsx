@@ -1,5 +1,4 @@
 import { Users, Activity, CheckSquare, DollarSign } from 'lucide-react';
-import { Sidebar } from '../components/ui/SideBarDashboard';
 import { MetricCard } from '../components/ui/DashboardCardsSstats';
 import { OverviewChart } from '../components/ui/DashboardChardStats';
 import { RecentProjects } from '../components/ui/DashboardProjectsStats';

@@ -5,7 +5,7 @@ import {
   Settings,
   LogOut
 } from "lucide-react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "@/context/auth.jsx";
 
 const navItems = [
