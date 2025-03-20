@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react"
-import { useLocation } from "react-router-dom"
+import { useState } from "react"
 import Swal from "sweetalert2"
-import axios from "axios"
+import { generateResetLinkRequest } from "@/actions/users.js";
+import {
+  Check, X, LoaderCircle
+} from "lucide-react"
 
 const Button = ({ children, className, variant, ...props }) => (
   <button
@@ -15,53 +17,10 @@ const Button = ({ children, className, variant, ...props }) => (
 )
 
 const RecoveryPage = () => {
-  const [isVisible, setIsVisible] = useState(false)
-  const [step, setStep] = useState(1)
+  // idk what is this for, but I'll leave it here
+  const isVisible = true
   const [email, setEmail] = useState("")
-  // const [code, setCode] = useState("")
-  // const [newPassword, setNewPassword] = useState("")
-  const location = useLocation()
-
-  useEffect(() => {
-    setIsVisible(true)
-    const queryParams = new URLSearchParams(location.search)
-    const tokenFromUrl = queryParams.get("token")
-    if (tokenFromUrl) {
-      // setToken(tokenFromUrl)
-      setStep(3)
-    }
-  }, [location.search])
-
-  const handleSendCode = async () => {
-    try {
-      await axios.post("http://localhost:3000/api/forgotPassword", { email })
-      Swal.fire(
-        "Código enviado",
-        `Se ha enviado un enlace a ${email} para recuperar tu contraseña.`,
-        "success"
-      )
-    } catch {
-      Swal.fire("Error", "No se pudo enviar el correo electrónico", "error")
-    }
-  }
-
-/*
-  const handleResetPassword = async () => {
-    try {
-      await axios.post(`${BASE_URL}/reset-password`, { token, newPassword })
-      Swal.fire(
-        "Contraseña actualizada",
-        "Tu contraseña ha sido actualizada exitosamente",
-        "success"
-      )
-      setStep(1)
-      setEmail("")
-      setNewPassword("")
-    } catch {
-      Swal.fire("Error", "No se pudo actualizar la contraseña", "error")
-    }
-  }
-*/
+  const [status, setStatus] = useState("idle");
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -89,54 +48,92 @@ const RecoveryPage = () => {
             }`}
           >
             <div className="bg-white py-8 px-4 sm:rounded-lg sm:px-10">
-              {step === 1 && (
-                <>
-                  <h2 className="text-5xl text-center font-bold text-gray-800 mb-6">
-                    Recuperar Contraseña
-                  </h2>
-                  <p className="text-gray-600 text-center text-md text-gray-600 mb-6">
-                    Ingresa tu correo electrónico y te enviaremos un enlace para
-                    recuperar tu contraseña.
-                  </p>
-                  <form
-                    className="space-y-6"
-                    onSubmit={e => {
-                      e.preventDefault()
-                      handleSendCode()
-                    }}
+              <h2 className="text-5xl text-center font-bold text-gray-800 mb-6">
+                Recuperar Contraseña
+              </h2>
+              <p className="text-gray-600 text-center text-md text-gray-600 mb-6">
+                Ingresa tu correo electrónico y te enviaremos un enlace para
+                recuperar tu contraseña.
+              </p>
+              <form
+                className="space-y-6"
+                onSubmit={async e => {
+                  e.preventDefault()
+                  try {
+                    if (status !== "idle") return
+                    setStatus("loading")
+                    const [error] = await generateResetLinkRequest({ email })
+
+                    if (error) {
+                      setStatus("error")
+                      void Swal.fire("Error", error.response.data.message, "error")
+                      return
+                    }
+                    void Swal.fire(
+                      "Enlace enviado",
+                      "Hemos enviado un enlace a tu correo electrónico",
+                      "success"
+                    )
+                    setStatus("success")
+                    setEmail("")
+                  } catch {
+                    setStatus("error")
+                    void Swal.fire("Error", "No se pudo enviar el enlace", "error")
+                  } finally {
+                    setTimeout(() => {
+                      setStatus("idle")
+                    }, 3000)
+                  }
+                }}
+              >
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
                   >
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Correo Electrónico
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          autoComplete="email"
-                          required
-                          placeholder="tu@ejemplo.com"
-                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                          value={email}
-                          onChange={e => setEmail(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Button
-                        type="submit"
-                        className="w-full bg-base text-white hover:bg-accent rounded-md"
-                      >
-                        Enviar Enlace
-                      </Button>
-                    </div>
-                  </form>
-                </>
-              )}
+                    Correo Electrónico
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      placeholder="tu@ejemplo.com"
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Button
+                    type="submit"
+                    className="w-full bg-base text-white hover:bg-accent rounded-md flex gap-3 items-center justify-center"
+                  >
+                    {status === "idle" && <span>Enviar Enlace</span>}
+                    {status === "loading" && (
+                      <>
+                        <span>Enviando</span>
+                        <LoaderCircle className="animate-spin"/>
+                      </>
+                    )}
+                    {status === "success" && (
+                      <>
+                        <span>Enviado</span>
+                        <Check/>
+                      </>
+                    )}
+                    {status === "error" && (
+                      <>
+                        <span>Error</span>
+                        <X/>
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
