@@ -1,176 +1,204 @@
 import { useState, useEffect } from "react"
-import { Podcast, Play, Clock, Calendar, Users } from "lucide-react"
-import { getVideosRequest } from "@/actions/youtube"
+import { Play, Calendar, Clock, Info, ThumbsUp } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
+import { es } from "date-fns/locale"
+import { getVideoId, getVideoDetails } from "@/utils/youtube"
 
 export const YouTubeVideos = () => {
   const [videos, setVideos] = useState([])
   const [selectedVideo, setSelectedVideo] = useState(null)
+  const [videoDetails, setVideoDetails] = useState({})
 
   useEffect(() => {
-    const fetchVideos = async () => {
-      const [error, videos] = await getVideosRequest()
-      if (error) {
-        console.error("Error fetching videos:", error)
-        return
+    const fetchPodcasts = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/podcasts")
+        const podcasts = await response.json()
+        setVideos(podcasts)
+
+        // Obtener detalles de YouTube para cada video
+        const details = {}
+        for (const video of podcasts) {
+          const videoId = getVideoId(video.link)
+          if (videoId) {
+            const videoInfo = await getVideoDetails(videoId)
+            if (videoInfo) {
+              details[videoId] = videoInfo
+            }
+          }
+        }
+        setVideoDetails(details)
+      } catch (error) {
+        console.error("Error fetching podcasts:", error)
       }
-      setVideos(videos)
     }
 
-    void fetchVideos()
+    void fetchPodcasts()
   }, [])
 
-  return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2 flex items-center">
-        <Podcast className="h-8 w-8 mr-2 text-[#1d896e]" />
-        Últimos Podcasts
-      </h1>
-      <p className="text-gray-600 mb-8">
-        Explora los últimos episodios de nuestro canal
-      </p>
+  const handlePlayClick = (video) => {
+    setSelectedVideo(video)
+  }
 
-      <div className="flex flex-col space-y-6">
-        {videos.map((video, index) => (
-          <div
-            key={video.id}
-            className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row hover:shadow-2xl transition-all duration-300 cursor-pointer group"
-            onClick={() => setSelectedVideo(video)}
+  const handleCloseModal = () => {
+    setSelectedVideo(null)
+  }
+
+  return (
+    <div>
+      {/* Header con gradiente */}
+      <header className="relative h-48 mb-12 rounded-xl overflow-hidden bg-[#28BC98]">
+        <div className="absolute inset-0">
+          <svg
+            className="w-full h-full opacity-20"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            {index % 2 === 0 ? (
-              <>
-                {/* Imagen a la izquierda (índices pares) */}
-                <div className="md:w-2/5 relative">
+            <path
+              d="M0,0 L100,0 L100,100 L0,100 Z"
+              fill="url(#header-gradient)"
+            />
+            <defs>
+              <linearGradient
+                id="header-gradient"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
+                <stop offset="0%" stopColor="#7DE2A6" />
+                <stop offset="100%" stopColor="#28BC98" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div className="absolute inset-0 flex flex-col justify-center px-8">
+          <h1 className="text-5xl font-light text-center tracking-tight text-[#0B2F33]">
+            <span className="font-bold">Podcasts y Videos</span>
+          </h1>
+          <p className="mt-2 text-center text-lg text-[#0B2F33]/80">
+            Explora nuestro contenido audiovisual más reciente
+          </p>
+        </div>
+      </header>
+
+      {/* Contenido de videos */}
+      <div className="space-y-6">
+        {videos.map((video) => {
+          const videoId = getVideoId(video.link)
+          const details = videoDetails[videoId] || {}
+          
+          return (
+            <div
+              key={video.id}
+              className="bg-white rounded-xl overflow-hidden hover:-translate-y-1 transition-all duration-300 border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px]"
+            >
+              <div className="flex">
+                {/* Thumbnail */}
+                <div className="w-80 h-full flex-shrink-0 relative group">
                   <img
-                    src={video.thumbnail}
-                    alt={video.title}
+                    src={details.thumbnailUrl || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                    alt={details.title || video.nombre}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+                  <button
+                    onClick={() => handlePlayClick(video)}
+                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  >
+                    <Play className="h-12 w-12 text-white" />
+                  </button>
                 </div>
-                {/* Información a la derecha */}
-                <div className="p-6 md:w-3/5 flex flex-col justify-between">
-                  <div>
-                    <h2 className="text-xl font-bold text-blue-600 mb-2">
-                      {video.title}
-                    </h2>
-                    <p className="text-gray-700 mt-2">
-                      {video.description.length > 150
-                        ? `${video.description.substring(0, 150)}...`
-                        : video.description}
-                    </p>
-                  </div>
-                  <div className="flex justify-between items-center mt-4">
-                    <div className="flex items-center text-gray-500 space-x-4">
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>{video.publishedAt}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        <span>{video.duration}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-1" />
-                        <span>
-                          {parseInt(video.views).toLocaleString()} vistas
+
+                {/* Content */}
+                <div className="flex-1 p-6">
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <h3 className="text-2xl font-semibold text-[#0B2F33] mb-3">
+                        {details.title || video.nombre}
+                      </h3>
+                      <p className="text-gray-600 text-base line-clamp-2 mb-4">
+                        {details.description || "Sin descripción disponible"}
+                      </p>
+                      <div className="flex items-center space-x-6 text-sm text-gray-500">
+                        <span className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2 text-[#28BC98]" />
+                          {details.publishedAt ? 
+                            formatDistanceToNow(new Date(details.publishedAt), {
+                              addSuffix: true,
+                              locale: es,
+                            }) : 
+                            "Fecha no disponible"
+                          }
                         </span>
-                      </div>
-                    </div>
-                    <div className="bg-[#1d896e] text-white px-3 py-1 rounded-full group-hover:bg-blue-700 transition-colors duration-300 flex items-center">
-                      <Play className="h-4 w-4 mr-1" />
-                      <span className="text-sm font-medium">Ver más</span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                {/* Información a la izquierda (índices impares) */}
-                <div className="p-6 md:w-3/5 order-2 md:order-1 flex flex-col justify-between">
-                  <div>
-                    <h2 className="text-xl font-bold text-blue-600 mb-2">
-                      {video.title}
-                    </h2>
-                    <p className="text-gray-700 mt-2">
-                      {video.description.length > 150
-                        ? `${video.description.substring(0, 150)}...`
-                        : video.description}
-                    </p>
-                  </div>
-                  <div className="flex justify-between items-center mt-4">
-                    <div className="flex items-center text-gray-500 space-x-4">
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>{video.publishedAt}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        <span>{video.duration}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-1" />
-                        <span>
-                          {parseInt(video.views).toLocaleString()} vistas
+                        <span className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2 text-[#28BC98]" />
+                          {details.duration || "N/A"}
                         </span>
+                        {details.viewCount && (
+                          <span className="flex items-center">
+                            <Info className="h-4 w-4 mr-2 text-[#28BC98]" />
+                            {details.viewCount} visualizaciones
+                          </span>
+                        )}
+                        {details.likeCount && (
+                          <span className="flex items-center">
+                            <ThumbsUp className="h-4 w-4 mr-2 text-[#28BC98]" />
+                            {details.likeCount}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <div className="bg-[#1d896e] text-white px-3 py-1 rounded-full group-hover:bg-blue-700 transition-colors duration-300 flex items-center">
-                      <Play className="h-4 w-4 mr-1" />
-                      <span className="text-sm font-medium">Ver más</span>
+
+                    <div className="flex justify-end mt-4">
+                      <button
+                        onClick={() => handlePlayClick(video)}
+                        className="bg-[#28BC98] text-white px-8 py-2.5 rounded-full text-sm font-medium hover:bg-[#7DE2A6] transition-colors duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
+                      >
+                        <Play className="h-4 w-4" />
+                        Reproducir
+                      </button>
                     </div>
                   </div>
                 </div>
-                {/* Imagen a la derecha */}
-                <div className="md:w-2/5 order-1 md:order-2 relative">
-                  <img
-                    src={video.thumbnail}
-                    alt={video.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-l from-black/30 to-transparent" />
-                </div>
-              </>
-            )}
-          </div>
-        ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
+      {/* Modal de video */}
       {selectedVideo && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-          <div className="relative bg-white p-4 rounded-lg max-w-4xl w-full">
-            <div
-              className="absolute top-2 right-2 p-2 cursor-pointer bg-red-500 text-white rounded-full"
-              onClick={() => setSelectedVideo(null)}
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="relative bg-white rounded-xl w-full max-w-4xl overflow-hidden">
+            <button
+              onClick={handleCloseModal}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors duration-300"
             >
-              <span className="text-xl font-bold">X</span>
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <div className="aspect-w-16 aspect-h-9">
+              <iframe
+                src={`https://www.youtube.com/embed/${getVideoId(selectedVideo.link)}`}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-[500px]"
+              ></iframe>
             </div>
-            <h2 className="text-xl font-bold mb-2 pr-8">
-              {selectedVideo.title}
-            </h2>
-            <div className="flex items-center text-gray-500 space-x-4 mb-4">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>{selectedVideo.publishedAt}</span>
-              </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-1" />
-                <span>{selectedVideo.duration}</span>
-              </div>
-              <div className="flex items-center">
-                <Users className="h-4 w-4 mr-1" />
-                <span>
-                  {parseInt(selectedVideo.views).toLocaleString()} vistas
-                </span>
-              </div>
-            </div>
-            <iframe
-              className="w-full h-96"
-              src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`}
-              title={selectedVideo.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-            <p className="mt-4 text-gray-700">{selectedVideo.description}</p>
           </div>
         </div>
       )}

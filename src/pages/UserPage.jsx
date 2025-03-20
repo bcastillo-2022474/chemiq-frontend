@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/Sidebar"
 import { FeaturedPodcast } from "@/components/FeaturedPodcast"
 import { FeaturedNews } from "@/components/FeaturedNews"
@@ -5,14 +6,30 @@ import { FeaturedProject } from "@/components/FeaturedProject"
 import { NewsRoutes } from "@/components/NewsSection"
 import { YouTubeVideos } from "@/components/YouTubeVideos"
 import { ProjectsSection } from "@/components/ProjectsSection"
+import { LoadingBeaker } from "@/components/LoadingBeaker"
 import { Outlet, Route, Routes } from "react-router-dom"
 
 function UserPage() {
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simular tiempo de carga
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 2000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (isLoading) {
+    return <LoadingBeaker />
+  }
+
   return (
     <div className="flex h-screen bg-[#FFF8F0]">
       <Sidebar />
-      <main className="flex-1 p-6 overflow-auto">
-        <div className="max-w-5xl mx-auto">
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-6xl mx-auto px-6 py-8">
           <Outlet />
         </div>
       </main>
@@ -59,14 +76,14 @@ function HomePage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-6">
-        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20">
+      <div className="grid grid-cols-1 gap-8">
+        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
           <FeaturedNews />
         </div>
-        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20">
+        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
           <FeaturedProject />
         </div>
-        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20">
+        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
           <FeaturedPodcast />
         </div>
       </div>
