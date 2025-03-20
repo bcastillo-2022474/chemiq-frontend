@@ -1,8 +1,8 @@
 import { api } from "@/lib/http";
 
-export const sendEmailRequest = async ({ name, subject, message, email }) => {
+export const sendEmailToSelfRequest = async ({ name, subject, message, email }) => {
   return api
-    .post(`email`, {
+    .post(`email-self`, {
       name,
       subject,
       message,

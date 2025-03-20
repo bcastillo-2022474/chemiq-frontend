@@ -21,7 +21,7 @@ import {
 import {
   Skeleton, CarouselSkeleton, MemberCardSkeleton, TextSectionSkeleton, FormSkeleton, FeatureSkeleton, TitleSkeleton
 } from "@/components/SkeletonsLanding"
-import { sendEmailRequest } from "@/actions/email.js";
+import { sendEmailToSelfRequest } from "@/actions/email";
 
 const cards = [{
   imageUrl: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Jos%C3%A9%20Paiz.png?csf=1&web=1&e=IBJsiC",
@@ -524,7 +524,7 @@ function ContactSection({ loading }) {
       e.preventDefault();
       if (status !== "idle") return;
       setStatus("loading");
-      const [error] = await sendEmailRequest({
+      const [error] = await sendEmailToSelfRequest({
         name: form.name,
         subject: form.subject,
         message: form.message,
