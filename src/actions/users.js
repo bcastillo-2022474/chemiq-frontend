@@ -45,3 +45,25 @@ export const deleteUserRequest = async ({ id }) => {
       return [error, null]
     })
 }
+
+export const generateResetLinkRequest = async ({ email }) => {
+  return api
+    .post(`${API_URL}/forgot-password`, { email })
+    .then(response => {
+      return [null, response.data]
+    })
+    .catch(error => {
+      return [error, null]
+    })
+}
+
+export const resetPasswordRequest = async ({ password, token }) => {
+  return api
+    .post(`${API_URL}/restore-password`, { password, token })
+    .then(response => {
+      return [null, response.data]
+    })
+    .catch(error => {
+      return [error, null]
+    })
+}

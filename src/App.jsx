@@ -56,7 +56,7 @@ function GeneralRoutes() {
         <Route path="/" element={<LandingPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/recovery" element={<RecoveryPage/>}/>
-        <Route path="/reset" element={<Reset/>}/>
+        <Route path="/reset-password/:token" element={<Reset/>}/>
       </Route>
       <Route path="" element={<Auth/>}>
         <Route path="/juntapage" element={<JuntaPage/>}/>

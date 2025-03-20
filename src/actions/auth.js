@@ -27,17 +27,6 @@ export const logoutRequest = async () => {
     })
 }
 
-export const resetPasswordRequest = async ({ password }) => {
-  return api
-    .post(`resetPassword`, { password })
-    .then(response => {
-      return [null, response.data]
-    })
-    .catch(error => {
-      return [error, null]
-    })
-}
-
 export const verifyAuthRequest = async () => {
   return api
     .get(`verify-auth`)

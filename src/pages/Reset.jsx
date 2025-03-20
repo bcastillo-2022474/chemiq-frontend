@@ -1,23 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { resetPasswordRequest } from "@/actions/auth";
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { resetPasswordRequest } from "@/actions/users";
 
 const Reset = () => {
+  console.log('Reset.jsx');
+  const { token } = useParams();
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
-  const location = useLocation();
   const navigate = useNavigate();
-
-  const query = new URLSearchParams(location.search);
-  const token = query.get('token');
-
-  useEffect(() => {
-    console.log('Token from query params:', token);
-  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const [error, { message }] = await resetPasswordRequest({ password: newPassword });
+    const [error, message] = await resetPasswordRequest({ password: newPassword, token });
     if (error) {
       setMessage(error.message);
       return;
