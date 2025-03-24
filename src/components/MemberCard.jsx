@@ -1,36 +1,55 @@
-const Card = ({ imageUrl, hoverText, cargo }) => (
-    <div className="relative overflow-hidden rounded-lg shadow-lg group aspect-w-3 aspect-h-4">
-        <img
-            src={imageUrl}
-            alt="Card"
-            className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-30"
-        />
-        <div className="absolute inset-0 bg-accent bg-opacity-70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4">
-            <div className="flex flex-col items-center space-y-4">
-                <p className="text-xl font-bold tracking-tighter sm:text-2xl md:text-3xl text-center mb-8 text-white">
-                    {hoverText}
-                </p>
+"use client"
 
-                <p className="text-md font-bold tracking-tighter sm:text-xl md:text-xl text-center mb-8 text-white">
-                    {cargo}
-                </p>
-            </div>
-        </div>
+import { useState } from "react"
+import { Card } from "@/components/ui/card"
+import MemberModal from "./MemberModal"
 
-    </div>
-);
+function MemberCard({ cards }) {
+  const [selectedMember, setSelectedMember] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-const MemberCard = ({ cards }) => {
-    return (
-        <div className="container mx-auto px-5 py-3">
-            <div className="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {cards.map((card, index) => (
-                    <Card key={index} imageUrl={card.imageUrl} hoverText={card.hoverText} cargo={card.cargo} />
-                ))}
-            </div>
-        </div>
-    );
-};
+  const handleCardClick = (member) => {
+    setSelectedMember(member)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedMember(null)
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap gap-4 justify-center align-center">
+        {cards.map((member, index) => (
+          <Card
+            key={index}
+            className="cursor-pointer relative group overflow-hidden"
+            onClick={() => handleCardClick(member)}
+            style={{ width: "300px", height: "350px" }}
+          >
+            {member.avatar && (
+              <>
+                <div className="w-full h-full overflow-hidden">
+                  <img
+                    src={member.avatar || "/placeholder.svg"}
+                    alt={member.name || "Member"}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+                  <h3 className="text-white text-xl font-bold mb-2">{member.name}</h3>
+                  {member.role && <p className="text-white/80 text-center">{member.role}</p>}
+                </div>
+              </>
+            )}
+          </Card>
+        ))}
+      </div>
+
+      <MemberModal isOpen={isModalOpen} onClose={handleCloseModal} member={selectedMember} />
+    </>
+  )
+}
 
 export default MemberCard;
-
