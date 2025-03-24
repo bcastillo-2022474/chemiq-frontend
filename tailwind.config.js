@@ -1,18 +1,28 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+    darkMode: ["class"],
+    content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {
-      colors: {
-        base: '#28BC98',
-        subase: '#7DE2A6',
-        background: '#FFF8F0',
-        accent: '#0B2F33',
-        tertiary: '#E0FFEC',
-      },
-      
-      plugins: [],
-    }
+  	extend: {
+  		colors: {
+  			base: '#28BC98',
+  			subase: '#7DE2A6',
+  			background: '#FFF8F0',
+  			accent: '#0B2F33',
+  			tertiary: '#E0FFEC',
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar-background))',
+  				foreground: 'hsl(var(--sidebar-foreground))',
+  				primary: 'hsl(var(--sidebar-primary))',
+  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+  				accent: 'hsl(var(--sidebar-accent))',
+  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+  				border: 'hsl(var(--sidebar-border))',
+  				ring: 'hsl(var(--sidebar-ring))'
+  			}
+  		},
+  		plugins: []
+  	}
   }
 }
 
