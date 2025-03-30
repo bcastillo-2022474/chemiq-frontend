@@ -1,27 +1,24 @@
-export function ProjectDetails({ project, onAddMember }) {
-  const ownerDetails = project.dueno || null
+import { Edit, Trash2 } from "lucide-react";
 
-  // Asegurarse de que integrantes sea un array, incluso si es null o undefined
-  const integrantes = Array.isArray(project.integrantes)
-    ? project.integrantes
-    : []
-
+export function ProjectDetails({ project, members, onAddMember, onDeleteProject, onEditProject, projectOwner }) {
+  console.log("Project Details", projectOwner)
+  const ownerDetails = projectOwner || null;
+  const integrantes = Array.isArray(members) ? members : [];
   const youtubeVideoId = project.youtube
-    ? project.youtube.split("youtu.be/")[1]?.split("?")[0]
-    : null
+    ? project.youtube.split("youtu.be/")[1]?.split("?")[0] ||
+      project.youtube.split("v=")[1]?.split("&")[0]
+    : null;
 
   return (
     <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="relative h-64">
         <img
-          src={project.proyecto_img || "/placeholder.svg"}
-          alt={project.proyecto_nombre}
+          src={project.img || "/placeholder.svg"}
+          alt={project.nombre}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center">
-          <h2 className="text-3xl font-bold text-white">
-            {project.proyecto_nombre}
-          </h2>
+          <h2 className="text-3xl font-bold text-white">{project.nombre}</h2>
           {ownerDetails && (
             <div className="mt-2 px-3 py-1 bg-indigo-600 rounded-full text-white text-sm font-medium flex items-center">
               {ownerDetails.img && (
@@ -31,19 +28,34 @@ export function ProjectDetails({ project, onAddMember }) {
                   className="w-5 h-5 rounded-full mr-2 object-cover"
                 />
               )}
-              Owner: {ownerDetails.nombre}
+              Owner: {ownerDetails.name}
             </div>
           )}
         </div>
       </div>
       <div className="p-6">
+        <div className="flex justify-end mb-4 space-x-2">
+          <button
+            onClick={() => onEditProject(project)}
+            className="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-150 ease-in-out flex items-center"
+          >
+            <Edit className="w-4 h-4 mr-1" />
+            Edit
+          </button>
+          <button
+            onClick={() => onDeleteProject(project.id)}
+            className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-150 ease-in-out flex items-center"
+          >
+            <Trash2 className="w-4 h-4 mr-1" />
+            Delete
+          </button>
+        </div>
+
         <div className="mb-6">
           <h3 className="text-xl font-semibold mb-2">Information</h3>
           {ownerDetails && (
             <div className="mb-2 flex items-center">
-              <span className="font-semibold text-indigo-600 mr-2">
-                Project Owner:
-              </span>
+              <span className="font-semibold text-indigo-600 mr-2">Project Owner:</span>
               <div className="flex items-center bg-indigo-100 text-indigo-800 px-2 py-1 rounded-md">
                 {ownerDetails.img && (
                   <img
@@ -52,10 +64,8 @@ export function ProjectDetails({ project, onAddMember }) {
                     className="w-5 h-5 rounded-full mr-2 object-cover"
                   />
                 )}
-                <span>{ownerDetails.nombre}</span>
-                <span className="text-xs ml-1 text-indigo-600">
-                  ({ownerDetails.carne})
-                </span>
+                <span>{ownerDetails.name}</span>
+                <span className="text-xs ml-1 text-indigo-600">({ownerDetails.carne})</span>
               </div>
             </div>
           )}
@@ -80,14 +90,14 @@ export function ProjectDetails({ project, onAddMember }) {
           <h3 className="text-xl font-semibold mb-2">Team Members</h3>
           {integrantes.length > 0 ? (
             <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {integrantes.map(integrante => (
-                <li key={integrante} className="flex items-center space-x-2">
+              {integrantes.map((integrante) => (
+                <li key={integrante.id} className="flex items-center space-x-2">
                   <img
-                    src="/placeholder.svg"
-                    alt={`Team member ${integrante}`}
+                    src={integrante.user?.img || "/placeholder.svg"}
+                    alt={integrante.user?.name || `Team member ${integrante.user?.carne}`}
                     className="w-8 h-8 rounded-full object-cover"
                   />
-                  <span className="text-gray-600">{`Member ${integrante}`}</span>
+                  <span className="text-gray-600">{integrante.user?.name || "Unknown"}</span>
                 </li>
               ))}
             </ul>
@@ -103,5 +113,5 @@ export function ProjectDetails({ project, onAddMember }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

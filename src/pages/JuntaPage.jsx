@@ -859,5 +859,5 @@ function JuntaPage() {
     </div>
   );
 }
-
+}
 export default JuntaPage;
