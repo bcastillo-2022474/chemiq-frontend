@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Beaker, Users, Home, Settings, ChevronLeft, ChevronRight, Search, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getUsers } from "@/actions/users";
+import { getUsers, updateUserRequest, deleteUserRequest } from "@/actions/users";
+import Swal from "sweetalert2"
+
 
 const sideNavItems = [
   { icon: Home, label: "Inicio", href: "#" },
@@ -32,7 +34,6 @@ function JuntaPage() {
       console.error("Error fetching users:", error);
       return;
     }
-
     setUsers(users);
   };
 
@@ -45,8 +46,8 @@ function JuntaPage() {
     (user) =>
       (user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (roleFilter === "" || user.role === roleFilter),
+        user.rol.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (user.rol == "User" )
   );
 
   const indexOfLastUser = currentPage * usersPerPage;
@@ -59,9 +60,78 @@ function JuntaPage() {
     setUsers(users.map((user) => (user.carne === id ? { ...user, [field]: value } : user)));
   };
 
-  const handleSave = (id) => {
+  const handleSave = async (carne) => {
+    const userToUpdate = users.find((user) => user.carne === carne);
+    if (!userToUpdate) return;
+
+    const id = userToUpdate.carne;
+    console.log("Usuario a actualizar:", userToUpdate);
+
+    const [error, updatedUser] = await updateUserRequest({ id, user: userToUpdate });
+
+    if (error) {
+      console.error("Error al actualizar el usuario:", error);
+      void Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar el usuario.",
+      });
+      return;
+    }
+
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => (user.carne === carne ? { ...user, ...updatedUser } : user))
+    );
     setEditingId(null);
-    console.log("Guardando cambios para el usuario con ID:", id);
+
+    void Swal.fire({
+      icon: "success",
+      title: "Éxito",
+      text: "Usuario actualizado correctamente.",
+    });
+
+    console.log("Usuario actualizado:", updatedUser);
+  };
+
+  const handleDelete = async (carne) => {
+    const confirmDelete = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirmDelete.isConfirmed) {
+      console.log("Eliminación cancelada por el usuario.");
+      return;
+    }
+
+    const id = carne;
+    const [error] = await deleteUserRequest({ id });
+
+    if (error) {
+      console.error("Error al eliminar el usuario:", error);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar el usuario.",
+      });
+      return;
+    }
+
+    setUsers((prevUsers) => prevUsers.filter((user) => user.carne !== carne));
+
+    await Swal.fire({
+      icon: "success",
+      title: "Eliminado",
+      text: "Usuario eliminado con éxito.",
+    });
+
+    console.log("Usuario eliminado con éxito.");
   };
 
   return (
@@ -106,16 +176,6 @@ function JuntaPage() {
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Todos los roles</option>
-            <option value="Administrador">Administrador</option>
-            <option value="Junta Directiva">Profesor</option>
-            <option value="Usuario">Usuario</option>
-          </select>
         </div>
 
         {/* Users Table */}
@@ -158,28 +218,41 @@ function JuntaPage() {
                   </td>
                   <td className="py-4">
                     {editingId === user.carne ? (
-                      <select
-                        value={user.role}
-                        onChange={(e) => handleEdit(user.carne, "role", e.target.value)}
-                        className="border-b border-gray-300 focus:border-blue-500 outline-none"
-                      >
-                        <option value="Estudiante">Estudiante</option>
-                        <option value="Profesor">Profesor</option>
-                        <option value="Investigador">Investigador</option>
-                      </select>
+                      // <select
+                      //   value={user.rol}
+                      //   onChange={(e) => handleEdit(user.carne, "role", e.target.value)}
+                      //   className="border-b border-gray-300 focus:border-blue-500 outline-none"
+                      // >
+                      //   <option value="Estudiante">Estudiante</option>
+                      //   <option value="Profesor">Profesor</option>
+                      //   <option value="Investigador">Investigador</option>
+                      // </select>
+                      
+                      //si se deseará permitir editar el rol, descomentar el select y comentar la siguiente línea
+                      user.rol
                     ) : (
-                      user.role
+                      user.rol
                     )}
                   </td>
                   <td className="py-4">
                     {editingId === user.carne ? (
-                      <button onClick={() => handleSave(user.carne)} className="text-blue-600 hover:text-blue-800">
+                    <>
+                      <button onClick={() => handleSave(user.carne)} className="text-blue-600 hover:text-blue-800 mr-4">
                         Guardar
                       </button>
+                      <button onClick={() => setEditingId(null)} className="text-gray-600 hover:text-gray-800">
+                            Cancelar
+                      </button>
+                    </>
                     ) : (
-                      <button onClick={() => setEditingId(user.carne)} className="text-gray-600 hover:text-gray-800">
+                    <>
+                      <button onClick={() => setEditingId(user.carne)} className="text-blue-600 hover:text-blue-800 mr-4"                      >
                         Editar
                       </button>
+                      <button onClick={() => handleDelete(user.carne)} className="text-red-600 hover:text-red-800">
+                            Eliminar
+                      </button>
+                    </>
                     )}
                   </td>
                 </tr>
