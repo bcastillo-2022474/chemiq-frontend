@@ -61,8 +61,6 @@ function JuntaPage() {
       console.error("Error fetching users:", error);
       return;
     }
-    setUsers(users);
-  };
 
   const fetchPodcast = async () => {
     const [error, podcast] = await getPodcast();
@@ -82,6 +80,7 @@ function JuntaPage() {
     setProjects(projects);
   };
 
+  // Llamada a la API para obtener usuarios cuando se monta el componente
   useEffect(() => {
     fetchUsers();
     fetchProjects();
