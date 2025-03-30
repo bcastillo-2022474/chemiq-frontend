@@ -1,14 +1,39 @@
 import { useState, useEffect } from "react";
-import { Beaker, Users, Home, Settings, ChevronLeft, ChevronRight, Search, LogOut } from "lucide-react";
+import {
+  Beaker,
+  Users,
+  Home,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  LogOut,
+  Podcast,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getUsers, updateUserRequest, deleteUserRequest } from "@/actions/users";
-import { getProjectsRequest, updateProjectRequest, deleteProjectRequest, createProjectRequest } from "@/actions/projects";
+import {
+  getUsers,
+  updateUserRequest,
+  deleteUserRequest,
+} from "@/actions/users";
+import {
+  getProjectsRequest,
+  updateProjectRequest,
+  deleteProjectRequest,
+  createProjectRequest,
+} from "@/actions/projects";
 import Swal from "sweetalert2";
-
+import {
+  getPodcast,
+  updatePodcastRequest,
+  deletePodcastRequest,
+  createPodcastRequest,
+} from "../actions/podcast";
 const sideNavItems = [
   { icon: Home, label: "Inicio", href: "#" },
   { icon: Users, label: "Usuarios", href: "#" },
   { icon: Beaker, label: "Proyectos", href: "#" },
+  { icon: Podcast, label: "Podcast", href: "#" },
   { icon: Settings, label: "Configuración", href: "#" },
 ];
 
@@ -16,6 +41,7 @@ function JuntaPage() {
   const [activeNavItem, setActiveNavItem] = useState("Usuarios");
   const [users, setUsers] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [podcast, setPodcast] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +64,14 @@ function JuntaPage() {
     setUsers(users);
   };
 
+  const fetchPodcast = async () => {
+    const [error, podcast] = await getPodcast();
+    if (error) {
+      console.error("Error fetching users:", error);
+      return;
+    }
+    setPodcast(podcast);
+  };
   // Fetch projects
   const fetchProjects = async () => {
     const [error, projects] = await getProjectsRequest();
@@ -51,6 +85,7 @@ function JuntaPage() {
   useEffect(() => {
     fetchUsers();
     fetchProjects();
+    fetchPodcast();
   }, []);
 
   // Filter logic for users
@@ -70,28 +105,163 @@ function JuntaPage() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
-  const currentProjects = filteredProjects.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(
-    activeNavItem === "Usuarios" ? filteredUsers.length : filteredProjects.length / itemsPerPage
+  const currentProjects = filteredProjects.slice(
+    indexOfFirstItem,
+    indexOfLastItem
   );
+  const totalPages = Math.ceil(
+    activeNavItem === "Usuarios"
+      ? filteredUsers.length
+      : filteredProjects.length / itemsPerPage
+  );
+  // Podcast handlers
+  const handleEditPodcast = (id, field, value) => {
+    setPodcast(
+      podcast.map((pod) => (pod.id === id ? { ...pod, [field]: value } : pod))
+    );
+  };
 
+  const handleSavePodcast = async (id) => {
+    const podcastToUpdate = podcast.find((pod) => pod.id === id);
+    if (!podcastToUpdate) {
+      console.error("Podcast no encontrado para actualizar.");
+      return;
+    }
+
+    // Crear un objeto con solo los campos necesarios
+    const updatedData = {
+      nombre: podcastToUpdate.nombre,
+      link: podcastToUpdate.link,
+    };
+
+    console.log("Datos enviados al backend (update):", updatedData);
+
+    const [error, updatedPodcast] = await updatePodcastRequest({
+      id,
+      podcast: updatedData,
+    });
+
+    if (error) {
+      console.error("Error al actualizar el podcast:", error);
+      void Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar el podcast.",
+      });
+      return;
+    }
+
+    console.log("Respuesta del backend (update):", updatedPodcast);
+
+    // Actualizar el estado con el podcast actualizado
+    setPodcast((prev) =>
+      prev.map((pod) => (pod.id === id ? { ...pod, ...updatedPodcast } : pod))
+    );
+    setEditingId(null);
+    void Swal.fire({
+      icon: "success",
+      title: "Éxito",
+      text: "Podcast actualizado correctamente.",
+    });
+  };
+  const handleDeletePodcast = async (id) => {
+    const confirm = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+    });
+    if (!confirm.isConfirmed) return;
+
+    const [error] = await deletePodcastRequest({ id });
+    if (error) {
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar el podcast.",
+      });
+      return;
+    }
+    setPodcast((prev) => prev.filter((pod) => pod.id !== id));
+    await Swal.fire({
+      icon: "success",
+      title: "Eliminado",
+      text: "Podcast eliminado con éxito.",
+    });
+  };
+
+  const handleCreatePodcast = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: "Crear Podcast",
+      html:
+        '<input id="nombre" class="swal2-input" placeholder="Nombre">' +
+        '<input id="link" class="swal2-input" placeholder="Link">',
+      focusConfirm: false,
+      preConfirm: () => ({
+        nombre: document.getElementById("nombre").value,
+        link: document.getElementById("link").value,
+      }),
+    });
+
+    if (formValues) {
+      const [error, newPodcast] = await createPodcastRequest(formValues);
+      if (error) {
+        void Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo crear el podcast.",
+        });
+        return;
+      }
+
+      // Actualizar el estado con el nuevo podcast
+      setPodcast((prev) => [...prev, newPodcast]);
+      void Swal.fire({
+        icon: "success",
+        title: "Éxito",
+        text: "Podcast creado correctamente.",
+      });
+    }
+  };
   // User handlers
   const handleEditUser = (id, field, value) => {
-    setUsers(users.map((user) => (user.carne === id ? { ...user, [field]: value } : user)));
+    setUsers(
+      users.map((user) =>
+        user.carne === id ? { ...user, [field]: value } : user
+      )
+    );
   };
 
   const handleSaveUser = async (carne) => {
     const userToUpdate = users.find((user) => user.carne === carne);
     if (!userToUpdate) return;
 
-    const [error, updatedUser] = await updateUserRequest({ id: carne, user: userToUpdate });
+    const [error, updatedUser] = await updateUserRequest({
+      id: carne,
+      user: userToUpdate,
+    });
     if (error) {
-      void Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar el usuario." });
+      void Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar el usuario.",
+      });
       return;
     }
-    setUsers((prev) => prev.map((user) => (user.carne === carne ? { ...user, ...updatedUser } : user)));
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.carne === carne ? { ...user, ...updatedUser } : user
+      )
+    );
     setEditingId(null);
-    void Swal.fire({ icon: "success", title: "Éxito", text: "Usuario actualizado correctamente." });
+    void Swal.fire({
+      icon: "success",
+      title: "Éxito",
+      text: "Usuario actualizado correctamente.",
+    });
   };
 
   const handleDeleteUser = async (carne) => {
@@ -108,32 +278,57 @@ function JuntaPage() {
 
     const [error] = await deleteUserRequest({ id: carne });
     if (error) {
-      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el usuario." });
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar el usuario.",
+      });
       return;
     }
     setUsers((prev) => prev.filter((user) => user.carne !== carne));
-    await Swal.fire({ icon: "success", title: "Eliminado", text: "Usuario eliminado con éxito." });
+    await Swal.fire({
+      icon: "success",
+      title: "Eliminado",
+      text: "Usuario eliminado con éxito.",
+    });
   };
 
   // Project handlers
   const handleEditProject = (id, field, value) => {
-    setProjects(projects.map((project) => (project.id === id ? { ...project, [field]: value } : project)));
+    setProjects(
+      projects.map((project) =>
+        project.id === id ? { ...project, [field]: value } : project
+      )
+    );
   };
 
   const handleSaveProject = async (id) => {
     const projectToUpdate = projects.find((project) => project.id === id);
     if (!projectToUpdate) return;
 
-    const [error, updatedProject] = await updateProjectRequest({ id, project: projectToUpdate });
+    const [error, updatedProject] = await updateProjectRequest({
+      id,
+      project: projectToUpdate,
+    });
     if (error) {
-      void Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar el proyecto." });
+      void Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar el proyecto.",
+      });
       return;
     }
     setProjects((prev) =>
-      prev.map((project) => (project.id === id ? { ...project, ...updatedProject } : project))
+      prev.map((project) =>
+        project.id === id ? { ...project, ...updatedProject } : project
+      )
     );
     setEditingId(null);
-    void Swal.fire({ icon: "success", title: "Éxito", text: "Proyecto actualizado correctamente." });
+    void Swal.fire({
+      icon: "success",
+      title: "Éxito",
+      text: "Proyecto actualizado correctamente.",
+    });
   };
 
   const handleDeleteProject = async (id) => {
@@ -150,11 +345,19 @@ function JuntaPage() {
 
     const [error] = await deleteProjectRequest({ id });
     if (error) {
-      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el proyecto." });
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo eliminar el proyecto.",
+      });
       return;
     }
     setProjects((prev) => prev.filter((project) => project.id !== id));
-    await Swal.fire({ icon: "success", title: "Eliminado", text: "Proyecto eliminado con éxito." });
+    await Swal.fire({
+      icon: "success",
+      title: "Eliminado",
+      text: "Proyecto eliminado con éxito.",
+    });
   };
 
   const handleCreateProject = async () => {
@@ -177,11 +380,19 @@ function JuntaPage() {
     if (formValues) {
       const [error, newProject] = await createProjectRequest(formValues);
       if (error) {
-        void Swal.fire({ icon: "error", title: "Error", text: "No se pudo crear el proyecto." });
+        void Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo crear el proyecto.",
+        });
         return;
       }
       setProjects((prev) => [...prev, newProject]);
-      void Swal.fire({ icon: "success", title: "Éxito", text: "Proyecto creado correctamente." });
+      void Swal.fire({
+        icon: "success",
+        title: "Éxito",
+        text: "Proyecto creado correctamente.",
+      });
     }
   };
 
@@ -201,13 +412,18 @@ function JuntaPage() {
       {/* SideNav */}
       <nav className="w-64 bg-tertiary py-8 px-4">
         <h1 className="text-xl font-light mb-8 px-4 text-gray-700">
-          <img src="./src/assets/img/ChemiqTextLogo.png" className="w-full h-[50px]" />
+          <img
+            src="./src/assets/img/ChemiqTextLogo.png"
+            className="w-full h-[50px]"
+          />
         </h1>
         {sideNavItems.map((item, index) => (
           <button
             key={index}
             className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${
-              activeNavItem === item.label ? "bg-subase text-accent" : "text-gray-600 hover:bg-base"
+              activeNavItem === item.label
+                ? "bg-subase text-accent"
+                : "text-gray-600 hover:bg-base"
             }`}
             onClick={() => setActiveNavItem(item.label)}
           >
@@ -226,7 +442,9 @@ function JuntaPage() {
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
-        <h2 className="text-[50px] font-light mb-8 text-accent">{activeNavItem}</h2>
+        <h2 className="text-[50px] font-light mb-8 text-accent">
+          {activeNavItem}
+        </h2>
 
         {/* Search and Filter */}
         <div className="mb-6 flex items-center space-x-4">
@@ -246,6 +464,14 @@ function JuntaPage() {
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
             >
               Crear Proyecto
+            </button>
+          )}
+          {activeNavItem === "Podcast" && (
+            <button
+              onClick={handleCreatePodcast}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            >
+              Crear Podcast
             </button>
           )}
         </div>
@@ -270,7 +496,9 @@ function JuntaPage() {
                         <input
                           type="text"
                           value={user.nombre}
-                          onChange={(e) => handleEditUser(user.carne, "nombre", e.target.value)}
+                          onChange={(e) =>
+                            handleEditUser(user.carne, "nombre", e.target.value)
+                          }
                           className="border-b border-gray-300 focus:border-blue-500 outline-none"
                         />
                       ) : (
@@ -282,7 +510,9 @@ function JuntaPage() {
                         <input
                           type="email"
                           value={user.correo}
-                          onChange={(e) => handleEditUser(user.carne, "correo", e.target.value)}
+                          onChange={(e) =>
+                            handleEditUser(user.carne, "correo", e.target.value)
+                          }
                           className="border-b border-gray-300 focus:border-blue-500 outline-none"
                         />
                       ) : (
@@ -339,7 +569,11 @@ function JuntaPage() {
                 className="border rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => setSelectedProject(project)}
               >
-                <img src={project.img} alt={project.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
+                <img
+                  src={project.img}
+                  alt={project.nombre}
+                  className="w-full h-40 object-cover rounded-md mb-4"
+                />
                 <h3 className="text-lg font-medium">{project.nombre}</h3>
               </div>
             ))}
@@ -349,49 +583,90 @@ function JuntaPage() {
         {/* Project Detail View */}
         {activeNavItem === "Proyectos" && selectedProject && (
           <div className="border rounded-lg p-6">
-            <button onClick={() => setSelectedProject(null)} className="mb-4 text-blue-600 hover:text-blue-800">
+            <button
+              onClick={() => setSelectedProject(null)}
+              className="mb-4 text-blue-600 hover:text-blue-800"
+            >
               Volver
             </button>
             <div className="flex space-x-6">
-              <img src={selectedProject.img} alt={selectedProject.nombre} className="w-48 h-48 object-cover rounded-md" />
+              <img
+                src={selectedProject.img}
+                alt={selectedProject.nombre}
+                className="w-48 h-48 object-cover rounded-md"
+              />
               <div className="flex-1">
                 {editingId === selectedProject.id ? (
                   <>
                     <input
                       type="text"
                       value={selectedProject.nombre}
-                      onChange={(e) => handleEditProject(selectedProject.id, "nombre", e.target.value)}
+                      onChange={(e) =>
+                        handleEditProject(
+                          selectedProject.id,
+                          "nombre",
+                          e.target.value
+                        )
+                      }
                       className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
                     />
                     <input
                       type="text"
                       value={selectedProject.youtube}
-                      onChange={(e) => handleEditProject(selectedProject.id, "youtube", e.target.value)}
+                      onChange={(e) =>
+                        handleEditProject(
+                          selectedProject.id,
+                          "youtube",
+                          e.target.value
+                        )
+                      }
                       className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
                     />
                     <input
                       type="text"
                       value={selectedProject.informacion}
-                      onChange={(e) => handleEditProject(selectedProject.id, "informacion", e.target.value)}
+                      onChange={(e) =>
+                        handleEditProject(
+                          selectedProject.id,
+                          "informacion",
+                          e.target.value
+                        )
+                      }
                       className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
                     />
                     <input
                       type="text"
                       value={selectedProject.img}
-                      onChange={(e) => handleEditProject(selectedProject.id, "img", e.target.value)}
+                      onChange={(e) =>
+                        handleEditProject(
+                          selectedProject.id,
+                          "img",
+                          e.target.value
+                        )
+                      }
                       className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
                     />
                   </>
                 ) : (
                   <>
-                    <h3 className="text-2xl font-medium mb-2">{selectedProject.nombre}</h3>
+                    <h3 className="text-2xl font-medium mb-2">
+                      {selectedProject.nombre}
+                    </h3>
                     <p className="text-gray-600 mb-2">
-                      <a href={selectedProject.youtube} target="_blank" className="text-blue-600">
+                      <a
+                        href={selectedProject.youtube}
+                        target="_blank"
+                        className="text-blue-600"
+                      >
                         YouTube
                       </a>
                     </p>
-                    <p className="text-gray-600 mb-2">{selectedProject.informacion}</p>
-                    <p className="text-gray-600">Miembros: {selectedProject.count_members}</p>
+                    <p className="text-gray-600 mb-2">
+                      {selectedProject.informacion}
+                    </p>
+                    <p className="text-gray-600">
+                      Miembros: {selectedProject.count_members}
+                    </p>
                   </>
                 )}
                 <div className="mt-4">
@@ -403,7 +678,10 @@ function JuntaPage() {
                       >
                         Guardar
                       </button>
-                      <button onClick={() => setEditingId(null)} className="text-gray-600 hover:text-gray-800">
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="text-gray-600 hover:text-gray-800"
+                      >
                         Cancelar
                       </button>
                     </>
@@ -429,20 +707,31 @@ function JuntaPage() {
 
             {/* User Assignment Section */}
             <div className="mt-6">
-              <h4 className="text-lg font-medium mb-2">Asignar/Desasignar Usuarios</h4>
+              <h4 className="text-lg font-medium mb-2">
+                Asignar/Desasignar Usuarios
+              </h4>
               <div className="max-h-40 overflow-y-auto border rounded-lg p-4">
                 {users.map((user) => (
-                  <div key={user.carne} className="flex justify-between items-center py-2 border-b last:border-b-0">
-                    <span>{user.nombre} ({user.correo})</span>
+                  <div
+                    key={user.carne}
+                    className="flex justify-between items-center py-2 border-b last:border-b-0"
+                  >
+                    <span>
+                      {user.nombre} ({user.correo})
+                    </span>
                     <div>
                       <button
-                        onClick={() => handleAssignUser(selectedProject.id, user.carne)}
+                        onClick={() =>
+                          handleAssignUser(selectedProject.id, user.carne)
+                        }
                         className="text-green-600 hover:text-green-800 mr-2"
                       >
                         Asignar
                       </button>
                       <button
-                        onClick={() => handleUnassignUser(selectedProject.id, user.carne)}
+                        onClick={() =>
+                          handleUnassignUser(selectedProject.id, user.carne)
+                        }
                         className="text-red-600 hover:text-red-800"
                       >
                         Desasignar
@@ -455,6 +744,96 @@ function JuntaPage() {
           </div>
         )}
 
+        {/* Podcast Detail View */}
+        {activeNavItem === "Podcast" && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b">
+                  <th className="pb-3 font-normal text-gray-400">ID</th>
+                  <th className="pb-3 font-normal text-gray-400">Nombre</th>
+                  <th className="pb-3 font-normal text-gray-400">Link</th>
+                  <th className="pb-3 font-normal text-gray-400">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {podcast.map((pod) => (
+                  <tr key={pod.id} className="border-b last:border-b-0">
+                    <td className="py-4 pr-4">{pod.id}</td>
+                    <td className="py-4 pr-4">
+                      {editingId === pod.id ? (
+                        <input
+                          type="text"
+                          value={pod.nombre}
+                          onChange={(e) =>
+                            handleEditPodcast(pod.id, "nombre", e.target.value)
+                          }
+                          className="border-b border-gray-300 focus:border-blue-500 outline-none"
+                        />
+                      ) : (
+                        pod.nombre
+                      )}
+                    </td>
+                    <td className="py-4 pr-4">
+                      {editingId === pod.id ? (
+                        <input
+                          type="text"
+                          value={pod.link}
+                          onChange={(e) =>
+                            handleEditPodcast(pod.id, "link", e.target.value)
+                          }
+                          className="border-b border-gray-300 focus:border-blue-500 outline-none"
+                        />
+                      ) : (
+                        <a
+                          href={pod.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          {pod.link}
+                        </a>
+                      )}
+                    </td>
+                    <td className="py-4">
+                      {editingId === pod.id ? (
+                        <>
+                          <button
+                            onClick={() => handleSavePodcast(pod.id)}
+                            className="text-blue-600 hover:text-blue-800 mr-4"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="text-gray-600 hover:text-gray-800"
+                          >
+                            Cancelar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => setEditingId(pod.id)}
+                            className="text-blue-600 hover:text-blue-800 mr-4"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDeletePodcast(pod.id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Eliminar
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         {/* Pagination */}
         <div className="flex justify-between items-center mt-4">
           <button
@@ -468,7 +847,9 @@ function JuntaPage() {
             Página {currentPage} de {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className="p-2 rounded-md bg-gray-100 text-gray-600 disabled:opacity-50"
           >
