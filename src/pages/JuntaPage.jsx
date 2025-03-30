@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Beaker, Users, Home, Settings, ChevronLeft, ChevronRight, Search, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getUsers } from "@/actions/users";
+import { getPodcast } from "@/actions/podcast";
 
 const sideNavItems = [
   { icon: Home, label: "Inicio", href: "#" },
@@ -13,6 +14,7 @@ const sideNavItems = [
 function JuntaPage() {
   const [activeNavItem, setActiveNavItem] = useState("Usuarios");
   const [users, setUsers] = useState([]); // Estado para almacenar los usuarios
+  const [podcast, setPodcasts] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,13 +34,28 @@ function JuntaPage() {
       console.error("Error fetching users:", error);
       return;
     }
-
+    console.log(users);
     setUsers(users);
   };
 
+  useEffect(() => {
+    const fetchPodcasts = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/podcasts");
+        const data = await response.json();
+        setPodcasts(data);
+      } catch (error) {
+        console.error("Error fetching podcasts:", error);
+      }
+    };
+
+    void fetchPodcasts();
+  }, []);
   // Llamada a la API para obtener usuarios cuando se monta el componente
   useEffect(() => {
     fetchUsers();
+
+  
   }, []);
 
   const filteredUsers = users.filter(
