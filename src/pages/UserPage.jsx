@@ -1,28 +1,28 @@
-import { useState, useEffect } from "react"
-import { Sidebar } from "@/components/Sidebar"
-import { FeaturedPodcast } from "@/components/FeaturedPodcast"
-import { FeaturedNews } from "@/components/FeaturedNews"
-import { FeaturedProject } from "@/components/FeaturedProject"
-import { NewsRoutes } from "@/components/NewsSection"
-import { YouTubeVideos } from "@/components/YouTubeVideos"
-import { ProjectsSection } from "@/components/ProjectsSection"
-import { LoadingBeaker } from "@/components/LoadingBeaker"
-import { Outlet, Route, Routes } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { Sidebar } from "@/components/Sidebar";
+import { FeaturedPodcast } from "@/components/FeaturedPodcast";
+import { FeaturedNews } from "@/components/FeaturedNews";
+import { FeaturedProject } from "@/components/FeaturedProject";
+import { NewsRoutes } from "@/components/NewsSection";
+import { YouTubeVideos } from "@/components/YouTubeVideos";
+import { ProjectsSection } from "@/components/ProjectsSection";
+import { LoadingBeaker } from "@/components/LoadingBeaker";
+import { Outlet, Route, Routes } from "react-router-dom";
 
 function UserPage() {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simular tiempo de carga
+    // Simulate loading time
     const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
+      setIsLoading(false);
+    }, 2000);
 
-    return () => clearTimeout(timer)
-  }, [])
+    return () => clearTimeout(timer);
+  }, []);
 
   if (isLoading) {
-    return <LoadingBeaker />
+    return <LoadingBeaker />;
   }
 
   return (
@@ -34,10 +34,21 @@ function UserPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
 function HomePage() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <header className="relative h-48 mb-12 rounded-xl overflow-hidden bg-[#28BC98]">
@@ -77,18 +88,36 @@ function HomePage() {
       </header>
 
       <div className="grid grid-cols-1 gap-8">
-        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
-          <FeaturedNews />
-        </div>
-        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
-          <FeaturedProject />
-        </div>
-        <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
-          <FeaturedPodcast />
-        </div>
+        {loading ? (
+          Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] animate-pulse"
+            >
+              <div className="w-full h-48 bg-gray-300"></div>
+              <div className="p-6 space-y-4">
+                <div className="h-6 bg-gray-300 rounded"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <>
+            <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
+              <FeaturedNews />
+            </div>
+            <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
+              <FeaturedProject />
+            </div>
+            <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
+              <FeaturedPodcast />
+            </div>
+          </>
+        )}
       </div>
     </>
-  )
+  );
 }
 
 export function PortalRoutes() {
@@ -101,5 +130,5 @@ export function PortalRoutes() {
         <Route path="project" element={<ProjectsSection />} />
       </Route>
     </Routes>
-  )
+  );
 }

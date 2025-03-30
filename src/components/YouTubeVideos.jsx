@@ -14,6 +14,7 @@ export const YouTubeVideos = () => {
   const [videos, setVideos] = useState([])
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [videoDetails, setVideoDetails] = useState({})
+  const [loading, setLoading] = useState(true) // Add loading state
 
   useEffect(() => {
     const fetchPodcasts = async () => {
@@ -36,6 +37,8 @@ export const YouTubeVideos = () => {
         setVideoDetails(details)
       } catch (error) {
         console.error("Error fetching podcasts:", error)
+      } finally {
+        setLoading(false) // Set loading to false after fetching
       }
     }
 
@@ -76,86 +79,113 @@ export const YouTubeVideos = () => {
 
       {/* Contenido de videos */}
       <div className="space-y-6">
-        {videos.map((video) => {
-          const videoId = getVideoId(video.link)
-          const details = videoDetails[videoId] || {}
+        {loading
+          ? Array.from({ length: 3 }).map((_, index) => (
+              <Card
+                key={index}
+                className="overflow-hidden border-subase/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px]"
+              >
+                <CardContent className="p-0">
+                  <div className="flex flex-col md:flex-row animate-pulse">
+                    {/* Skeleton Thumbnail */}
+                    <div className="w-full md:w-80 h-48 md:h-full flex-shrink-0 bg-gray-300"></div>
 
-          return (
-            <Card
-              key={video.id}
-              className="overflow-hidden hover:-translate-y-1 transition-all duration-300 border-subase/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px]"
-            >
-              <CardContent className="p-0">
-                <div className="flex flex-col md:flex-row">
-                  {/* Thumbnail */}
-                  <div className="w-full md:w-80 h-48 md:h-full flex-shrink-0 relative group">
-                    <img
-                      src={details.thumbnailUrl || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
-                      alt={details.title || video.nombre}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <Button
-                      onClick={() => handlePlayClick(video)}
-                      variant="ghost"
-                      size="icon"
-                      className="absolute inset-0 w-full h-full rounded-none flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    >
-                      <Play className="h-12 w-12 text-white" />
-                      <span className="sr-only">Reproducir video</span>
-                    </Button>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 p-6">
-                    <div className="flex flex-col h-full justify-between">
-                      <div>
-                        <h3 className="text-2xl font-semibold text-accent mb-3">{details.title || video.nombre}</h3>
-                        <p className="text-gray-600 text-base line-clamp-2 mb-4">
-                          {details.description || "Sin descripción disponible"}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                          <Badge variant="outline" className="flex items-center gap-1 font-normal">
-                            <Calendar className="h-3.5 w-3.5 text-base" />
-                            {details.publishedAt
-                              ? formatDistanceToNow(new Date(details.publishedAt), {
-                                  addSuffix: true,
-                                  locale: es,
-                                })
-                              : "Fecha no disponible"}
-                          </Badge>
-                          <Badge variant="outline" className="flex items-center gap-1 font-normal">
-                            <Clock className="h-3.5 w-3.5 text-base" />
-                            {details.duration || "N/A"}
-                          </Badge>
-                          {details.viewCount && (
-                            <Badge variant="outline" className="flex items-center gap-1 font-normal">
-                              <Info className="h-3.5 w-3.5 text-base" />
-                              {details.viewCount} visualizaciones
-                            </Badge>
-                          )}
-                          {details.likeCount && (
-                            <Badge variant="outline" className="flex items-center gap-1 font-normal">
-                              <ThumbsUp className="h-3.5 w-3.5 text-base" />
-                              {details.likeCount}
-                            </Badge>
-                          )}
+                    {/* Skeleton Content */}
+                    <div className="flex-1 p-6">
+                      <div className="space-y-4">
+                        <div className="h-6 bg-gray-300 rounded"></div>
+                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div className="flex space-x-4">
+                          <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+                          <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+                          <div className="h-4 bg-gray-300 rounded w-1/4"></div>
                         </div>
-                      </div>
-
-                      <div className="flex justify-end mt-4">
-                        <Button onClick={() => handlePlayClick(video)} className="bg-base text-white hover:bg-subase">
-                          <Play className="h-4 w-4 mr-2" />
-                          Reproducir
-                        </Button>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
+                </CardContent>
+              </Card>
+            ))
+          : videos.map((video) => {
+              const videoId = getVideoId(video.link)
+              const details = videoDetails[videoId] || {}
+
+              return (
+                <Card
+                  key={video.id}
+                  className="overflow-hidden hover:-translate-y-1 transition-all duration-300 border-subase/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px]"
+                >
+                  <CardContent className="p-0">
+                    <div className="flex flex-col md:flex-row">
+                      {/* Thumbnail */}
+                      <div className="w-full md:w-80 h-48 md:h-full flex-shrink-0 relative group">
+                        <img
+                          src={details.thumbnailUrl || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                          alt={details.title || video.nombre}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <Button
+                          onClick={() => handlePlayClick(video)}
+                          variant="ghost"
+                          size="icon"
+                          className="absolute inset-0 w-full h-full rounded-none flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        >
+                          <Play className="h-12 w-12 text-white" />
+                          <span className="sr-only">Reproducir video</span>
+                        </Button>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 p-6">
+                        <div className="flex flex-col h-full justify-between">
+                          <div>
+                            <h3 className="text-2xl font-semibold text-accent mb-3">{details.title || video.nombre}</h3>
+                            <p className="text-gray-600 text-base line-clamp-2 mb-4">
+                              {details.description || "Sin descripción disponible"}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                              <Badge variant="outline" className="flex items-center gap-1 font-normal">
+                                <Calendar className="h-3.5 w-3.5 text-base" />
+                                {details.publishedAt
+                                  ? formatDistanceToNow(new Date(details.publishedAt), {
+                                      addSuffix: true,
+                                      locale: es,
+                                    })
+                                  : "Fecha no disponible"}
+                              </Badge>
+                              <Badge variant="outline" className="flex items-center gap-1 font-normal">
+                                <Clock className="h-3.5 w-3.5 text-base" />
+                                {details.duration || "N/A"}
+                              </Badge>
+                              {details.viewCount && (
+                                <Badge variant="outline" className="flex items-center gap-1 font-normal">
+                                  <Info className="h-3.5 w-3.5 text-base" />
+                                  {details.viewCount} visualizaciones
+                                </Badge>
+                              )}
+                              {details.likeCount && (
+                                <Badge variant="outline" className="flex items-center gap-1 font-normal">
+                                  <ThumbsUp className="h-3.5 w-3.5 text-base" />
+                                  {details.likeCount}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end mt-4">
+                            <Button onClick={() => handlePlayClick(video)} className="bg-base text-white hover:bg-subase">
+                              <Play className="h-4 w-4 mr-2" />
+                              Reproducir
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
       </div>
 
       {/* Modal de video */}
@@ -188,4 +218,3 @@ export const YouTubeVideos = () => {
     </div>
   )
 }
-
