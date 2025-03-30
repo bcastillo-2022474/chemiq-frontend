@@ -22,6 +22,7 @@ import {
   Skeleton, CarouselSkeleton, MemberCardSkeleton, TextSectionSkeleton, FormSkeleton, FeatureSkeleton, TitleSkeleton
 } from "@/components/SkeletonsLanding"
 import { sendEmailToSelfRequest } from "@/actions/email";
+import NavBar from "../components/ui/NavLanding"
 
 const Button = ({ children, className, variant = "" }) => (<button
   className={`px-4 py-2 rounded ${className} ${variant === "outline" ? "border border-current" : ""}`}
@@ -52,63 +53,63 @@ const LandingPage = () => {
         {
           name: "José Paíz",
           role: "Presidente",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Jos%C3%A9%20Paiz.png?csf=1&web=1&e=IBJsiC",
+          avatar: "https://iili.io/3AwWVII.md.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
         {
           name: "Eduardo Quiñónez",
           role: "Vocal de comunicación",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Eduardo.png?csf=1&web=1&e=hJXqoy",
+          avatar: "https://iili.io/3AwWa1a.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
         {
           name: "Valeria Sierra",
           role: "Vicepresidente",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Valeria.png?csf=1&web=1&e=cvsReb",
+          avatar: "https://iili.io/3AwXT3G.md.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
         {
           name: "Carmen Lizama",
           role: "Vocal de proyectos",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Carmen.png?csf=1&web=1&e=SSyP5r",
+          avatar: "https://iili.io/3AwXWyQ.md.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
         {
           name: "Luis Avila",
           role: "Vocal de bienestar estudiantil",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Luis.png?csf=1&web=1&e=SuHsHc",
+          avatar: "https://iili.io/3AwW0dv.md.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
         {
           name: "Arturo Joachín",
           role: "Tesorero",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Arturo.png?csf=1&web=1&e=aa9nwG",
+          avatar: "https://iili.io/3AwXuaf.md.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
         {
           name: "Juan Pablo León",
           role: "Vocal académico",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/JuanPa.png?csf=1&web=1&e=MCmEA7",
+          avatar: "https://iili.io/3AwW17R.md.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
         {
           name: "Mijaél Juárez",
           role: "Vocal de innovación",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Mijael.png?csf=1&web=1&e=f2LG8x",
+          avatar: "https://iili.io/3AwX3Yv.md.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
         {
           name: "Andrea Arévalo",
           role: "Vocal de redes sociales",
-          avatar: "https://uvggt-my.sharepoint.com/:i:/r/personal/are24708_uvg_edu_gt/Documents/Fotos%20Equipo/Andrea.png?csf=1&web=1&e=YQLIEl",
+          avatar: "https://iili.io/3AwXAv4.md.png",
           bio: "Founder and CEO with 15 years of experience in the industry.",
           contact: { email: "maria@example.com", phone: "+1234567890" },
         },
@@ -144,153 +145,7 @@ const LandingPage = () => {
   }, [])
 
   return (<div className="flex flex-col min-h-screen bg-white ">
-    <nav className="bg-base shadow-md ">
-      <div className="max-w-7xl mx-auto px-4  sm:px-6 lg:px-8 ">
-        <div className="flex justify-between h-16 ">
-          <div className="flex ">
-            <div className="flex-shrink-0 flex items-center">
-              {loading ? (<Skeleton className="w-[150px] h-[50px]"/>) : (
-                <span className="text-2xl font-bold text-white ">
-                    <img
-                      src="./src/assets/img/ChemiqLogoNav.png"
-                      className="w-full h-[50px]"
-                    />
-                  </span>)}
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8 ">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger className="text-lime-600 ">
-                      Proyectos Destacados
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid gap-3 p-4 md:w-[400px] bg-background lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                        <li className="row-span-3 ">
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-lime-500 to-lime-600 p-6 no-underline outline-none focus:shadow-md"
-                              href="/"
-                            >
-                              <div className="mt-4 text-lg font-medium text-white">
-                                BioDiesel
-                              </div>
-                              <p className="text-sm leading-tight text-white/90">
-                                La producción de biodiésel: una alternativa
-                                viable de reciclaje y una oportunidad de
-                                aprendizaje
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
-                              href="/"
-                            >
-                              <div className="text-sm font-medium leading-none">
-                                Satelite Quetzal 1
-                              </div>
-                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                El primer satelite guatemalteco
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
-                              href="/"
-                            >
-                              <div className="text-sm font-medium leading-none">
-                                Proyecto X
-                              </div>
-                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                Proyecto X
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
-                              href="/"
-                            >
-                              <div className="text-sm font-medium leading-none">
-                                Proyecto X
-                              </div>
-                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                Proyecto X
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <a
-                      href="#about"
-                      className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Acerca de
-                    </a>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <a
-                      href="#contact"
-                      className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Contacto
-                    </a>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <a
-                      href="#members"
-                      className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Conocenos
-                    </a>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
-          </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            {loading ? (<Skeleton className="h-10 w-28"/>) : (<Link to="/login">
-              <Button
-                variant="quimica"
-                className="mr-2 text-lime-700 shadow-lg bg-white hover:bg-accent hover:text-white rounded-md font-semibold"
-              >
-                Iniciar sesión
-              </Button>
-            </Link>)}
-          </div>
-          <div className="-mr-2 flex items-center sm:hidden">
-            <Button variant="ghost" className="text-white">
-              <svg
-                className="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </nav>
-
+    <NavBar/>
     <main className="flex-1">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-tertiary">
         <div className="container px-4 md:px-6 mx-auto">
@@ -426,11 +281,11 @@ const LandingPage = () => {
         className="w-full py-12 md:py-12 lg:py-12 bg-background"
       >
         {loading ? (<TitleSkeleton/>) : (
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 text-accent">
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12 text-accent">
             Nuestra junta directiva
           </h2>)}
 
-        <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className=" flex items-center justify-center bg-background">
           {!membersLoaded ? (<MemberCardSkeleton count={9}/>) : (<MemberCard cards={cards}/>)}
         </div>
       </section>
