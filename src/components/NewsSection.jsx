@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
-import NewsCard from "./NewsCard"
-import { getNewByIdRequest, getNewsRequest } from "@/actions/news"
-import { Link, Outlet, Route, Routes, useParams } from "react-router-dom"
+import { useState, useEffect } from "react";
+import NewsCard from "./NewsCard";
+import { getNewByIdRequest, getNewsRequest } from "@/actions/news";
+import { Link, Outlet, Route, Routes, useParams } from "react-router-dom";
 
 function NewsSection() {
   return (
@@ -13,74 +13,103 @@ function NewsSection() {
       </p>
       <Outlet />
     </div>
-  )
+  );
 }
 
 function ListArticles() {
-  const [newsItems, setNewsItems] = useState([])
+  const [newsItems, setNewsItems] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     async function fetchNews() {
-      const [error, news] = await getNewsRequest()
+      const [error, news] = await getNewsRequest();
       if (error) {
-        console.error("Error fetching news:", error)
-        return
+        console.error("Error fetching news:", error);
+        return;
       }
-      setNewsItems(news)
+      setNewsItems(news);
+      setLoading(false); // Set loading to false after fetching
     }
 
-    void fetchNews()
-  }, [])
+    void fetchNews();
+  }, []);
 
   return (
     <div className="space-y-8">
-      {newsItems.map(item => {
-        const content =
-          item.contenido
-            .split(" ")
-            .slice(0, 50)
-            .join(" ") + (item.contenido.split(" ").length > 50 ? "..." : "")
-        const showReadMore = item.contenido.split(" ").length > 50
+      {loading
+        ? Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-white shadow-lg rounded-lg overflow-hidden animate-pulse"
+            >
+              <div className="w-full h-48 bg-gray-300"></div>
+              <div className="p-6 space-y-4">
+                <div className="h-6 bg-gray-300 rounded"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        : newsItems.map((item) => {
+            const content =
+              item.contenido
+                .split(" ")
+                .slice(0, 50)
+                .join(" ") + (item.contenido.split(" ").length > 50 ? "..." : "");
+            const showReadMore = item.contenido.split(" ").length > 50;
 
-        return (
-          <div key={item.id}>
-            <NewsCard
-              id={item.id}
-              title={item.titulo}
-              description={content}
-              imageUrl={item.img}
-              showReadMore={showReadMore}
-              createdAt={item.created_at}
-            />
-          </div>
-        )
-      })}
+            return (
+              <div key={item.id}>
+                <NewsCard
+                  id={item.id}
+                  title={item.titulo}
+                  description={content}
+                  imageUrl={item.img}
+                  showReadMore={showReadMore}
+                  createdAt={item.created_at}
+                />
+              </div>
+            );
+          })}
     </div>
-  )
+  );
 }
 
 function ArticleDetail() {
-  // get id from route params
-  const { id } = useParams()
-
-  const [article, setArticle] = useState(null)
+  const { id } = useParams();
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     async function fetchNew() {
-      const [error, news] = await getNewByIdRequest({ id })
+      const [error, news] = await getNewByIdRequest({ id });
       if (error) {
-        console.error("Error fetching news:", error)
-        return
+        console.error("Error fetching news:", error);
+        return;
       }
-      setArticle(news)
+      setArticle(news);
+      setLoading(false); // Set loading to false after fetching
     }
 
-    void fetchNew()
-  }, [])
+    void fetchNew();
+  }, [id]);
 
-  if (!article) {
-    // @TODO: create a skeleton for this
-    return null
+  if (loading) {
+    // Skeleton for ArticleDetail
+    return (
+      <div className="mt-6 flex flex-col gap-5 animate-pulse">
+        <div className="w-32 h-10 bg-gray-300 rounded"></div>
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden p-6">
+          <div className="w-full h-64 bg-gray-300 rounded-t-2xl mb-4"></div>
+          <div className="p-6 space-y-4">
+            <div className="h-8 bg-gray-300 rounded"></div>
+            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-300 rounded w-full"></div>
+            <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -108,7 +137,7 @@ function ArticleDetail() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function NewsRoutes() {
@@ -119,5 +148,5 @@ export function NewsRoutes() {
         <Route path=":id" element={<ArticleDetail />} />
       </Route>
     </Routes>
-  )
+  );
 }
