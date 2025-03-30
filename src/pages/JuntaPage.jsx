@@ -61,6 +61,7 @@ function JuntaPage() {
       console.error("Error fetching users:", error);
       return;
     }
+  }
 
   const fetchPodcast = async () => {
     const [error, podcast] = await getPodcast();
@@ -858,6 +859,5 @@ function JuntaPage() {
       </main>
     </div>
   );
-}
 }
 export default JuntaPage;
