@@ -156,10 +156,10 @@ const LandingPage = () => {
                 className="max-w-3xl mx-auto"
               />) : (<>
                 <h1
-                  className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-accent">
+                  className="text-3xl font-bold tracking-tighter sm:text-4xl mb-7 md:text-5xl lg:text-6xl/none text-accent">
                   Asociación de Química
                 </h1>
-                <p className="mx-auto max-w-[700px] text-base md:text-xl">
+                <p className="mx-auto max-w-[900px] text-base md:text-xl">
                   La Asociación de Química es una comunidad dedicada a la
                   promoción del estudio, la investigación y la difusión de
                   la química en todas sus ramas. Nos enfocamos en impulsar
@@ -174,15 +174,6 @@ const LandingPage = () => {
                 <Skeleton className="h-10 w-28"/>
                 <Skeleton className="h-10 w-28"/>
               </div>) : (<>
-                <Button className="bg-base text-white hover:bg-accent rounded-md">
-                  <a href="">Únete ahora</a>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-base text-base hover:bg-accent hover:text-white rounded-md"
-                >
-                  Saber más
-                </Button>
               </>)}
             </div>
           </div>
@@ -254,7 +245,7 @@ const LandingPage = () => {
                 Sobre Nosotros
               </h2>
               <p className="text-base md:text-xl">
-                La Asociación de Becados nació con el propósito de dar
+                La Asociación de Química nació con el propósito de dar
                 respuesta a la necesidad de apoyo en el ámbito educativo.
                 Sabemos que la educación es la llave para cambiar vidas, y
                 estamos convencidos de que cada estudiante tiene un

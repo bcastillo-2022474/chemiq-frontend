@@ -17,6 +17,8 @@ import { PortalRoutes } from '@/pages/UserPage';
 import { Projects } from '@/pages/DashboardProjectsControll';
 import { JuntaRoutes } from "@/routes/junta-routes";
 import { Dashboard } from "@/pages/Dashboard";
+import Podcast from './pages/DashboardPodcastControll';
+import NewsHome from './pages/DashboardNewsControll';
 
 
 function App() {
@@ -66,10 +68,12 @@ function GeneralRoutes() {
         {/* @TODO: here goes the protected routes */}
         <Route path="" element={<JuntaRoutes/>}>
           <Route path="/dashboard" element={<Dashboard/>}>
-            <Route path="projects" element={<Projects/>}/>
-            <Route path="stats" element={<Stats/>}/>
-            <Route path="users" element={<Home/>}/>
-          </Route>
+          <Route path="projects" element={<Projects/>}/>
+          <Route path="stats" element={<Stats/>}/>
+          <Route path="users" element={<Home/>}/>
+          <Route path="podcast" element={<Podcast/>}/>
+          <Route path="news" element={<NewsHome/>}/>
+        </Route>
         </Route>
         {/*<UserRoutes/>*/}
         {/*<JuntaRoutes/>*/}
