@@ -1,29 +1,57 @@
 import { useState } from "react"
 import Swal from "sweetalert2"
-import { Modal } from "../components/ui/DashboardModalEditUsers" // Asumo que este componente es reutilizable
-import { NewsTable } from "../components/ui/DashboardTableNews" // Deberías crear este componente
-import { useNews } from "../hooks/useNews" // Deberías crear este hook
+import { Modal } from "../components/ui/DashboardModalEditUsers"
+import { NewsTable } from "../components/ui/DashboardTableNews"
+import { CreateNewsForm } from "../components/ui/CreateNewsForm"
+import { useNews } from "../hooks/useNews"
+import { EditNewsForm } from "../components/EditNewsForm"
 
 export default function NewsHome() {
   const {
     news,
     loading,
     error,
+    createNews,
     updateNews,
     deleteNews
   } = useNews()
+  
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingNews, setEditingNews] = useState(null)
 
+  // Manejador para crear nueva noticia
+  const handleCreate = async (newsData) => {
+    try {
+      const success = await createNews(newsData);
+      if (success) {
+        setIsCreateModalOpen(false);
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "La noticia ha sido creada correctamente",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo crear la noticia",
+        icon: "error"
+      });
+    }
+  };
+
+  // Manejador para abrir el modal de edición
   const handleEdit = newsItem => {
-    console.log("Noticia a editar: " + newsItem)
     setEditingNews(newsItem)
     setIsModalOpen(true)
   }
 
-  const handleDelete = newsId => {
-    console.log("Noticia a eliminar: " + newsId)
-    Swal.fire({
+  // Manejador para eliminar noticia
+  const handleDelete = async (newsId) => {
+    const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "No podrás revertir esta acción!",
       icon: "warning",
@@ -32,119 +60,141 @@ export default function NewsHome() {
       cancelButtonColor: "#d33",
       confirmButtonText: "Sí, eliminar!",
       cancelButtonText: "Cancelar"
-    }).then(result => {
-      if (result.isConfirmed) {
-        deleteNews(newsId)
-        Swal.fire("Eliminado!", "La noticia ha sido eliminada.", "success")
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const success = await deleteNews(newsId);
+        if (success) {
+          Swal.fire({
+            title: "¡Eliminado!",
+            text: "La noticia ha sido eliminada correctamente",
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo eliminar la noticia",
+          icon: "error"
+        });
       }
-    })
+    }
   }
 
-  const handleSave = updatedNews => {
-    updateNews(updatedNews.id, updatedNews)
-    setIsModalOpen(false)
-    Swal.fire(
-      "Guardado!",
-      "La información de la noticia ha sido actualizada.",
-      "success"
-    )
+  // Manejador para guardar cambios en la edición
+  const handleSave = async (updatedNews) => {
+    try {
+      const success = await updateNews(updatedNews.id, updatedNews);
+      if (success) {
+        setIsModalOpen(false);
+        setEditingNews(null);
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "La noticia ha sido actualizada correctamente",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo actualizar la noticia",
+        icon: "error"
+      });
+    }
   }
 
-  if (error) return <p>Error: {error}</p>
+  // Manejador para cerrar modales
+  const handleCloseModals = () => {
+    setIsModalOpen(false);
+    setIsCreateModalOpen(false);
+    setEditingNews(null);
+  }
+
+  // Renderizado condicional para error
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="text-red-500 text-center">
+          <h3 className="text-xl font-bold mb-2">Error</h3>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="flex-1 overflow-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Noticias</h1>
+      {/* Header con título y botón de crear */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Gestión de Noticias</h1>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+        >
+          <svg 
+            className="w-5 h-5" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M12 4v16m8-8H4" 
+            />
+          </svg>
+          Crear Nueva Noticia
+        </button>
+      </div>
+
+      {/* Loader */}
       {loading ? (
-        <div>Cargando...</div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
       ) : (
-        <NewsTable 
-          news={news} 
-          onEdit={handleEdit} 
-          onDelete={handleDelete} 
-        />
+        /* Tabla de noticias */
+        <div className="bg-white rounded-lg shadow">
+          <NewsTable 
+            news={news} 
+            onEdit={handleEdit} 
+            onDelete={handleDelete} 
+          />
+        </div>
       )}
+
+      {/* Modal para editar */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModals}
         title="Editar Noticia"
       >
         {editingNews && (
           <EditNewsForm
             news={editingNews}
             onSave={handleSave}
-            onCancel={() => setIsModalOpen(false)}
+            onCancel={handleCloseModals}
           />
         )}
       </Modal>
+
+      {/* Modal para crear */}
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseModals}
+        title="Crear Nueva Noticia"
+      >
+        <CreateNewsForm
+          onSubmit={handleCreate}
+          onCancel={handleCloseModals}
+        />
+      </Modal>
     </main>
-  )
-}
-
-function EditNewsForm({ news, onSave, onCancel }) {
-  const [editedNews, setEditedNews] = useState(news)
-
-  const handleChange = e => {
-    const { name, value } = e.target
-    setEditedNews(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = e => {
-    e.preventDefault()
-    onSave(editedNews)
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label
-          htmlFor="title"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Título
-        </label>
-        <input
-          id="title"
-          name="title"
-          value={editedNews.title || ""}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="content"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Contenido
-        </label>
-        <textarea
-          id="content"
-          name="content"
-          value={editedNews.content || ""}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
-        />
-      </div>
-
-      <div className="flex justify-end space-x-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-          Guardar Cambios
-        </button>
-      </div>
-    </form>
   )
 }

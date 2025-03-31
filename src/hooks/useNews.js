@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
-import { getNewsRequest, getNewByIdRequest } from "../actions/news"; 
+import { 
+  getNewsRequest, 
+  getNewByIdRequest, 
+  createNewsRequest, 
+  updateNewsRequest, 
+  deleteNewsRequest 
+} from "../actions/news";
 
 export const useNews = () => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Obtener todas las noticias
   const fetchNews = async () => {
     setLoading(true);
     const [err, data] = await getNewsRequest();
@@ -20,7 +25,6 @@ export const useNews = () => {
     setLoading(false);
   };
 
-  // Obtener noticia por ID
   const fetchNewsById = async (id) => {
     setLoading(true);
     const [err, data] = await getNewByIdRequest({ id });
@@ -32,7 +36,42 @@ export const useNews = () => {
     return data;
   };
 
-  // Cargar las noticias al montar el hook
+  const createNews = async (newsData) => {
+    setLoading(true);
+    const [err, data] = await createNewsRequest(newsData);
+    setLoading(false);
+    if (err) {
+      setError(err.message || "Error al crear la noticia");
+      return false;
+    }
+    setNews(prev => [...prev, data]);
+    return true;
+  };
+
+  const updateNews = async (id, newsData) => {
+    setLoading(true);
+    const [err, data] = await updateNewsRequest(id, newsData);
+    setLoading(false);
+    if (err) {
+      setError(err.message || "Error al actualizar la noticia");
+      return false;
+    }
+    setNews(prev => prev.map(item => item.id === id ? data : item));
+    return true;
+  };
+
+  const deleteNews = async (id) => {
+    setLoading(true);
+    const [err] = await deleteNewsRequest(id);
+    setLoading(false);
+    if (err) {
+      setError(err.message || "Error al eliminar la noticia");
+      return false;
+    }
+    setNews(prev => prev.filter(item => item.id !== id));
+    return true;
+  };
+
   useEffect(() => {
     fetchNews();
   }, []);
@@ -41,6 +80,10 @@ export const useNews = () => {
     news,
     loading,
     error,
+    fetchNews,
     fetchNewsById,
+    createNews,
+    updateNews,
+    deleteNews,
   };
 };
