@@ -1,29 +1,59 @@
 import { useState } from "react"
 import Swal from "sweetalert2"
-import { Modal } from "../components/ui/DashboardModalEditUsers" // Asumo que este componente es reutilizable
-import { PodcastTable } from "../components/ui/DashboardTablePodcasts" // Deberías crear este componente
-import { usePodcasts } from "../hooks/usePodcasts" // Deberías crear este hook
+import { Modal } from "../components/ui/DashboardModalEditUsers"
+import { PodcastTable } from "../components/ui/DashboardTablePodcasts"
+import { CreatePodcastForm } from "../components/ui/CreatePodcastForm"
+import { EditPodcastForm } from "../components/ui/EditPodcastForm"
+import { usePodcasts } from "../hooks/usePodcasts"
 
-export default function Podcast() {
+export default function PodcastHome() {
   const {
     podcasts,
     loading,
     error,
+    createPodcast,
     updatePodcast,
     deletePodcast
   } = usePodcasts()
+  
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingPodcast, setEditingPodcast] = useState(null)
 
+  // Manejador para crear nuevo podcast
+  const handleCreate = async (podcastData) => {
+    try {
+      const [error] = await createPodcast(podcastData);
+      if (!error) {
+        setIsCreateModalOpen(false);
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "El podcast ha sido creado correctamente",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        throw new Error(error);
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo crear el podcast",
+        icon: "error"
+      });
+    }
+  };
+
+  // Manejador para editar
   const handleEdit = podcast => {
-    console.log("Podcast a editar: " + podcast)
     setEditingPodcast(podcast)
     setIsModalOpen(true)
   }
 
-  const handleDelete = podcastId => {
-    console.log("Podcast a eliminar: " + podcastId)
-    Swal.fire({
+  // Manejador para eliminar
+  const handleDelete = async (podcastId) => {
+    const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "No podrás revertir esta acción!",
       icon: "warning",
@@ -32,119 +62,144 @@ export default function Podcast() {
       cancelButtonColor: "#d33",
       confirmButtonText: "Sí, eliminar!",
       cancelButtonText: "Cancelar"
-    }).then(result => {
-      if (result.isConfirmed) {
-        deletePodcast(podcastId)
-        Swal.fire("Eliminado!", "El podcast ha sido eliminado.", "success")
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const [error] = await deletePodcast(podcastId);
+        if (!error) {
+          Swal.fire({
+            title: "¡Eliminado!",
+            text: "El podcast ha sido eliminado correctamente",
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false
+          });
+        } else {
+          throw new Error(error);
+        }
+      } catch (error) {
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo eliminar el podcast",
+          icon: "error"
+        });
       }
-    })
+    }
   }
 
-  const handleSave = updatedPodcast => {
-    updatePodcast(updatedPodcast.id, updatedPodcast)
-    setIsModalOpen(false)
-    Swal.fire(
-      "Guardado!",
-      "La información del podcast ha sido actualizada.",
-      "success"
-    )
+  // Manejador para guardar cambios
+  const handleSave = async (updatedPodcast) => {
+    try {
+      const [error] = await updatePodcast(updatedPodcast.id, updatedPodcast);
+      if (!error) {
+        setIsModalOpen(false);
+        setEditingPodcast(null);
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "El podcast ha sido actualizado correctamente",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        throw new Error(error);
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo actualizar el podcast",
+        icon: "error"
+      });
+    }
   }
 
-  if (error) return <p>Error: {error}</p>
+  // Manejador para cerrar modales
+  const handleCloseModals = () => {
+    setIsModalOpen(false);
+    setIsCreateModalOpen(false);
+    setEditingPodcast(null);
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="text-red-500 text-center">
+          <h3 className="text-xl font-bold mb-2">Error</h3>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="flex-1 overflow-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Podcasts</h1>
+      {/* Header con título y botón de crear */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Gestión de Podcasts</h1>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+        >
+          <svg 
+            className="w-5 h-5" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M12 4v16m8-8H4" 
+            />
+          </svg>
+          Crear Nuevo Podcast
+        </button>
+      </div>
+
+      {/* Loader */}
       {loading ? (
-        <div>Cargando...</div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
       ) : (
-        <PodcastTable 
-          podcasts={podcasts} 
-          onEdit={handleEdit} 
-          onDelete={handleDelete} 
-        />
+        /* Tabla de podcasts */
+        <div className="bg-white rounded-lg shadow">
+          <PodcastTable 
+            podcasts={podcasts} 
+            onEdit={handleEdit} 
+            onDelete={handleDelete} 
+          />
+        </div>
       )}
+
+      {/* Modal para editar */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModals}
         title="Editar Podcast"
       >
         {editingPodcast && (
           <EditPodcastForm
             podcast={editingPodcast}
             onSave={handleSave}
-            onCancel={() => setIsModalOpen(false)}
+            onCancel={handleCloseModals}
           />
         )}
       </Modal>
+
+      {/* Modal para crear */}
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseModals}
+        title="Crear Nuevo Podcast"
+      >
+        <CreatePodcastForm
+          onSubmit={handleCreate}
+          onCancel={handleCloseModals}
+        />
+      </Modal>
     </main>
-  )
-}
-
-function EditPodcastForm({ podcast, onSave, onCancel }) {
-  const [editedPodcast, setEditedPodcast] = useState(podcast)
-
-  const handleChange = e => {
-    const { name, value } = e.target
-    setEditedPodcast(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = e => {
-    e.preventDefault()
-    onSave(editedPodcast)
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label
-          htmlFor="title"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Título
-        </label>
-        <input
-          id="title"
-          name="title"
-          value={editedPodcast.title || ""}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Descripción
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          value={editedPodcast.description || ""}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
-        />
-      </div>
-
-      <div className="flex justify-end space-x-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-          Guardar Cambios
-        </button>
-      </div>
-    </form>
   )
 }
