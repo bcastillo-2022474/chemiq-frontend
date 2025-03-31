@@ -25,7 +25,7 @@ const NavBar = ({ loading }) => {
                   <img
                     src="https://iili.io/3Awgque.jpg"
                     alt="Logo"
-                    className="w-full h-[50px]"
+                    className="w-[50px] h-[50px]"
                   />
                 </span>
               )}

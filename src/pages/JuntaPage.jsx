@@ -77,6 +77,8 @@ function JuntaPage() {
     setProjects(projects);
   };
 
+  }
+
   // Fetch podcasts
   const fetchPodcast = async () => {
     const [error, podcast] = await getPodcast();
@@ -858,4 +860,6 @@ function JuntaPage() {
   );
 }
 
+
 export default JuntaPage;
+

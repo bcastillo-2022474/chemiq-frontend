@@ -1,9 +1,12 @@
+
 import {
   LayoutDashboard,
   Users,
   FlaskRoundIcon as Flask,
   Settings,
-  LogOut
+  LogOut,
+  Newspaper,
+  Podcast
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { useAuth } from "@/context/auth.jsx";
@@ -12,6 +15,8 @@ const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard/stats" },
   { name: "Users", icon: Users, href: "/dashboard/users" },
   { name: "Projects", icon: Flask, href: "/dashboard/projects" },
+  { name: "News" , icon: Newspaper, href: "/dashboard/news"},
+  { name: "Podcast", icon: Podcast, href: "/dashboard/podcast" },
   { name: "Settings", icon: Settings, href: "/settings" }
 ]
 
