@@ -24,15 +24,25 @@ import {
   deletePodcastRequest,
   createPodcastRequest,
 } from "../actions/podcast";
-import { getMembersByProjectIdRequest, addMembersToProjectRequest, deleteMemberRequest } from "../actions/members";
+import {
+  getNewsRequest,
+  createNewsRequest,
+  updateNewsRequest,
+  deleteNewsRequest,
+} from "../actions/news";
+import {
+  getMembersByProjectIdRequest,
+  addMembersToProjectRequest,
+  deleteMemberRequest,
+} from "../actions/members";
 import Swal from "sweetalert2";
-import { api } from "@/lib/http";
 
 const sideNavItems = [
   { icon: Home, label: "Inicio", href: "#" },
   { icon: Users, label: "Usuarios", href: "#" },
   { icon: Beaker, label: "Proyectos", href: "#" },
   { icon: Podcast, label: "Podcast", href: "#" },
+  { icon: Podcast, label: "News", href: "#" },
   { icon: Settings, label: "Configuración", href: "#" },
 ];
 
@@ -41,12 +51,14 @@ function JuntaPage() {
   const [users, setUsers] = useState([]);
   const [projects, setProjects] = useState([]);
   const [podcast, setPodcast] = useState([]);
+  const [news, setNews] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [editingProjectData, setEditingProjectData] = useState(null);
   const [projectMembers, setProjectMembers] = useState([]);
-  const [assignedSearchTerm, setAssignedSearchTerm] = useState(""); // Search for assigned users
-  const [availableSearchTerm, setAvailableSearchTerm] = useState(""); // Search for available users
+  const [selectedNews, setSelectedNews] = useState(null);
+  const [assignedSearchTerm, setAssignedSearchTerm] = useState("");
+  const [availableSearchTerm, setAvailableSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 10;
@@ -57,7 +69,7 @@ function JuntaPage() {
     navigate("/login");
   };
 
-  // Fetch users
+  // Fetch data
   const fetchUsers = async () => {
     const [error, users] = await getUsers();
     if (error) {
@@ -67,7 +79,6 @@ function JuntaPage() {
     setUsers(users);
   };
 
-  // Fetch projects
   const fetchProjects = async () => {
     const [error, projects] = await getProjectsRequest();
     if (error) {
@@ -77,9 +88,6 @@ function JuntaPage() {
     setProjects(projects);
   };
 
-  }
-
-  // Fetch podcasts
   const fetchPodcast = async () => {
     const [error, podcast] = await getPodcast();
     if (error) {
@@ -89,7 +97,15 @@ function JuntaPage() {
     setPodcast(podcast);
   };
 
-  // Fetch project members
+  const fetchNews = async () => {
+    const [error, news] = await getNewsRequest();
+    if (error) {
+      console.error("Error fetching news:", error);
+      return;
+    }
+    setNews(news);
+  };
+
   const fetchProjectMembers = async (projectId) => {
     const [error, members] = await getMembersByProjectIdRequest({ id: projectId });
     if (error) {
@@ -97,13 +113,13 @@ function JuntaPage() {
       return;
     }
     setProjectMembers(members);
-    console.log("Project members:", members);
   };
 
   useEffect(() => {
     fetchUsers();
     fetchProjects();
     fetchPodcast();
+    fetchNews();
   }, []);
 
   useEffect(() => {
@@ -133,42 +149,47 @@ function JuntaPage() {
     pod.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Mapeo de usuarios asignados
+  const filteredNews = news.filter((item) =>
+    item.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const assignedUsers = projectMembers
     .map((member) => {
       if (!member.user) {
-        console.error("El miembro no tiene datos de usuario:", member);
+        console.error("Member missing user data:", member);
         return null;
       }
       return {
-        memberId: member.id, // Incluimos el ID del miembro
+        memberId: member.id,
         carne: member.user.carne,
-        name: member.user.nombre || member.user.name, // Normalizamos el nombre
-        email: member.user.correo || member.user.email, // Normalizamos el correo
+        name: member.user.nombre || member.user.name,
+        email: member.user.correo || member.user.email,
         img: member.user.img,
         rol: member.user.rol,
       };
     })
-    .filter(Boolean); // Filtra valores nulos o indefinidos
+    .filter(Boolean);
 
-  // Filtro de usuarios disponibles
   const availableUsers = users.filter(
     (user) => !projectMembers.some((member) => member.user?.carne === user.carne)
   );
-  
+
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
   const currentProjects = filteredProjects.slice(indexOfFirstItem, indexOfLastItem);
   const currentPodcast = filteredPodcast.slice(indexOfFirstItem, indexOfLastItem);
+  const currentNews = filteredNews.slice(indexOfFirstItem, indexOfLastItem);
 
   const totalPages = Math.ceil(
     activeNavItem === "Usuarios"
       ? filteredUsers.length
       : activeNavItem === "Proyectos"
       ? filteredProjects.length
-      : filteredPodcast.length / itemsPerPage
+      : activeNavItem === "Podcast"
+      ? filteredPodcast.length
+      : filteredNews.length / itemsPerPage
   );
 
   // User handlers
@@ -179,7 +200,6 @@ function JuntaPage() {
   const handleSaveUser = async (carne) => {
     const userToUpdate = users.find((user) => user.carne === carne);
     if (!userToUpdate) return;
-
     const [error, updatedUser] = await updateUserRequest({ id: carne, user: userToUpdate });
     if (error) {
       void Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar el usuario." });
@@ -201,7 +221,6 @@ function JuntaPage() {
       confirmButtonText: "Sí, eliminar",
     });
     if (!confirm.isConfirmed) return;
-
     const [error] = await deleteUserRequest({ id: carne });
     if (error) {
       await Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el usuario." });
@@ -241,7 +260,6 @@ function JuntaPage() {
       confirmButtonText: "Sí, eliminar",
     });
     if (!confirm.isConfirmed) return;
-
     const [error] = await deleteProjectRequest({ id });
     if (error) {
       await Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el proyecto." });
@@ -261,7 +279,6 @@ function JuntaPage() {
         '<textarea id="informacion" class="swal2-textarea" placeholder="Información" rows="4"></textarea>' +
         '<input id="img" class="swal2-input" placeholder="URL de la imagen">' +
         '<input id="dueno_id" class="swal2-input" placeholder="Carné de encargado">',
-
       focusConfirm: false,
       preConfirm: () => ({
         nombre: document.getElementById("nombre").value,
@@ -271,9 +288,7 @@ function JuntaPage() {
         dueno_id: document.getElementById("dueno_id").value,
       }),
     });
-
     if (formValues) {
-      console.log(formValues);
       const [error, newProject] = await createProjectRequest(formValues);
       if (error) {
         void Swal.fire({ icon: "error", title: "Error", text: "No se pudo crear el proyecto." });
@@ -292,12 +307,7 @@ function JuntaPage() {
   const handleSavePodcast = async (id) => {
     const podcastToUpdate = podcast.find((pod) => pod.id === id);
     if (!podcastToUpdate) return;
-
-    const updatedData = {
-      nombre: podcastToUpdate.nombre,
-      link: podcastToUpdate.link,
-    };
-
+    const updatedData = { nombre: podcastToUpdate.nombre, link: podcastToUpdate.link };
     const [error, updatedPodcast] = await updatePodcastRequest({ id, podcast: updatedData });
     if (error) {
       void Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar el podcast." });
@@ -319,7 +329,6 @@ function JuntaPage() {
       confirmButtonText: "Sí, eliminar",
     });
     if (!confirm.isConfirmed) return;
-
     const [error] = await deletePodcastRequest({ id });
     if (error) {
       await Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el podcast." });
@@ -341,7 +350,6 @@ function JuntaPage() {
         link: document.getElementById("link").value,
       }),
     });
-
     if (formValues) {
       const [error, newPodcast] = await createPodcastRequest(formValues);
       if (error) {
@@ -353,64 +361,117 @@ function JuntaPage() {
     }
   };
 
-  // Assign handler
-    const handleAssignUser = async (projectId, userId) => {
-      const [error, newMemberArray] = await addMembersToProjectRequest({ user_id: userId, project_id: projectId });
-      if (error) {
-        await Swal.fire({ icon: "error", title: "Error", text: "No se pudo asignar el usuario." });
-        return;
-      }
-    
-      // Asegúrate de que la respuesta sea un array y toma el primer elemento
-      const newMember = Array.isArray(newMemberArray) ? newMemberArray[0] : newMemberArray;
-    
-    
-      // Verificar si newMember.id está presente
-      if (!newMember.id) {
-        console.error("El ID del nuevo miembro no está definido:", newMember);
-        return;
-      }
-    
-      // Buscar el usuario correspondiente en la lista de usuarios
-      const assignedUser = users.find((user) => user.carne === userId);
-      if (!assignedUser) {
-        console.error("No se encontró el usuario con el ID:", userId);
-        return;
-      }
-    
-      // Combinar los datos del miembro con los datos del usuario
-      const memberWithUser = {
-        ...newMember,
-        memberId: newMember.id, // Guardar el ID del miembro
-        user: {
-          carne: assignedUser.carne,
-          nombre: assignedUser.nombre, // Normalizamos el nombre
-          correo: assignedUser.correo, // Normalizamos el correo
-          img: assignedUser.img,
-          rol: assignedUser.rol,
-        },
-      };
-    
-      // Actualizar los miembros del proyecto
-      setProjectMembers((prev) => [...prev, memberWithUser]);
-    
-    
-      // Incrementar el contador de miembros en el proyecto
-      setProjects((prev) =>
-        prev.map((p) => (p.id === projectId ? { ...p, count_members: p.count_members + 1 } : p))
-      );
-    
-      await Swal.fire({ icon: "success", title: "Éxito", text: "Usuario asignado correctamente." });
+  // News handlers
+  const handleSaveNews = async (id) => {
+    const newsToUpdate = news.find((item) => item.id === id);
+    if (!newsToUpdate) return;
+    const updatedData = {
+      titulo: selectedNews.titulo,
+      contenido: selectedNews.contenido,
+      img: selectedNews.img,
+      tipo: selectedNews.tipo,
     };
+    const [error, updatedNews] = await updateNewsRequest({ id, news: updatedData });
+    if (error) {
+      void Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar la noticia." });
+      return;
+    }
+    setNews((prev) => prev.map((item) => (item.id === id ? { ...item, ...updatedNews } : item)));
+    setEditingId(null);
+    setSelectedNews(null);
+    void Swal.fire({ icon: "success", title: "Éxito", text: "Noticia actualizada correctamente." });
+  };
 
-  // Unassign handler
+  const handleDeleteNews = async (id) => {
+    const confirm = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+    });
+    if (!confirm.isConfirmed) return;
+    const [error] = await deleteNewsRequest({ id });
+    if (error) {
+      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar la noticia." });
+      return;
+    }
+    setNews((prev) => prev.filter((item) => item.id !== id));
+    setSelectedNews(null);
+    await Swal.fire({ icon: "success", title: "Eliminado", text: "Noticia eliminada con éxito." });
+  };
+
+  const handleCreateNews = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: "Crear Noticia",
+      html:
+        '<input id="titulo" class="swal2-input" placeholder="Título">' +
+        '<textarea id="contenido" class="swal2-input" placeholder="Contenido"></textarea>' +
+        '<input id="img" class="swal2-input" placeholder="URL de la imagen">' +
+        '<input id="tipo" class="swal2-input" placeholder="Tipo">',
+      focusConfirm: false,
+      preConfirm: () => ({
+        titulo: document.getElementById("titulo").value,
+        contenido: document.getElementById("contenido").value,
+        img: document.getElementById("img").value,
+        tipo: document.getElementById("tipo").value,
+      }),
+    });
+    if (formValues) {
+      const [error, newNews] = await createNewsRequest(formValues);
+      if (error) {
+        void Swal.fire({ icon: "error", title: "Error", text: "No se pudo crear la noticia." });
+        return;
+      }
+      setNews((prev) => [...prev, newNews]);
+      void Swal.fire({ icon: "success", title: "Éxito", text: "Noticia creada correctamente." });
+    }
+  };
+
+  // Assign/Unassign handlers
+  const handleAssignUser = async (projectId, userId) => {
+    const [error, newMemberArray] = await addMembersToProjectRequest({ user_id: userId, project_id: projectId });
+    if (error) {
+      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo asignar el usuario." });
+      return;
+    }
+    const newMember = Array.isArray(newMemberArray) ? newMemberArray[0] : newMemberArray;
+    if (!newMember.id) {
+      console.error("New member ID not defined:", newMember);
+      return;
+    }
+    const assignedUser = users.find((user) => user.carne === userId);
+    if (!assignedUser) {
+      console.error("User not found with ID:", userId);
+      return;
+    }
+    const memberWithUser = {
+      ...newMember,
+      memberId: newMember.id,
+      user: {
+        carne: assignedUser.carne,
+        nombre: assignedUser.nombre,
+        correo: assignedUser.correo,
+        img: assignedUser.img,
+        rol: assignedUser.rol,
+      },
+    };
+    setProjectMembers((prev) => [...prev, memberWithUser]);
+    setProjects((prev) =>
+      prev.map((p) => (p.id === projectId ? { ...p, count_members: p.count_members + 1 } : p))
+    );
+    await Swal.fire({ icon: "success", title: "Éxito", text: "Usuario asignado correctamente." });
+  };
+
   const handleUnassignUser = async (memberId, projectId) => {
-    const [error] = await deleteMemberRequest({ id: memberId }); // Enviar el ID del miembro
+    const [error] = await deleteMemberRequest({ id: memberId });
     if (error) {
       await Swal.fire({ icon: "error", title: "Error", text: "No se pudo desasignar el usuario." });
       return;
     }
-    setProjectMembers((prev) => prev.filter((m) => m.id !== memberId)); // Filtrar por el ID del miembro
+    setProjectMembers((prev) => prev.filter((m) => m.id !== memberId));
     setProjects((prev) =>
       prev.map((p) => (p.id === projectId ? { ...p, count_members: p.count_members - 1 } : p))
     );
@@ -475,6 +536,14 @@ function JuntaPage() {
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
             >
               Crear Podcast
+            </button>
+          )}
+          {activeNavItem === "News" && (
+            <button
+              onClick={handleCreateNews}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            >
+              Crear Noticia
             </button>
           )}
         </div>
@@ -671,7 +740,6 @@ function JuntaPage() {
 
             {/* User Assignment Section */}
             <div className="mt-6 grid grid-cols-2 gap-6">
-              {/* Assigned Users */}
               <div>
                 <h4 className="text-lg font-medium mb-2">Usuarios Asignados</h4>
                 <div className="relative mb-4">
@@ -695,7 +763,7 @@ function JuntaPage() {
                           {user.name} ({user.email})
                         </span>
                         <button
-                          onClick={() => handleUnassignUser(user.memberId, selectedProject.id)} // Enviar el ID del miembro
+                          onClick={() => handleUnassignUser(user.memberId, selectedProject.id)}
                           className="text-red-600 hover:text-red-800"
                         >
                           Desasignar
@@ -708,7 +776,6 @@ function JuntaPage() {
                 </div>
               </div>
 
-              {/* Available Users */}
               <div>
                 <h4 className="text-lg font-medium mb-2">Usuarios Disponibles</h4>
                 <div className="relative mb-4">
@@ -835,6 +902,118 @@ function JuntaPage() {
           </div>
         )}
 
+        {/* News Section */}
+        {activeNavItem === "News" && (
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentNews.length > 0 ? (
+                currentNews.map((item) => (
+                  <div
+                    key={item.id}
+                    className="border rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => setSelectedNews(item)}
+                  >
+                    <img
+                      src={item.img}
+                      alt={item.titulo}
+                      className="w-full h-40 object-cover rounded-md mb-4"
+                    />
+                    <h3 className="text-lg font-medium">{item.titulo}</h3>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No hay noticias disponibles.</p>
+              )}
+            </div>
+            {selectedNews && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 w-11/12 md:w-2/3 lg:w-1/2">
+                  <button
+                    onClick={() => setSelectedNews(null)}
+                    className="text-gray-500 hover:text-gray-800 float-right"
+                  >
+                    ✕
+                  </button>
+                  <img
+                    src={selectedNews.img}
+                    alt={selectedNews.titulo}
+                    className="w-full h-64 object-cover rounded-md mb-4"
+                  />
+                  {editingId === selectedNews.id ? (
+                    <>
+                      <input
+                        type="text"
+                        value={selectedNews.titulo}
+                        onChange={(e) =>
+                          setSelectedNews({ ...selectedNews, titulo: e.target.value })
+                        }
+                        className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
+                      />
+                      <textarea
+                        value={selectedNews.contenido}
+                        onChange={(e) =>
+                          setSelectedNews({ ...selectedNews, contenido: e.target.value })
+                        }
+                        className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
+                      />
+                      <input
+                        type="text"
+                        value={selectedNews.img}
+                        onChange={(e) =>
+                          setSelectedNews({ ...selectedNews, img: e.target.value })
+                        }
+                        className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
+                      />
+                      <input
+                        type="text"
+                        value={selectedNews.tipo}
+                        onChange={(e) =>
+                          setSelectedNews({ ...selectedNews, tipo: e.target.value })
+                        }
+                        className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
+                      />
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleSaveNews(selectedNews.id)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        >
+                          Guardar
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-2xl font-medium mb-2">{selectedNews.titulo}</h3>
+                      <p className="text-gray-600 mb-4">{selectedNews.contenido}</p>
+                      <p className="text-gray-500 italic">Tipo: {selectedNews.tipo}</p>
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => setEditingId(selectedNews.id)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeleteNews(selectedNews.id)}
+                          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Pagination */}
         <div className="flex justify-between items-center mt-4">
           <button
@@ -860,6 +1039,4 @@ function JuntaPage() {
   );
 }
 
-
 export default JuntaPage;
-
