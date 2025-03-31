@@ -19,7 +19,7 @@ export const YouTubeVideos = () => {
   useEffect(() => {
     const fetchPodcasts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/podcasts")
+        const response = await fetch("https://backend-postgresql.vercel.app/api/podcasts")
         const podcasts = await response.json()
         setVideos(podcasts)
 
