@@ -16,6 +16,8 @@ import {
   updateUserRequest,
   deleteUserRequest,
 } from "@/actions/users";
+
+import { getNewsRequest, createNewsRequest, updateNewsRequest, deleteNewsRequest } from "../actions/news";
 import {
   getProjectsRequest,
   updateProjectRequest,
@@ -40,6 +42,7 @@ const sideNavItems = [
 function JuntaPage() {
   const [activeNavItem, setActiveNavItem] = useState("Usuarios");
   const [users, setUsers] = useState([]);
+  const [news, setNews] = useState([]);
   const [projects, setProjects] = useState([]);
   const [podcast, setPodcast] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -70,6 +73,14 @@ function JuntaPage() {
       return;
     }
     setPodcast(podcast);
+  };
+  const fetchNews = async () => {
+    const [error, news] = await getNewsRequest();
+    if (error) {
+      console.error("Error fetching users:", error);
+      return;
+    }
+    setPodcast(news);
   };
   // Fetch projects
   const fetchProjects = async () => {
@@ -420,11 +431,10 @@ function JuntaPage() {
         {sideNavItems.map((item, index) => (
           <button
             key={index}
-            className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${
-              activeNavItem === item.label
+            className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${activeNavItem === item.label
                 ? "bg-subase text-accent"
                 : "text-gray-600 hover:bg-base"
-            }`}
+              }`}
             onClick={() => setActiveNavItem(item.label)}
           >
             <item.icon className="h-5 w-5 mr-3" />
