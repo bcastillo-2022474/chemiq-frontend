@@ -17,7 +17,12 @@ import {
   deleteUserRequest,
 } from "@/actions/users";
 
-import { getNewsRequest, createNewsRequest, updateNewsRequest, deleteNewsRequest } from "../actions/news";
+import {
+  getNewsRequest,
+  createNewsRequest,
+  updateNewsRequest,
+  deleteNewsRequest,
+} from "../actions/news";
 import {
   getProjectsRequest,
   updateProjectRequest,
@@ -36,6 +41,7 @@ const sideNavItems = [
   { icon: Users, label: "Usuarios", href: "#" },
   { icon: Beaker, label: "Proyectos", href: "#" },
   { icon: Podcast, label: "Podcast", href: "#" },
+  { icon: Podcast, label: "News", href: "#" },
   { icon: Settings, label: "Configuración", href: "#" },
 ];
 
@@ -50,6 +56,7 @@ function JuntaPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 10;
+  const [selectedNews, setSelectedNews] = useState(null);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -64,7 +71,7 @@ function JuntaPage() {
       console.error("Error fetching users:", error);
       return;
     }
-  }
+  };
 
   const fetchPodcast = async () => {
     const [error, podcast] = await getPodcast();
@@ -75,12 +82,14 @@ function JuntaPage() {
     setPodcast(podcast);
   };
   const fetchNews = async () => {
+    console.log("Fetching news..."); // Debug log
     const [error, news] = await getNewsRequest();
     if (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching news:", error);
       return;
     }
-    setPodcast(news);
+    console.log("Fetched news:", news); // Debug log
+    setNews(news); // Update the `news` state
   };
   // Fetch projects
   const fetchProjects = async () => {
@@ -97,6 +106,7 @@ function JuntaPage() {
     fetchUsers();
     fetchProjects();
     fetchPodcast();
+    fetchNews();
   }, []);
 
   // Filter logic for users
@@ -125,6 +135,114 @@ function JuntaPage() {
       ? filteredUsers.length
       : filteredProjects.length / itemsPerPage
   );
+  //News handlers
+  const handleSaveNews = async (id) => {
+    const newsToUpdate = news.find((item) => item.id === id);
+    if (!newsToUpdate) {
+      console.error("News not found for update.");
+      return;
+    }
+
+    const updatedData = {
+      titulo: selectedNews.titulo,
+      contenido: selectedNews.contenido,
+      img: selectedNews.img,
+      tipo: selectedNews.tipo,
+    };
+
+    const [error, updatedNews] = await updateNewsRequest({
+      id,
+      news: updatedData,
+    });
+
+    if (error) {
+      console.error("Error updating news:", error);
+      void Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Could not update the news.",
+      });
+      return;
+    }
+
+    setNews((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updatedNews } : item))
+    );
+    setEditingId(null);
+    setSelectedNews(null); // Close the modal after saving
+    void Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "News updated successfully.",
+    });
+  };
+
+  const handleDeleteNews = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+    if (!confirm.isConfirmed) return;
+
+    const [error] = await deleteNewsRequest({ id });
+    if (error) {
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Could not delete the news.",
+      });
+      return;
+    }
+    setNews((prev) => prev.filter((item) => item.id !== id));
+    setSelectedNews(null); // Close the modal after deleting
+    await Swal.fire({
+      icon: "success",
+      title: "Deleted",
+      text: "News deleted successfully.",
+    });
+  };
+
+  const handleCreateNews = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: "Create News",
+      html:
+        '<input id="titulo" class="swal2-input" placeholder="Title">' +
+        '<textarea id="contenido" class="swal2-input" placeholder="Content"></textarea>' +
+        '<input id="img" class="swal2-input" placeholder="Image URL">' +
+        '<input id="tipo" class="swal2-input" placeholder="Type">',
+      focusConfirm: false,
+      preConfirm: () => ({
+        titulo: document.getElementById("titulo").value,
+        contenido: document.getElementById("contenido").value,
+        img: document.getElementById("img").value,
+        tipo: document.getElementById("tipo").value,
+      }),
+    });
+
+    if (formValues) {
+      const [error, newNews] = await createNewsRequest(formValues);
+      if (error) {
+        void Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Could not create the news.",
+        });
+        return;
+      }
+
+      setNews((prev) => [...prev, newNews]);
+      void Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "News created successfully.",
+      });
+    }
+  };
   // Podcast handlers
   const handleEditPodcast = (id, field, value) => {
     setPodcast(
@@ -431,10 +549,11 @@ function JuntaPage() {
         {sideNavItems.map((item, index) => (
           <button
             key={index}
-            className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${activeNavItem === item.label
+            className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${
+              activeNavItem === item.label
                 ? "bg-subase text-accent"
                 : "text-gray-600 hover:bg-base"
-              }`}
+            }`}
             onClick={() => setActiveNavItem(item.label)}
           >
             <item.icon className="h-5 w-5 mr-3" />
@@ -483,6 +602,14 @@ function JuntaPage() {
             >
               Crear Podcast
             </button>
+          )}
+          {activeNavItem === "News" && (
+            <button
+            onClick={handleCreateNews}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Crear Noticia
+          </button>
           )}
         </div>
 
@@ -753,7 +880,136 @@ function JuntaPage() {
             </div>
           </div>
         )}
-
+        {activeNavItem === "News" && (
+          <div>
+            {/* Grid for News Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {news.length > 0 ? (
+                news.map((item) => (
+                  <div
+                    key={item.id}
+                    className="border rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => setSelectedNews(item)} // Set the selected news for the modal
+                  >
+                    <img
+                      src={item.img}
+                      alt={item.titulo}
+                      className="w-full h-40 object-cover rounded-md mb-4"
+                    />
+                    <h3 className="text-lg font-medium">{item.titulo}</h3>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No news available.</p>
+              )}
+            </div>
+            {/* Modal for Selected News */}
+            {selectedNews && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 w-11/12 md:w-2/3 lg:w-1/2">
+                  <button
+                    onClick={() => setSelectedNews(null)} // Close the modal
+                    className="text-gray-500 hover:text-gray-800 float-right"
+                  >
+                    ✕
+                  </button>
+                  <img
+                    src={selectedNews.img}
+                    alt={selectedNews.titulo}
+                    className="w-full h-64 object-cover rounded-md mb-4"
+                  />
+                  {editingId === selectedNews.id ? (
+                    <>
+                      <input
+                        type="text"
+                        value={selectedNews.titulo}
+                        onChange={(e) =>
+                          setSelectedNews({
+                            ...selectedNews,
+                            titulo: e.target.value,
+                          })
+                        }
+                        className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
+                      />
+                      <textarea
+                        value={selectedNews.contenido}
+                        onChange={(e) =>
+                          setSelectedNews({
+                            ...selectedNews,
+                            contenido: e.target.value,
+                          })
+                        }
+                        className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
+                      />
+                      <input
+                        type="text"
+                        value={selectedNews.img}
+                        onChange={(e) =>
+                          setSelectedNews({
+                            ...selectedNews,
+                            img: e.target.value,
+                          })
+                        }
+                        className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
+                      />
+                      <input
+                        type="text"
+                        value={selectedNews.tipo}
+                        onChange={(e) =>
+                          setSelectedNews({
+                            ...selectedNews,
+                            tipo: e.target.value,
+                          })
+                        }
+                        className="border-b border-gray-300 focus:border-blue-500 outline-none mb-4 w-full"
+                      />
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleSaveNews(selectedNews.id)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-2xl font-medium mb-2">
+                        {selectedNews.titulo}
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        {selectedNews.contenido}
+                      </p>
+                      <p className="text-gray-500 italic">
+                        Tipo: {selectedNews.tipo}
+                      </p>
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => setEditingId(selectedNews.id)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteNews(selectedNews.id)}
+                          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         {/* Podcast Detail View */}
         {activeNavItem === "Podcast" && (
           <div className="overflow-x-auto">
