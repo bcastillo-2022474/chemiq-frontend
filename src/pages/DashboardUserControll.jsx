@@ -4,6 +4,7 @@ import { Modal } from "../components/ui/DashboardModalEditUsers"
 import { UserTable } from "../components/ui/DashboardTableUsers"
 import { useUsers } from "../hooks/useUsers"
 import { Loader2 } from "lucide-react"
+import LoaderCustom from "../components/ui/LoaderCustom"
 
 export default function Home() {
   const {
@@ -58,10 +59,7 @@ export default function Home() {
     <main className="flex-1 overflow-auto p-8">
       <h1 className="text-2xl font-bold mb-6">Usuarios</h1>
       {loading ? (
-        <div className="flex h-screen w-full items-center justify-center bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Cargando datos del dashboard...</span>
-      </div>
+        <LoaderCustom />
       ) : (
         // Muestra la tabla cuando la data está lista
         <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />

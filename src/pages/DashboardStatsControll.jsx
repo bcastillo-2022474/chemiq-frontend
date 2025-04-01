@@ -7,16 +7,14 @@ import { NewsDistributionChart } from "../components/ui/kpi/news-distribution-ch
 import { MemberEngagementCard } from "../components/ui/kpi/member-engagement-card"
 import { ProjectTimelineCard } from "../components/ui/kpi/project-timeline-card"
 import { useProyectos } from "@/hooks/useDash"
+import LoaderCustom from "../components/ui/LoaderCustom"
 
 export default function DashboardPage() {
   const { dashboardData, loading, error } = useProyectos()
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Cargando datos del dashboard...</span>
-      </div>
+      <LoaderCustom />
     )
   }
 
