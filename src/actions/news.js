@@ -34,3 +34,4 @@ export const deleteNewsRequest = async (id) => {
     .then(response => [null, response.data])
     .catch(error => [error, null])
 }
+
