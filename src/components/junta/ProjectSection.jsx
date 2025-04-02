@@ -1,81 +1,89 @@
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+"use client"
+
+import { useState, useEffect } from "react"
+import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 import {
   getProjectsRequest,
   updateProjectRequest,
   deleteProjectRequest,
   createProjectRequest,
-} from "@/actions/projects";
-import {
-  getMembersByProjectIdRequest,
-  addMembersToProjectRequest,
-  deleteMemberRequest,
-} from "@/actions/members";
-import { getUsers } from "@/actions/users"; // Asegúrate de importar la función para obtener usuarios
-import Swal from "sweetalert2";
+} from "@/actions/projects"
+import { getMembersByProjectIdRequest, addMembersToProjectRequest, deleteMemberRequest } from "@/actions/members"
+import { getUsers } from "@/actions/users"
+import Swal from "sweetalert2"
 
 function ProjectsSection() {
-  const [projects, setProjects] = useState([]);
-  const [users, setUsers] = useState([]); // Nuevo estado para almacenar todos los usuarios
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [editingProjectData, setEditingProjectData] = useState(null);
-  const [projectMembers, setProjectMembers] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [assignedSearchTerm, setAssignedSearchTerm] = useState("");
-  const [availableSearchTerm, setAvailableSearchTerm] = useState("");
-  const itemsPerPage = 10;
+  const [projects, setProjects] = useState([])
+  const [users, setUsers] = useState([])
+  const [selectedProject, setSelectedProject] = useState(null)
+  const [editingProjectData, setEditingProjectData] = useState(null)
+  const [projectMembers, setProjectMembers] = useState([])
+  const [editingId, setEditingId] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [assignedSearchTerm, setAssignedSearchTerm] = useState("")
+  const [availableSearchTerm, setAvailableSearchTerm] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [loadingMembers, setLoadingMembers] = useState(false)
+  const [loadingUsers, setLoadingUsers] = useState(false)
+  const itemsPerPage = 10
 
   const fetchProjects = async () => {
-    const [error, projects] = await getProjectsRequest();
+    setLoading(true)
+    const [error, projects] = await getProjectsRequest()
     if (error) {
-      console.error("Error fetching projects:", error);
-      return;
+      console.error("Error fetching projects:", error)
+      setLoading(false)
+      return
     }
-    setProjects(projects);
-  };
+    setProjects(projects)
+    setLoading(false)
+  }
 
   const fetchUsers = async () => {
-    const [error, users] = await getUsers();
+    setLoadingUsers(true)
+    const [error, users] = await getUsers()
     if (error) {
-      console.error("Error fetching users:", error);
-      return;
+      console.error("Error fetching users:", error)
+      setLoadingUsers(false)
+      return
     }
-    setUsers(users); // Guarda la lista completa de usuarios
-  };
+    setUsers(users)
+    setLoadingUsers(false)
+  }
 
   const fetchProjectMembers = async (projectId) => {
-    const [error, members] = await getMembersByProjectIdRequest({ id: projectId });
+    setLoadingMembers(true)
+    const [error, members] = await getMembersByProjectIdRequest({ id: projectId })
     if (error) {
-      console.error("Error fetching project members:", error);
-      return;
+      console.error("Error fetching project members:", error)
+      setLoadingMembers(false)
+      return
     }
-    setProjectMembers(members);
-  };
+    setProjectMembers(members)
+    setLoadingMembers(false)
+  }
 
   useEffect(() => {
-    fetchProjects();
-    fetchUsers(); // Llama a fetchUsers al montar el componente
-  }, []);
+    fetchProjects()
+    fetchUsers()
+  }, [])
 
   useEffect(() => {
     if (selectedProject) {
-      fetchProjectMembers(selectedProject.id);
-      setEditingProjectData(selectedProject);
+      fetchProjectMembers(selectedProject.id)
+      setEditingProjectData(selectedProject)
     } else {
-      setProjectMembers([]);
-      setEditingProjectData(null);
+      setProjectMembers([])
+      setEditingProjectData(null)
     }
-  }, [selectedProject]);
+  }, [selectedProject])
 
-  const filteredProjects = projects.filter((project) =>
-    project.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProjects = projects.filter((project) => project.nombre.toLowerCase().includes(searchTerm.toLowerCase()))
 
   const assignedUsers = projectMembers
     .map((member) => {
-      if (!member.user) return null;
+      if (!member.user) return null
       return {
         memberId: member.id,
         carne: member.user.carne,
@@ -83,43 +91,35 @@ function ProjectsSection() {
         email: member.user.correo || member.user.email,
         img: member.user.img,
         rol: member.user.rol,
-      };
+      }
     })
     .filter(Boolean)
-    .filter((user) =>
-      user.name.toLowerCase().includes(assignedSearchTerm.toLowerCase())
-    );
+    .filter((user) => user.name.toLowerCase().includes(assignedSearchTerm.toLowerCase()))
 
   const availableUsers = users
-    .filter(
-      (user) => !projectMembers.some((member) => member.user?.carne === user.carne)
-    )
-    .filter((user) =>
-      user.nombre.toLowerCase().includes(availableSearchTerm.toLowerCase())
-    );
+    .filter((user) => !projectMembers.some((member) => member.user?.carne === user.carne))
+    .filter((user) => user.nombre.toLowerCase().includes(availableSearchTerm.toLowerCase()))
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProjects = filteredProjects.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentProjects = filteredProjects.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage)
 
   const handleEditProject = (field, value) => {
-    setEditingProjectData((prev) => ({ ...prev, [field]: value }));
-  };
+    setEditingProjectData((prev) => ({ ...prev, [field]: value }))
+  }
 
   const handleSaveProject = async (id) => {
-    const [error, updatedProject] = await updateProjectRequest({ id, project: editingProjectData });
+    const [error, updatedProject] = await updateProjectRequest({ id, project: editingProjectData })
     if (error) {
-      void Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar el proyecto." });
-      return;
+      void Swal.fire({ icon: "error", title: "Error", text: "No se pudo actualizar el proyecto." })
+      return
     }
-    setProjects((prev) =>
-      prev.map((project) => (project.id === id ? { ...project, ...updatedProject } : project))
-    );
-    setSelectedProject(updatedProject);
-    setEditingId(null);
-    void Swal.fire({ icon: "success", title: "Éxito", text: "Proyecto actualizado correctamente." });
-  };
+    setProjects((prev) => prev.map((project) => (project.id === id ? { ...project, ...updatedProject } : project)))
+    setSelectedProject(updatedProject)
+    setEditingId(null)
+    void Swal.fire({ icon: "success", title: "Éxito", text: "Proyecto actualizado correctamente." })
+  }
 
   const handleDeleteProject = async (id) => {
     const confirm = await Swal.fire({
@@ -130,17 +130,17 @@ function ProjectsSection() {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Sí, eliminar",
-    });
-    if (!confirm.isConfirmed) return;
-    const [error] = await deleteProjectRequest({ id });
+    })
+    if (!confirm.isConfirmed) return
+    const [error] = await deleteProjectRequest({ id })
     if (error) {
-      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el proyecto." });
-      return;
+      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo eliminar el proyecto." })
+      return
     }
-    setProjects((prev) => prev.filter((project) => project.id !== id));
-    setSelectedProject(null);
-    await Swal.fire({ icon: "success", title: "Eliminado", text: "Proyecto eliminado con éxito." });
-  };
+    setProjects((prev) => prev.filter((project) => project.id !== id))
+    setSelectedProject(null)
+    await Swal.fire({ icon: "success", title: "Eliminado", text: "Proyecto eliminado con éxito." })
+  }
 
   const handleCreateProject = async () => {
     const { value: formValues } = await Swal.fire({
@@ -159,28 +159,28 @@ function ProjectsSection() {
         img: document.getElementById("img").value,
         dueno_id: document.getElementById("dueno_id").value,
       }),
-    });
+    })
     if (formValues) {
-      const [error, newProject] = await createProjectRequest(formValues);
+      const [error, newProject] = await createProjectRequest(formValues)
       if (error) {
-        void Swal.fire({ icon: "error", title: "Error", text: "No se pudo crear el proyecto." });
-        return;
+        void Swal.fire({ icon: "error", title: "Error", text: "No se pudo crear el proyecto." })
+        return
       }
-      setProjects((prev) => [...prev, newProject]);
-      void Swal.fire({ icon: "success", title: "Éxito", text: "Proyecto creado correctamente." });
+      setProjects((prev) => [...prev, newProject])
+      void Swal.fire({ icon: "success", title: "Éxito", text: "Proyecto creado correctamente." })
     }
-  };
+  }
 
   const handleAssignUser = async (projectId, userId) => {
-    const [error, newMemberArray] = await addMembersToProjectRequest({ user_id: userId, project_id: projectId });
+    const [error, newMemberArray] = await addMembersToProjectRequest({ user_id: userId, project_id: projectId })
     if (error) {
-      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo asignar el usuario." });
-      return;
+      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo asignar el usuario." })
+      return
     }
-    const newMember = Array.isArray(newMemberArray) ? newMemberArray[0] : newMemberArray;
-    if (!newMember.id) return;
-    const assignedUser = users.find((user) => user.carne === userId);
-    if (!assignedUser) return;
+    const newMember = Array.isArray(newMemberArray) ? newMemberArray[0] : newMemberArray
+    if (!newMember.id) return
+    const assignedUser = users.find((user) => user.carne === userId)
+    if (!assignedUser) return
     const memberWithUser = {
       ...newMember,
       memberId: newMember.id,
@@ -191,26 +191,22 @@ function ProjectsSection() {
         img: assignedUser.img,
         rol: assignedUser.rol,
       },
-    };
-    setProjectMembers((prev) => [...prev, memberWithUser]);
-    setProjects((prev) =>
-      prev.map((p) => (p.id === projectId ? { ...p, count_members: p.count_members + 1 } : p))
-    );
-    await Swal.fire({ icon: "success", title: "Éxito", text: "Usuario asignado correctamente." });
-  };
+    }
+    setProjectMembers((prev) => [...prev, memberWithUser])
+    setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, count_members: p.count_members + 1 } : p)))
+    await Swal.fire({ icon: "success", title: "Éxito", text: "Usuario asignado correctamente." })
+  }
 
   const handleUnassignUser = async (memberId, projectId) => {
-    const [error] = await deleteMemberRequest({ id: memberId });
+    const [error] = await deleteMemberRequest({ id: memberId })
     if (error) {
-      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo desasignar el usuario." });
-      return;
+      await Swal.fire({ icon: "error", title: "Error", text: "No se pudo desasignar el usuario." })
+      return
     }
-    setProjectMembers((prev) => prev.filter((m) => m.id !== memberId));
-    setProjects((prev) =>
-      prev.map((p) => (p.id === projectId ? { ...p, count_members: p.count_members - 1 } : p))
-    );
-    await Swal.fire({ icon: "success", title: "Éxito", text: "Usuario desasignado correctamente." });
-  };
+    setProjectMembers((prev) => prev.filter((m) => m.id !== memberId))
+    setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, count_members: p.count_members - 1 } : p)))
+    await Swal.fire({ icon: "success", title: "Éxito", text: "Usuario desasignado correctamente." })
+  }
 
   return (
     <div className="p-8 overflow-auto">
@@ -226,43 +222,41 @@ function ProjectsSection() {
           />
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
-        <button
-          onClick={handleCreateProject}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
+        <button onClick={handleCreateProject} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
           Crear Proyecto
         </button>
       </div>
       {!selectedProject ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {currentProjects.map((project) => (
-            <div
-              key={project.id}
-              className="border rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setSelectedProject(project)}
-            >
-              <img
-                src={project.img}
-                alt={project.nombre}
-                className="w-full h-40 object-cover rounded-md mb-4"
-              />
-              <h3 className="text-lg font-medium">{project.nombre}</h3>
-            </div>
-          ))}
-        </div>
+        loading ? (
+          <ProjectsGridSkeleton />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentProjects.map((project) => (
+              <div
+                key={project.id}
+                className="border rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => setSelectedProject(project)}
+              >
+                <img
+                  src={project.img || "/placeholder.svg?height=160&width=320"}
+                  alt={project.nombre}
+                  className="w-full h-40 object-cover rounded-md mb-4"
+                />
+                <h3 className="text-lg font-medium">{project.nombre}</h3>
+              </div>
+            ))}
+          </div>
+        )
       ) : (
         <div className="border rounded-lg p-6">
-          <button
-            onClick={() => setSelectedProject(null)}
-            className="mb-4 text-blue-600 hover:text-blue-800"
-          >
+          <button onClick={() => setSelectedProject(null)} className="mb-4 text-blue-600 hover:text-blue-800">
             Volver
           </button>
-          <div className="flex space-x-6">
+          <div className="flex flex-col md:flex-row md:space-x-6">
             <img
-              src={editingProjectData?.img || selectedProject.img}
+              src={editingProjectData?.img || selectedProject.img || "/placeholder.svg?height=192&width=192"}
               alt={editingProjectData?.nombre || selectedProject.nombre}
-              className="w-48 h-48 object-cover rounded-md"
+              className="w-48 h-48 object-cover rounded-md mb-4 md:mb-0"
             />
             <div className="flex-1">
               {editingId === selectedProject.id ? (
@@ -295,7 +289,7 @@ function ProjectsSection() {
                 <>
                   <h3 className="text-2xl font-medium mb-2">{selectedProject.nombre}</h3>
                   <p className="text-gray-600 mb-2">
-                    <a href={selectedProject.youtube} target="_blank" className="text-blue-600">
+                    <a href={selectedProject.youtube} target="_blank" className="text-blue-600" rel="noreferrer">
                       YouTube
                     </a>
                   </p>
@@ -312,10 +306,7 @@ function ProjectsSection() {
                     >
                       Guardar
                     </button>
-                    <button
-                      onClick={() => setEditingId(null)}
-                      className="text-gray-600 hover:text-gray-800"
-                    >
+                    <button onClick={() => setEditingId(null)} className="text-gray-600 hover:text-gray-800">
                       Cancelar
                     </button>
                   </>
@@ -338,7 +329,7 @@ function ProjectsSection() {
               </div>
             </div>
           </div>
-          <div className="mt-6 grid grid-cols-2 gap-6">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="text-lg font-medium mb-2">Usuarios Asignados</h4>
               <div className="relative mb-4">
@@ -352,12 +343,11 @@ function ProjectsSection() {
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
               <div className="max-h-40 overflow-y-auto border rounded-lg p-4">
-                {assignedUsers.length > 0 ? (
+                {loadingMembers ? (
+                  <UserListSkeleton count={3} />
+                ) : assignedUsers.length > 0 ? (
                   assignedUsers.map((user) => (
-                    <div
-                      key={user.carne}
-                      className="flex justify-between items-center py-2 border-b last:border-b-0"
-                    >
+                    <div key={user.carne} className="flex justify-between items-center py-2 border-b last:border-b-0">
                       <span>
                         {user.name} ({user.email})
                       </span>
@@ -387,12 +377,11 @@ function ProjectsSection() {
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
               <div className="max-h-40 overflow-y-auto border rounded-lg p-4">
-                {availableUsers.length > 0 ? (
+                {loadingUsers ? (
+                  <UserListSkeleton count={3} />
+                ) : availableUsers.length > 0 ? (
                   availableUsers.map((user) => (
-                    <div
-                      key={user.carne}
-                      className="flex justify-between items-center py-2 border-b last:border-b-0"
-                    >
+                    <div key={user.carne} className="flex justify-between items-center py-2 border-b last:border-b-0">
                       <span>
                         {user.nombre} ({user.correo})
                       </span>
@@ -422,11 +411,11 @@ function ProjectsSection() {
             <ChevronLeft className="h-5 w-5" />
           </button>
           <span className="text-sm text-gray-600">
-            Página {currentPage} de {totalPages}
+            Página {currentPage} de {totalPages || 1}
           </span>
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             className="p-2 rounded-md bg-gray-100 text-gray-600 disabled:opacity-50"
           >
             <ChevronRight className="h-5 w-5" />
@@ -434,7 +423,57 @@ function ProjectsSection() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default ProjectsSection;
+function ProjectsGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className="border rounded-lg p-4 animate-pulse">
+          <div className="w-full h-40 bg-gray-200 rounded-md mb-4"></div>
+          <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ProjectDetailSkeleton() {
+  return (
+    <div className="border rounded-lg p-6 animate-pulse">
+      <div className="h-6 bg-gray-200 rounded w-20 mb-4"></div>
+      <div className="flex flex-col md:flex-row md:space-x-6">
+        <div className="w-48 h-48 bg-gray-200 rounded-md mb-4 md:mb-0"></div>
+        <div className="flex-1">
+          <div className="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-5/6 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="flex space-x-4 mt-4">
+            <div className="h-8 bg-gray-200 rounded w-16"></div>
+            <div className="h-8 bg-gray-200 rounded w-16"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function UserListSkeleton({ count = 3 }) {
+  return (
+    <div className="animate-pulse">
+      {Array.from({ length: count }).map((_, index) => (
+        <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-6 bg-gray-200 rounded w-20"></div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default ProjectsSection
+
