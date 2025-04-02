@@ -12,6 +12,9 @@ import {
 import { useAuth } from "@/context/auth.jsx"
 import { useState, useRef } from "react"
 import { BASE_URL } from "@/lib/constants.js"
+import { useUsers } from "@/hooks/useUsers.js";
+import { updateUserRequest } from "@/actions/users.js";
+import { uploadImageRequest } from "@/actions/image-bucket.js";
 
 const navItems = [
   { name: "Inicio", component: "", icon: Home },
@@ -31,7 +34,7 @@ export function Sidebar() {
     password: "",
     confirmPassword: "",
   })
-  const [error, setError] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
   const fileInputRef = useRef(null)
 
   const isSectionSelected = navItems.some((item) => item.component === location.pathname.split("/")[2])
@@ -42,7 +45,7 @@ export function Sidebar() {
       ...prev,
       [name]: value,
     }))
-    setError("") // Clear error when user types
+    setErrorMessage("") // Clear errorMessage when user types
   }
 
   const handleImageClick = () => {
@@ -50,12 +53,21 @@ export function Sidebar() {
   }
 
   // Esta función se implementará en el futuro
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     // Por ahora solo mostramos el nombre del archivo seleccionado en la consola
     // La implementación real se hará en el futuro
     if (e.target.files && e.target.files[0]) {
       console.log("Archivo seleccionado:", e.target.files[0].name)
-      // Aquí iría la lógica para subir la imagen y actualizar formData.img
+      const [error, response] = await uploadImageRequest({ file: e.target.files[0] })
+
+      if (error) {
+        setErrorMessage(error.message || "Error al subir la imagen");
+        return;
+      }
+      setFormData({
+        ...formData,
+        img: response.publicUrl,
+      })
     }
   }
 
@@ -65,51 +77,37 @@ export function Sidebar() {
     // Password validation
     if (formData.password || formData.confirmPassword) {
       if (formData.password !== formData.confirmPassword) {
-        setError("Las contraseñas no coinciden")
+        setErrorMessage("Las contraseñas no coinciden")
         return
       }
       if (formData.password.length < 8) {
-        setError("La contraseña debe tener al menos 8 caracteres")
+        setErrorMessage("La contraseña debe tener al menos 8 caracteres")
         return
       }
     }
 
-    try {
-      // Prepare data to send (only include password if it's being changed)
-      const dataToSend = {
-        nombre: formData.nombre,
-        correo: formData.correo,
-        img: formData.img,
-      }
-      if (formData.password) {
-        dataToSend.password = formData.password
-      }
-
-      const response = await fetch(`${BASE_URL}/api/users/${user.carne}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          // Add any authentication headers if required by your auth context
-        },
-        body: JSON.stringify(dataToSend),
-      })
-
-      if (response.ok) {
-        setIsModalOpen(false)
-        setFormData((prev) => ({
-          ...prev,
-          password: "",
-          confirmPassword: "",
-        }))
-        // You might want to add a success message here
-      } else {
-        const errorData = await response.json()
-        setError(errorData.message || "Error al actualizar el perfil")
-      }
-    } catch (error) {
-      console.error("Error updating profile:", error)
-      setError("Error al conectar con el servidor")
+    const dataToSend = {
+      nombre: formData.nombre,
+      correo: formData.correo,
+      img: formData.img,
     }
+
+    if (formData.password) {
+      dataToSend.password = formData.password
+    }
+
+    const [error] = await updateUserRequest({
+      id: user.carne,
+      user: {
+        ...user,
+        ...dataToSend
+      },
+    })
+    if (error) {
+      setErrorMessage(error.message || "Error al actualizar el perfil");
+    }
+
+    setIsModalOpen(false)
   }
 
   return (
@@ -117,7 +115,7 @@ export function Sidebar() {
       <aside className="flex flex-col h-screen w-16 md:w-64 bg-[#0B2F33] text-[#FFF8F0] transition-all duration-300">
         <div className="p-4 border-b border-[#FFF8F0]/10 flex items-center justify-center md:justify-start">
           <div className="w-8 h-8 rounded-full bg-[#28BC98] flex items-center justify-center">
-            <FlaskRound className="w-4 h-4 text-[#0B2F33]" />
+            <FlaskRound className="w-4 h-4 text-[#0B2F33]"/>
           </div>
           <h1 className="ml-3 text-xl font-bold text-[#FFF8F0] hidden md:block">CHEMIQ</h1>
         </div>
@@ -137,7 +135,7 @@ export function Sidebar() {
                     isActive ? "bg-[#28BC98] text-[#0B2F33]" : "hover:bg-[#28BC98]/10"
                   }`}
                 >
-                  <item.icon className={`w-5 h-5 ${isActive ? "" : "text-[#FFF8F0]"}`} />
+                  <item.icon className={`w-5 h-5 ${isActive ? "" : "text-[#FFF8F0]"}`}/>
                   <span className="ml-3 font-medium hidden md:block">{item.name}</span>
                 </Link>
               )
@@ -147,16 +145,18 @@ export function Sidebar() {
 
         <div className="p-4 border-t border-[#FFF8F0]/10">
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center justify-center md:justify-start w-full p-2 rounded-lg hover:bg-[#28BC98]/10 transition-colors">
-              <div className="relative w-8 h-8 rounded-full bg-[#28BC98]/20 flex items-center justify-center overflow-hidden">
+            <DropdownMenuTrigger
+              className="flex items-center justify-center md:justify-start w-full p-2 rounded-lg hover:bg-[#28BC98]/10 transition-colors">
+              <div
+                className="relative w-8 h-8 rounded-full bg-[#28BC98]/20 flex items-center justify-center overflow-hidden">
                 {user.img ? (
-                  <img src={user.img || "/placeholder.svg"} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={user.img || "/placeholder.svg"} alt="Avatar" className="w-full h-full object-cover"/>
                 ) : (
-                  <User className="w-4 h-4 text-[#FFF8F0]" />
+                  <User className="w-4 h-4 text-[#FFF8F0]"/>
                 )}
               </div>
               <span className="ml-3 hidden md:block truncate">{user.nombre}</span>
-              <ChevronDown size={16} className="ml-auto hidden md:block" />
+              <ChevronDown size={16} className="ml-auto hidden md:block"/>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent className="w-56 bg-[#0B2F33] border border-[#28BC98]/20 text-[#FFF8F0]" align="end">
@@ -164,15 +164,15 @@ export function Sidebar() {
                 className="hover:bg-[#28BC98]/10 focus:bg-[#28BC98]/10 cursor-pointer"
                 onClick={() => setIsModalOpen(true)}
               >
-                <User className="mr-2 h-4 w-4" />
+                <User className="mr-2 h-4 w-4"/>
                 <span>Mi Perfil</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-[#FFF8F0]/10" />
+              <DropdownMenuSeparator className="bg-[#FFF8F0]/10"/>
               <DropdownMenuItem
                 className="text-[#7DE2A6] hover:bg-[#28BC98]/10 focus:bg-[#28BC98]/10 cursor-pointer"
                 onClick={logout}
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="mr-2 h-4 w-4"/>
                 <span>Cerrar Sesión</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -181,8 +181,10 @@ export function Sidebar() {
       </aside>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
-          <div className="bg-[#0B2F33] text-[#FFF8F0] w-full max-w-2xl rounded-xl border border-[#28BC98]/20 shadow-lg shadow-[#28BC98]/10 p-6 m-4 max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
+          <div
+            className="bg-[#0B2F33] text-[#FFF8F0] w-full max-w-2xl rounded-xl border border-[#28BC98]/20 shadow-lg shadow-[#28BC98]/10 p-6 m-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6 border-b border-[#FFF8F0]/10 pb-4">
               <h2 className="text-2xl font-bold text-[#28BC98]">Editar Perfil</h2>
               <button
@@ -233,14 +235,16 @@ export function Sidebar() {
                           alt="Avatar Preview"
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-[#0B2F33]/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                        <div
+                          className="absolute inset-0 bg-[#0B2F33]/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
                           <div className="text-[#28BC98] text-sm font-medium text-center px-2">Cambiar imagen</div>
                         </div>
                       </>
                     ) : (
                       <>
-                        <User className="w-12 h-12 text-[#FFF8F0]" />
-                        <div className="absolute inset-0 bg-[#0B2F33]/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                        <User className="w-12 h-12 text-[#FFF8F0]"/>
+                        <div
+                          className="absolute inset-0 bg-[#0B2F33]/70 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
                           <div className="text-[#28BC98] text-sm font-medium text-center px-2">Subir imagen</div>
                         </div>
                       </>
@@ -302,9 +306,9 @@ export function Sidebar() {
                 </div>
               </div>
 
-              {error && (
+              {errorMessage && (
                 <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm p-3 rounded-lg">
-                  {error}
+                  {errorMessage}
                 </div>
               )}
 
