@@ -46,7 +46,8 @@ export function useProyectos() {
       return
     }
     void fetchProyectos()
-    return project
+
+    
   }
 
   // Update a proyecto

@@ -8,6 +8,7 @@ import { getMembersByProjectIdRequest } from "../actions/members";
 import { deleteProjectRequest } from "../actions/projects";
 import { useUsers } from "@/hooks/useUsers";
 import { EditProjectModal } from "../components/ui/DashboardProjectsEdit";
+import LoaderCustom from "../components/ui/LoaderCustom";
 
 export function Projects() {
   const { proyectos, loading, error, createProyecto, updateProyecto, fetchProyectos } = useProyectos();
@@ -149,7 +150,7 @@ export function Projects() {
     }
   };
 
-  if (loading) return <p>Cargando proyectos...</p>;
+  if (loading) return <LoaderCustom />;
   if (error) return <p>Error: {error}</p>;
 
   // Actualiza el proyecto seleccionado con la información del propietario
