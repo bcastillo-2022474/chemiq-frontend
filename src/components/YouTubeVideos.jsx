@@ -7,7 +7,15 @@ import { es } from "date-fns/locale"
 import { getVideoId, getVideoDetails } from "@/utils/youtube"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 
 export const YouTubeVideos = () => {
