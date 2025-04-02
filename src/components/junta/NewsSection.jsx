@@ -157,9 +157,20 @@ function NewsSection() {
       )}
 
       {selectedNews && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-11/12 md:w-2/3 lg:w-1/2">
-            <button onClick={() => setSelectedNews(null)} className="text-gray-500 hover:text-gray-800 float-right">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setSelectedNews(null); // Cierra el modal al presionar Esc
+          }}
+          tabIndex={-1} // Permite que el contenedor capture eventos de teclado
+        >
+          <div
+            className="bg-white rounded-lg p-6 w-11/12 md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto"
+          >
+            <button
+              onClick={() => setSelectedNews(null)}
+              className="text-gray-500 hover:text-gray-800 float-right"
+            >
               ✕
             </button>
             <img
