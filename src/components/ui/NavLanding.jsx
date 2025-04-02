@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Link } from "react-router-dom"
 import { Skeleton } from "@/components/SkeletonsLanding"
-import { Button } from "@/components/ui/Button"
+import { Button } from "@/components/ui/button"
 import ProjectModal from "@/components/ProjectModal"
 import { BASE_URL } from "@/lib/constants"
 
