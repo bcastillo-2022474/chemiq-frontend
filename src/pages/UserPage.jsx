@@ -115,16 +115,16 @@ function HomePage() {
           ))
         ) : (
           <>
-          <h2 className="text-4xl font-light text-left tracking-tight text-[#0B2F33]"><span className="font-bold">Noticia más reciente</span></h2>
+          <h2 className="text-3xl font-light text-left tracking-tight text-[#0B2F33]"><span className="font-bold">Noticia más reciente</span></h2>
             <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
               <FeaturedNews />
             </div>
-            <h2 className="text-4xl font-light text-left  tracking-tight text-[#0B2F33]"><span className="font-bold">Proyecto más reciente</span></h2>
+            <h2 className="text-3xl font-light text-left  tracking-tight text-[#0B2F33]"><span className="font-bold">Proyecto más reciente</span></h2>
 
             <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
               <FeaturedProject onOpenModal={handleOpenModal} />
             </div>
-            <h2 className="text-4xl font-light text-left  tracking-tight text-[#0B2F33]"><span className="font-bold">Podcast más reciente</span></h2>
+            <h2 className="text-3xl font-light text-left  tracking-tight text-[#0B2F33]"><span className="font-bold">Podcast más reciente</span></h2>
 
             <div className="bg-white rounded-xl overflow-hidden border border-[#7DE2A6]/20 shadow-[rgba(0,_0,_0,_0.1)_0px_4px_12px] hover:-translate-y-1 transition-all duration-300">
               <FeaturedPodcast onOpenModal={handleOpenModal} />
