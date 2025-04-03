@@ -1,4 +1,5 @@
 
+import { useMemo } from "react"
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,35 +10,39 @@ import {
   Legend,
 } from "chart.js"
 import { Bar } from "react-chartjs-2"
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { generateRandomColors } from "@/utils/colors"
 
-// Register Chart.js components
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip, Legend)
 
 export function MemberEngagementCard({ data }) {
   const { totalMembers, totalMemberships, avgProjectsPerMember, totalOwnerships } = data
 
-  // Chart.js data
+
+  const colors = useMemo(() => ({
+    backgrounds: generateRandomColors(3, 0.7),
+    borders: generateRandomColors(3, 1)
+  }), [])
+
   const chartData = {
     labels: ["Miembros", "Membresías", "Propietarios"],
     datasets: [
       {
         label: "Cantidad",
-        data: [Number.parseInt(totalMembers), Number.parseInt(totalMemberships), Number.parseInt(totalOwnerships)],
-        backgroundColor: [
-          "rgba(99, 102, 241, 0.7)", // Indigo
-          "rgba(16, 185, 129, 0.7)", // Green
-          "rgba(245, 158, 11, 0.7)", // Amber
+        data: [
+          Number.parseInt(totalMembers), 
+          Number.parseInt(totalMemberships), 
+          Number.parseInt(totalOwnerships)
         ],
-        borderColor: ["rgba(99, 102, 241, 1)", "rgba(16, 185, 129, 1)", "rgba(245, 158, 11, 1)"],
+        backgroundColor: colors.backgrounds,
+        borderColor: colors.borders,
         borderWidth: 1,
         borderRadius: 4,
       },
     ],
   }
 
-  // Chart options
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -110,4 +115,3 @@ export function MemberEngagementCard({ data }) {
     </Card>
   )
 }
-
