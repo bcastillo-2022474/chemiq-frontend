@@ -56,7 +56,7 @@ function JuntaPage() {
         } md:relative md:translate-x-0 md:col-span-3`}
       >
         <h1 className="text-xl font-light mb-8 px-4 text-gray-700">
-          <img src="./src/assets/img/ChemiqTextLogo.png" className="w-full h-[50px]" />
+          <img src="https://i.ibb.co/WpHRPRWS/Imagen-de-Whats-App-2025-04-02-a-las-20-45-15-1a4bcc2f-removebg-preview.png" className="w-full h-[50px]" />
         </h1>
         {sideNavItems.map((item, index) => (
           <button

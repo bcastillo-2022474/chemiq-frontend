@@ -68,14 +68,14 @@ export function UserTable({ users, onEdit, onDelete }) {
       <h1 className="text-xl font-semibold mb-6 text-gray-800">Users</h1>
 
       {/* Agregar usuario botón */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <button
           onClick={() => setIsModalOpen(true)}
           className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
         >
           Add User
         </button>
-      </div>
+      </div> */}
 
       {/* Filtering controls */}
       <div className="flex mb-4 gap-4">

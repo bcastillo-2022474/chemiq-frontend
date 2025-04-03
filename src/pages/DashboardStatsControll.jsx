@@ -1,6 +1,6 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 import { SummaryCards } from "../components/ui/kpi/summary-cards"
 import { RoleDistributionChart } from "../components/ui/kpi/RoleDistributionChart"
 import { NewsDistributionChart } from "../components/ui/kpi/news-distribution-chart"
@@ -18,7 +18,7 @@ export default function DashboardPage() {
     )
   }
 
-  if (error || !dashboardData) {x
+  if (error || !dashboardData) {X
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white">
         <p className="text-destructive">Error: {error || "No se pudieron cargar los datos"}</p>
