@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Beaker, Users, Home, Settings, LogOut, Podcast } from "lucide-react";
+import { Beaker, Users, Home, Settings, LogOut, Podcast, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UsersSection from "@/components/junta/UsersSection";
 import ProjectsSection from "@/components/junta/ProjectSection";
@@ -7,7 +7,6 @@ import PodcastSection from "@/components/junta/PodcastSection";
 import NewsSection from "@/components/junta/NewsSection";
 
 const sideNavItems = [
-  { icon: Home, label: "Inicio", href: "#" },
   { icon: Users, label: "Usuarios", href: "#" },
   { icon: Beaker, label: "Proyectos", href: "#" },
   { icon: Podcast, label: "Podcast", href: "#" },
@@ -17,6 +16,7 @@ const sideNavItems = [
 
 function JuntaPage() {
   const [activeNavItem, setActiveNavItem] = useState("Usuarios");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to toggle sidebar
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -40,8 +40,21 @@ function JuntaPage() {
   };
 
   return (
-    <div className="flex h-screen bg-white">
-      <nav className="w-64 bg-tertiary py-8 px-4">
+    <div className="h-screen flex bg-white">
+      {/* Burger Button for Mobile */}
+      <button
+        className="absolute top-4 left-4 z-50 md:hidden"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        <Menu className="h-6 w-6 text-gray-700" />
+      </button>
+
+      {/* Sidebar */}
+      <nav
+        className={`fixed top-0 left-0 h-full bg-tertiary py-8 px-4 z-40 transform transition-transform duration-300 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:relative md:translate-x-0 md:col-span-3`}
+      >
         <h1 className="text-xl font-light mb-8 px-4 text-gray-700">
           <img src="./src/assets/img/ChemiqTextLogo.png" className="w-full h-[50px]" />
         </h1>
@@ -51,7 +64,10 @@ function JuntaPage() {
             className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${
               activeNavItem === item.label ? "bg-subase text-accent" : "text-gray-600 hover:bg-base"
             }`}
-            onClick={() => setActiveNavItem(item.label)}
+            onClick={() => {
+              setActiveNavItem(item.label);
+              setIsSidebarOpen(false); // Close sidebar on item click
+            }}
           >
             <item.icon className="h-5 w-5 mr-3" />
             <span className="text-sm">{item.label}</span>
@@ -61,11 +77,13 @@ function JuntaPage() {
           onClick={handleLogout}
           className="mt-5 w-full flex items-center gap-3 bg-red-500 p-3 rounded-lg text-gray-300 hover:text-white transition-colors"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-2 w-2" />
           <span>Logout</span>
         </button>
       </nav>
-      <main className="flex-1">{renderSection()}</main>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto p-6 md:ml-0">{renderSection()}</main>
     </div>
   );
 }
