@@ -5,6 +5,7 @@ import UsersSection from "@/components/junta/UsersSection";
 import ProjectsSection from "@/components/junta/ProjectSection";
 import PodcastSection from "@/components/junta/PodcastSection";
 import NewsSection from "@/components/junta/NewsSection";
+import Config from "@/components/junta/Config";
 
 const sideNavItems = [
   { icon: Users, label: "Usuarios", href: "#" },
@@ -34,6 +35,8 @@ function JuntaPage() {
         return <PodcastSection />;
       case "News":
         return <NewsSection />;
+      case "Configuración":
+        return <Config />;
       default:
         return <div>Selecciona una sección</div>;
     }
