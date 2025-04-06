@@ -1,74 +1,73 @@
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Beaker, Users, Target } from "lucide-react"
-import { Link } from "react-router-dom"
-import { getProjectsRequest } from "@/actions/projects"
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Users, Calendar } from "lucide-react";
+import { getProjectsRequest } from "@/actions/projects";
 
-export function FeaturedProject() {
-  const [project, setProject] = useState(null)
+export function FeaturedProject({ onOpenModal }) {
+  const [project, setProject] = useState(null);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Sin fecha";
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   useEffect(() => {
     const fetchProject = async () => {
-      const [error, projects] = await getProjectsRequest()
-      if (error) {
-        console.error("Error fetching project:", error)
-        return
+      const [error, projects] = await getProjectsRequest();
+      if (!error && projects?.length) {
+        setProject(projects[projects.length - 1]);
       }
-      const lastProject = projects[projects.length - 1]
-      setProject(lastProject)
-    }
-
-    void fetchProject()
-  }, [])
+    };
+    fetchProject();
+  }, []);
 
   if (!project) {
-    return <Card className="h-64 animate-pulse bg-[#7DE2A6]/10" />
+    return <Card className="h-96 animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" />;
   }
 
+  const handleClick = () => {
+    console.log("Abriendo modal para proyecto:", project); // Depuración
+    onOpenModal(project);
+  };
+
   return (
-    <Link to={`/proyectos/${project.id}`}>
-      <Card className="h-64 overflow-hidden bg-white hover:shadow-md transition-all duration-300">
-        <div className="flex h-full">
-          <div className="w-1/3 relative">
-            <img
-              src={project.proyecto_img || "/placeholder.svg"}
-              alt={project.proyecto_nombre}
-              className="object-cover w-full h-full"
-            />
-            <div className="absolute inset-0" />
-          </div>
-          <CardContent className="w-2/3 p-4 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center mb-2">
-                <Beaker className="h-5 w-5 mr-2 text-[#28BC98]" />
-                <h3 className="text-xl font-semibold text-[#0B2F33] truncate">
-                  {project.proyecto_nombre}
-                </h3>
-              </div>
-              <p className="text-sm text-[#0B2F33]/70 line-clamp-2">
-                {project.informacion}
-              </p>
-            </div>
-            <div className="flex justify-between items-center mt-4">
-              <div className="flex space-x-4">
-                <div className="flex items-center">
-                  <Users className="h-4 w-4 text-[#28BC98] mr-1" />
-                  <span className="text-xs text-[#0B2F33]/70">
-                    {project.count_members} miembros
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <Target className="h-4 w-4 text-[#28BC98] mr-1" />
-                  <span className="text-xs text-[#0B2F33]/70">En progreso</span>
-                </div>
-              </div>
-              <div className="bg-[#28BC98] text-white px-3 py-1 rounded-full text-xs font-medium hover:bg-[#7DE2A6] transition-colors duration-300">
-                Ver proyecto
-              </div>
-            </div>
-          </CardContent>
+    <Card
+      className="group h-full overflow-hidden bg-white hover:shadow-xl transition-all duration-300 border-none cursor-pointer"
+      onClick={handleClick}
+    >
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={project.img || "/placeholder.svg"}
+          alt={project.proyecto_nombre}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <h3 className="absolute bottom-4 left-4 text-xl font-semibold text-white">
+          {project.proyecto_nombre}
+        </h3>
+      </div>
+      <div className="p-6 space-y-4">
+        <div className="flex items-center gap-4 text-sm text-gray-600">
+          <span className="flex items-center">
+            <Calendar className="h-4 w-4 mr-1 text-[#28BC98]" />
+            {formatDate(project.created_at)}
+          </span>
+          {project.count_members && (
+            <span className="flex items-center">
+              <Users className="h-4 w-4 mr-1 text-[#28BC98]" />
+              {project.count_members}
+            </span>
+          )}
         </div>
-      </Card>
-    </Link>
-  )
+        <p className="text-gray-700 line-clamp-3">{project.informacion}</p>
+        <span className="inline-block px-4 py-1 bg-[#28BC98]/10 text-[#28BC98] rounded-full text-sm font-medium group-hover:bg-[#28BC98] group-hover:text-white transition-colors">
+          Ver detalles
+        </span>
+      </div>
+    </Card>
+  );
 }
