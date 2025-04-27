@@ -1,43 +1,47 @@
-import { formatDate } from "@/lib/utils"
+import { Calendar, Users } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
-export const ProjectCard = ({ proyecto, onReadMore }) => {
+export function ProjectCard({ proyecto, onClick }) {
+  const formatDate = (dateString) => {
+    if (!dateString) return "Sin fecha";
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
-    <div
-      className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row hover:shadow-2xl transition-all duration-300 cursor-pointer group w-full h-64 mb-4"
-      onClick={onReadMore}
+    <Card 
+      className="group overflow-hidden bg-white hover:shadow-xl transition-all duration-300 border-none cursor-pointer"
+      onClick={onClick}
     >
-      <div className="md:w-2/5 relative">
+      <div className="relative h-48 overflow-hidden">
         <img
           src={proyecto.img || "/placeholder.svg"}
-          alt={proyecto.nombre}
-          className="w-full h-full object-cover"
+          alt={proyecto.proyecto_nombre}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <h3 className="absolute bottom-4 left-4 text-xl font-semibold text-white">
+          {proyecto.proyecto_nombre}
+        </h3>
       </div>
-      <div className="p-6 md:w-3/5 flex flex-col justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-[#1d896e] mb-2">
-            {proyecto.nombre}
-          </h2>
-          <p className="text-gray-700 mt-2">
-            {proyecto.informacion.length > 150
-              ? `${proyecto.informacion.substring(0, 150)}...`
-              : proyecto.informacion}
-          </p>
-        </div>
-        <div className="flex justify-between items-center mt-4">
-          <div>
-            {/*OWNER GOES HERE*/}
-            {/*<span className="text-gray-500 text-sm">{proyecto.integrantes[0]?.nombre}</span>*/}
-            <span className="text-gray-400 text-xs block">
-              {formatDate(proyecto.created_at)}
+      <div className="p-6 space-y-4">
+        <div className="flex items-center gap-4 text-sm text-gray-600">
+          <span className="flex items-center">
+            <Calendar className="h-4 w-4 mr-1 text-[#28BC98]" />
+            {formatDate(proyecto.created_at)}
+          </span>
+          {proyecto.count_members && (
+            <span className="flex items-center">
+              <Users className="h-4 w-4 mr-1 text-[#28BC98]" />
+              {proyecto.count_members}
             </span>
-          </div>
-          <div className="bg-[#28bc98] text-white px-3 py-1 rounded-full group-hover:bg-[#1d896e] transition-colors duration-300 flex items-center">
-            <span className="text-sm font-medium">Ver más</span>
-          </div>
+          )}
         </div>
+        <p className="text-gray-700 line-clamp-3">{proyecto.informacion}</p>
       </div>
-    </div>
-  )
+    </Card>
+  );
 }

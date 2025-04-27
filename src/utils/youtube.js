@@ -1,9 +1,38 @@
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY; // Necesitarás una API key de YouTube
 
 export const getVideoId = (url) => {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
+  try {
+    // Primero intentamos con la lógica de URL parsing (más precisa)
+    const urlObj = new URL(url);
+    let videoId = "";
+
+    // YouTube Shorts: youtube.com/shorts/ID
+    if (urlObj.pathname.startsWith("/shorts/")) {
+      videoId = urlObj.pathname.split("/shorts/")[1].split("?")[0];
+    }
+    // URL estándar: youtube.com/watch?v=ID
+    else if (urlObj.searchParams.has("v")) {
+      videoId = urlObj.searchParams.get("v");
+    }
+    // URL corta: youtu.be/ID
+    else if (urlObj.hostname === "youtu.be") {
+      videoId = urlObj.pathname.slice(1).split("?")[0];
+    }
+    // Si falla el parsing, usamos la regex como respaldo
+    else {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const match = url.match(regExp);
+      videoId = match && match[2].length === 11 ? match[2] : "";
+    }
+
+    if (!videoId) {
+      console.warn(`No se pudo extraer el videoId de la URL: ${url}`);
+    }
+    return videoId || null;
+  } catch (error) {
+    console.error("Error al parsear la URL de YouTube:", error, "URL:", url);
+    return null;
+  }
 };
 
 export const getVideoDetails = async (videoId) => {

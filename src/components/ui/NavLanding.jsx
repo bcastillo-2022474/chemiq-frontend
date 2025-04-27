@@ -1,205 +1,341 @@
-import { useState } from "react";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { Link } from "react-router-dom";
-import { Skeleton } from "@/components/SkeletonsLanding"; // Asegúrate de que esta importación sea correcta
-import { Button } from "@/components/ui/Button"; // Asumo que tienes un componente Button definido
+"use client"
 
-const NavBar = ({ loading }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+import { useState, useEffect } from "react"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu"
+import { Link } from "react-router-dom"
+import { Skeleton } from "@/components/SkeletonsLanding"
+import { Button } from "@/components/ui/button"
+import ProjectModal from "@/components/ProjectModal"
+import { BASE_URL } from "@/lib/constants"
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+const NavBar = ({ loading: initialLoading }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedProjectId, setSelectedProjectId] = useState(null)
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading] = useState(initialLoading)
+  const [error, setError] = useState(null)
+  const [scrolled, setScrolled] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
 
-  return (
-    <nav className="bg-base shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo */}
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              {loading ? (
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`${BASE_URL}/api/proyects`)
+        if (!response.ok) {
+          throw new Error("Error al cargar los proyectos")
+        }
+        const data = await response.json()
+        const sortedProjects = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 4)
+        setProjects(sortedProjects)
+      } catch (err) {
+        console.error("Error al cargar los proyectos:", err)
+        setError("No se pudieron cargar los proyectos")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjects()
+
+    // Add scroll event listener
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
+      const progress = (scrollPosition / windowHeight) * 100
+      
+      setScrollProgress(progress)
+      setScrolled(scrollPosition > 20)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+
+  const handleSmoothScroll = (e, targetId) => {
+    e.preventDefault()
+    const targetElement = document.querySelector(targetId)
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
+  const openProjectModal = (projectId) => {
+    setSelectedProjectId(projectId)
+    setModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setModalOpen(false)
+    setSelectedProjectId(null)
+  }
+
+  if (loading) {
+    return (
+      <nav className="bg-base shadow-md fixed top-0 left-0 w-full z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
                 <Skeleton className="w-[150px] h-[50px]" />
-              ) : (
-                <span className="text-2xl font-bold text-white">
-                  <img
-                    src="https://iili.io/3Awgque.jpg"
-                    alt="Logo"
-                    className="w-[50px] h-[50px]"
-                  />
-                </span>
-              )}
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                <Skeleton className="w-[400px] h-[40px]" />
+              </div>
             </div>
-
-            {/* Menú para pantallas grandes */}
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger className="text-lime-600">
-                      Proyectos Destacados
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid gap-3 p-4 md:w-[400px] bg-background lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                        <li className="row-span-3">
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-lime-500 to-lime-600 p-6 no-underline outline-none focus:shadow-md"
-                              href="/"
-                            >
-                              <div className="mt-4 text-lg font-medium text-white">
-                                BioDiesel
-                              </div>
-                              <p className="text-sm leading-tight text-white/90">
-                                La producción de biodiésel: una alternativa viable de reciclaje y una oportunidad de aprendizaje
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
-                              href="/"
-                            >
-                              <div className="text-sm font-medium leading-none">Satelite Quetzal 1</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                El primer satélite guatemalteco
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
-                              href="/"
-                            >
-                              <div className="text-sm font-medium leading-none">Proyecto X</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">Proyecto X</p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100"
-                              href="/"
-                            >
-                              <div className="text-sm font-medium leading-none">Proyecto X</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">Proyecto X</p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <a href="#about" className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium">
-                      Acerca de
-                    </a>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <a href="#contact" className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium">
-                      Contacto
-                    </a>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <a href="#members" className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium">
-                      Conócenos
-                    </a>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
+            <div className="hidden sm:ml-6 sm:flex sm:items-center">
+              <Skeleton className="h-10 w-28" />
+            </div>
+            <div className="flex items-center sm:hidden">
+              <Skeleton className="h-10 w-10" />
             </div>
           </div>
+        </div>
+      </nav>
+    )
+  }
 
-          {/* Botón de login para pantallas grandes */}
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            {loading ? (
-              <Skeleton className="h-10 w-28" />
-            ) : (
+  if (error) {
+    return (
+      <nav className="bg-base shadow-md fixed top-0 left-0 w-full z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <img src="https://iili.io/3Awgque.jpg" alt="Logo" className="w-[50px] h-[50px]" />
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8 items-center">
+                <p className="text-white">Error al cargar los proyectos</p>
+              </div>
+            </div>
+            <div className="hidden sm:ml-6 sm:flex sm:items-center">
               <Link to="/login">
-                <Button
-                  variant="quimica"
-                  className="mr-2 text-lime-700 shadow-lg bg-white hover:bg-accent hover:text-white rounded-md font-semibold"
+                <Button variant="quimica" className="mr-2 text-lime-700 shadow-lg bg-white hover:bg-accent hover:text-white rounded-md font-semibold">
+                  Iniciar sesión
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
+  return (
+    <>
+      <nav 
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+          scrolled 
+            ? 'bg-base/95 backdrop-blur-md shadow-lg' 
+            : 'bg-base shadow-md'
+        }`}
+        style={{
+          height: scrolled ? '64px' : '64px',
+          transform: `translateY(${scrolled && isMenuOpen ? '0' : '0'}px)`
+        }}
+      >
+        {/* Progress bar */}
+        <div 
+          className="h-0.5 bg-accent" 
+          style={{ width: `${scrollProgress}%`, transition: 'width 0.2s ease-out' }}
+        />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <span className="text-2xl font-bold text-white">
+                  <img 
+                    src="https://iili.io/3Awgque.jpg" 
+                    alt="Logo" 
+                    className={`transition-all duration-300 ${
+                      scrolled ? 'w-[40px] h-[40px]' : 'w-[50px] h-[50px]'
+                    }`} 
+                  />
+                </span>
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger 
+                        className={`transition-all duration-300 ${
+                          scrolled ? 'text-lime-600' : 'text-lime-600'
+                        }`}
+                      >
+                        Proyectos Destacados
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid gap-3 p-4 md:w-[400px] bg-background lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                          {projects.length > 0 && (
+                            <li className="row-span-3">
+                              <NavigationMenuLink asChild>
+                                <a className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-lime-500 to-lime-600 p-6 no-underline outline-none focus:shadow-md" href="#" onClick={(e) => { e.preventDefault(); openProjectModal(projects[0].id) }}>
+                                  <div className="mt-4 text-lg font-medium text-white">{projects[0].nombre}</div>
+                                  <p className="text-sm leading-tight text-white/90">{projects[0].informacion.substring(0, 100)}...</p>
+                                </a>
+                              </NavigationMenuLink>
+                            </li>
+                          )}
+                          {projects.slice(1).map((project) => (
+                            <li key={project.id}>
+                              <NavigationMenuLink asChild>
+                                <a className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-lime-100 focus:bg-lime-100" href="#" onClick={(e) => { e.preventDefault(); openProjectModal(project.id) }}>
+                                  <div className="text-sm font-medium leading-none">{project.nombre}</div>
+                                  <p className="line-clamp-2 text-sm leading-snug text-gray-500">{project.informacion.substring(0, 60)}...</p>
+                                </a>
+                              </NavigationMenuLink>
+                            </li>
+                          ))}
+                          {projects.length === 0 && (
+                            <li className="col-span-2 p-4 text-center text-gray-500">No hay proyectos disponibles</li>
+                          )}
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <a 
+                        href="#about" 
+                        onClick={(e) => handleSmoothScroll(e, "#about")} 
+                        className={`transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium ${
+                          scrolled 
+                            ? 'text-white hover:text-lime-200' 
+                            : 'text-white hover:text-lime-200'
+                        }`}
+                      >
+                        Acerca de
+                      </a>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <a 
+                        href="#members" 
+                        onClick={(e) => handleSmoothScroll(e, "#members")} 
+                        className={`transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium ${
+                          scrolled 
+                            ? 'text-white hover:text-lime-200' 
+                            : 'text-white hover:text-lime-200'
+                        }`}
+                      >
+                        Conócenos
+                      </a>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <a 
+                        href="#contact" 
+                        onClick={(e) => handleSmoothScroll(e, "#contact")} 
+                        className={`transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium ${
+                          scrolled 
+                            ? 'text-white hover:text-lime-200' 
+                            : 'text-white hover:text-lime-200'
+                        }`}
+                      >
+                        Contacto
+                      </a>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </div>
+            </div>
+            <div className="hidden sm:ml-6 sm:flex sm:items-center">
+              <Link to="/login">
+                <Button 
+                  variant="quimica" 
+                  className={`transition-all duration-300 mr-2 shadow-lg rounded-md font-semibold ${
+                    scrolled 
+                      ? 'bg-white text-lime-700 hover:bg-accent hover:text-white scale-95' 
+                      : 'bg-white text-lime-700 hover:bg-accent hover:text-white'
+                  }`}
                 >
                   Iniciar sesión
                 </Button>
               </Link>
-            )}
-          </div>
-
-          {/* Botón hamburguesa para pantallas pequeñas */}
-          <div className="flex items-center sm:hidden">
-            <Button variant="ghost" className="text-white" onClick={toggleMenu}>
-              <svg
-                className="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            </div>
+            <div className="flex items-center sm:hidden">
+              <Button 
+                variant="ghost" 
+                className="text-white" 
+                onClick={toggleMenu}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                />
-              </svg>
-            </Button>
+                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+                </svg>
+              </Button>
+            </div>
           </div>
-        </div>
-
-        {/* Menú desplegable para pantallas pequeñas */}
-        {isMenuOpen && (
-          <div className="sm:hidden bg-base shadow-md px-4 py-2">
-            <div className="flex flex-col space-y-2">
-              <a href="#about" className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium">
-                Acerca de
-              </a>
-              <a href="#contact" className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium">
-                Contacto
-              </a>
-              <a href="#members" className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium">
-                Conócenos
-              </a>
-              {loading ? (
-                <Skeleton className="h-10 w-28" />
-              ) : (
+          {isMenuOpen && (
+            <div 
+              className={`sm:hidden px-4 py-2 transition-all duration-300 ${
+                scrolled 
+                  ? 'bg-base/95 backdrop-blur-md' 
+                  : 'bg-base shadow-md'
+              }`}
+            >
+              <div className="flex flex-col space-y-2">
+                <a 
+                  href="#about" 
+                  className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Acerca de
+                </a>
+                <a 
+                  href="#contact" 
+                  className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Contacto
+                </a>
+                <a 
+                  href="#members" 
+                  className="text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Conócenos
+                </a>
                 <Link to="/login">
-                  <Button
-                    variant="quimica"
+                  <Button 
+                    variant="quimica" 
                     className="text-lime-700 bg-white hover:bg-accent hover:text-white rounded-md font-semibold w-full"
                   >
                     Iniciar sesión
                   </Button>
                 </Link>
-              )}
-              {/* Menú de proyectos destacados en móviles */}
-              {/* <div className="pt-2">
-                <span className="text-lime-600 px-3 py-2 text-sm font-medium">Proyectos Destacados</span>
-                <div className="pl-4 space-y-2">
-                  <a href="/" className="block text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm">
-                    BioDiesel
-                  </a>
-                  <a href="/" className="block text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm">
-                    Satélite Quetzal 1
-                  </a>
-                  <a href="/" className="block text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm">
-                    Proyecto X
-                  </a>
-                  <a href="/" className="block text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm">
-                    Proyecto X
-                  </a>
+                <div className="pt-2">
+                  <span className="text-lime-600 px-3 py-2 text-sm font-medium mr-10">
+                    Proyectos Destacados
+                  </span>
+                  <div className="pl-4 space-y-2">
+                    {projects.length > 0 ? (
+                      projects.map((project) => (
+                        <a 
+                          key={project.id} 
+                          href="#" 
+                          className="block text-white hover:text-lime-200 px-3 py-2 rounded-md text-sm" 
+                          onClick={(e) => { e.preventDefault(); openProjectModal(project.id) }}
+                        >
+                          {project.nombre}
+                        </a>
+                      ))
+                    ) : (
+                      <p className="text-white/70 px-3 py-2 text-sm">No hay proyectos disponibles</p>
+                    )}
+                  </div>
                 </div>
-              </div> */}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </nav>
-  );
-};
+          )}
+        </div>
+      </nav>
+      <ProjectModal isOpen={modalOpen} onClose={closeModal} projectId={selectedProjectId} />
+    </>
+  )
+}
 
-export default NavBar;
+export default NavBar
+

@@ -47,6 +47,7 @@ export function useUsers() {
   // Delete a user
   const deleteUser = async id => {
     const [error] = await deleteUserRequest({ id: id })
+    console.log(error)
     if (error) {
       setError(error)
     } else {

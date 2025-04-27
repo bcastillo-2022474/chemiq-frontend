@@ -27,7 +27,7 @@ export function FeaturedNews() {
   }
 
   return (
-    <Link to={`/noticias/${article.id}`}>
+    <Link to={`./noticias/${article.id}`}>
       <Card className="h-64 overflow-hidden bg-white hover:shadow-md transition-all duration-300">
         <div className="flex h-full">
           <div className="w-1/3 relative">
@@ -40,13 +40,13 @@ export function FeaturedNews() {
           </div>
           <CardContent className="w-2/3 p-4 flex flex-col justify-between">
             <div>
-              <div className="flex items-center mb-2">
+              <div className="flex items-center mt-10 mb-2">
                 <Newspaper className="h-5 w-5 mr-2 text-[#28BC98]" />
                 <h3 className="text-xl font-semibold text-[#0B2F33] truncate">
                   {article.titulo}
                 </h3>
               </div>
-              <p className="text-sm text-[#0B2F33]/70 line-clamp-2">
+              <p className="text-sm mt-5 text-[#0B2F33]/70 line-clamp-2"  style={{width: "80ch"}}>
                 {article.contenido}
               </p>
             </div>
