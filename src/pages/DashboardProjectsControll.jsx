@@ -20,23 +20,34 @@ export function Projects() {
   const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [members, setMembers] = useState([]);
-  const [projectOwner, setProjectOwner] = useState(null); 
+  const [projectOwner, setProjectOwner] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (selectedProject) {
-      fetchMembers(selectedProject.id);
+      void fetchMembers(selectedProject.id);
       findProjectOwner(selectedProject.dueno_id);
     }
   }, [selectedProject, users]);
+
+
+  useEffect(() => {
+    if (!isUpdating) return;
+    
+    const updateData = async () => {
+      await fetchProyectos();
+      setIsUpdating(false);
+    };
+
+    void updateData();
+  }, [isUpdating, fetchProyectos]);
 
   const fetchMembers = async (projectId) => {
     try {
       const [error, data] = await getMembersByProjectIdRequest({ id: projectId });
       if (!error && Array.isArray(data)) {
         setMembers(data);
-        // Optional: Extract the owner for special handling
         const owner = data.find(member => member.is_owner);
-        console.log("Project owner:", owner?.user.name || "No owner found");
         setProjectOwner(owner?.user);
       } else {
         console.error("Error fetching members or invalid data:", error || "Data is not an array");
@@ -66,61 +77,71 @@ export function Projects() {
 
   const handleAddMember = async (projectId, userId) => {
     try {
+      setIsUpdating(true);
       const proyectoActual = proyectos.find((p) => p.id === projectId);
       if (!proyectoActual) {
-        console.error("Proyecto no encontrado:", projectId);
-        return;
+        throw new Error("Proyecto no encontrado");
       }
-  
-      // Asegurarse de que integrantes sea un array
+
       const currentIntegrantes = Array.isArray(proyectoActual.integrantes)
         ? proyectoActual.integrantes
         : [];
-  
-      // Evitar duplicados
+
       if (currentIntegrantes.includes(userId)) {
         console.log(`Usuario ${userId} ya es miembro del proyecto`);
         return;
       }
-  
+
       const nuevosIntegrantes = [...currentIntegrantes, userId];
-  
-      await updateProyecto(projectId, {
+
+      const updatedProject = await updateProyecto(projectId, {
         ...proyectoActual,
         integrantes: nuevosIntegrantes,
       });
-  
-      setSelectedProject({
-        ...proyectoActual,
-        integrantes: nuevosIntegrantes,
-        dueno: projectOwner,
-      });
-  
-      fetchMembers(projectId);
+
+      if (updatedProject) {
+        setSelectedProject({
+          ...proyectoActual,
+          integrantes: nuevosIntegrantes,
+          dueno: projectOwner,
+        });
+        await fetchMembers(projectId);
+        await fetchProyectos();
+      }
     } catch (error) {
       console.error("Error al agregar miembro:", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleAddProject = async (newProject) => {
     try {
-      await createProyecto(newProject);
-      await fetchProyectos();
-      setSelectedProject(null);
-      setIsAddProjectModalOpen(false);
+      setIsUpdating(true);
+      const createdProject = await createProyecto(newProject);
+      if (createdProject) {
+        await fetchProyectos();
+        setSelectedProject(null);
+        setIsAddProjectModalOpen(false);
+      }
     } catch (error) {
       console.error("Error al crear proyecto:", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleDeleteProject = async (projectId) => {
     if (window.confirm("¿Estás seguro que deseas eliminar este proyecto?")) {
       try {
+        setIsUpdating(true);
         await deleteProjectRequest({ id: projectId });
         await fetchProyectos();
         setSelectedProject(null);
       } catch (error) {
         console.error("Error al eliminar proyecto:", error);
+      } finally {
+        setIsUpdating(false);
       }
     }
   };
@@ -132,28 +153,34 @@ export function Projects() {
   
   const handleUpdateProject = async (projectId, updatedProject) => {
     try {
-      await updateProyecto(projectId, updatedProject);
-      await fetchProyectos();
+      setIsUpdating(true);
+      const result = await updateProyecto(projectId, updatedProject);
       
-      // Actualizar el proyecto seleccionado si es el mismo que se editó
-      if (selectedProject && selectedProject.id === projectId) {
-        setSelectedProject({
-          ...updatedProject,
-          id: projectId,
-          dueno: projectOwner
-        });
+      if (result) {
+        await fetchProyectos();
+        
+        if (selectedProject && selectedProject.id === projectId) {
+          const updatedSelectedProject = {
+            ...updatedProject,
+            id: projectId,
+            dueno: projectOwner
+          };
+          setSelectedProject(updatedSelectedProject);
+          await fetchMembers(projectId);
+        }
+        
+        setIsEditProjectModalOpen(false);
       }
-      
-      setIsEditProjectModalOpen(false);
     } catch (error) {
       console.error("Error al actualizar proyecto:", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  if (loading) return <LoaderCustom />;
+  if (loading || isUpdating) return <LoaderCustom />;
   if (error) return <p>Error: {error}</p>;
 
-  // Actualiza el proyecto seleccionado con la información del propietario
   const enrichedSelectedProject = selectedProject && {
     ...selectedProject,
     dueno: projectOwner

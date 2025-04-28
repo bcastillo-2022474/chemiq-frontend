@@ -22,7 +22,7 @@ export function NewsDistributionChart({ data }) {
     return acc
   }, [])
 
-  // Generate colors dynamically based on the number of categories
+
   const generateColors = (count) => {
     const baseColors = [
       { bg: "rgba(99, 102, 241, 0.8)", border: "rgba(99, 102, 241, 1)" }, // Indigo
