@@ -14,14 +14,23 @@ const navItems = [
   { name: "Settings", icon: Settings, href: "/settings" },
 ]
 
-export function Sidebar() {
+export function Sidebar({
+  colors = {
+    background: "white",
+    text: "text-gray-600",
+    textHover: "hover:text-blue-600",
+    activeText: "text-blue-600 font-medium",
+    buttonBackground: "bg-red-500",
+    buttonHover: "hover:bg-red-600",
+    buttonText: "text-white",
+  },
+}) {
   const location = useLocation()
   const { logout } = useAuth()
 
   // Function to close sidebar on mobile when navigating
   const closeSidebarOnMobile = () => {
     if (window.innerWidth < 768) {
-      // Find the parent component and close the sidebar
       const event = new CustomEvent("closeSidebar")
       window.dispatchEvent(event)
     }
@@ -40,24 +49,27 @@ export function Sidebar() {
   }, [])
 
   return (
-    <div className="h-full flex flex-col">
+    <div
+      className="h-full flex flex-col"
+      style={{ backgroundColor: colors.background }} // Apply background color
+    >
       {/* Close button only visible on mobile */}
       <button
-        className="md:hidden self-end p-4 text-gray-500 hover:text-gray-700"
+        className={`md:hidden self-end p-4 ${colors.text} ${colors.textHover}`}
         onClick={() => window.dispatchEvent(new CustomEvent("closeSidebar"))}
       >
         <X className="h-6 w-6" />
       </button>
 
       <div className="p-6 flex-1 overflow-y-auto">
-        <h1 className="text-2xl font-bold mb-8">Chemistry Lab</h1>
+        <h1 className={`text-2xl font-bold mb-8 ${colors.text}`}>Chemistry Lab</h1>
         <nav className="space-y-4">
           {navItems.map((item) => (
             <Link
               key={item.name}
               to={item.href}
               className={`flex items-center gap-3 transition-colors ${
-                location.pathname === item.href ? "text-blue-600 font-medium" : "text-gray-600 hover:text-blue-600"
+                location.pathname === item.href ? colors.activeText : `${colors.text} ${colors.textHover}`
               }`}
               onClick={closeSidebarOnMobile}
             >
@@ -71,7 +83,7 @@ export function Sidebar() {
       <div className="p-6 border-t">
         <button
           onClick={logout}
-          className="w-full flex items-center gap-3 bg-red-500 p-3 rounded-lg text-white hover:bg-red-600 transition-colors"
+          className={`w-full flex items-center gap-3 ${colors.buttonBackground} p-3 rounded-lg ${colors.buttonText} ${colors.buttonHover} transition-colors`}
         >
           <LogOut className="h-5 w-5" />
           <span>Logout</span>
