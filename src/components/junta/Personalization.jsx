@@ -11,22 +11,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { getColors, getColorByIdRequest, updateColorRequest } from "../../actions/personalization"
-
+import { getImages, getImageByTypeRequest } from "../../actions/image"
 // Initial theme structure
 const initialTheme = {
   colors: {},
-  images: {
-    logo: "/placeholder.svg?height=80&width=200",
-    hero: "/placeholder.svg?height=400&width=800",
-    banner: "/placeholder.svg?height=200&width=1200",
-    favicon: "/placeholder.svg?height=32&width=32",
-    carousel: [
-      "/placeholder.svg?height=300&width=600&text=Slide+1",
-      "/placeholder.svg?height=300&width=600&text=Slide+2",
-      "/placeholder.svg?height=300&width=600&text=Slide+3",
-    ],
-  },
-}
+  images: [],
+};
 
 export default function Personalization() {
   const [theme, setTheme] = useState(initialTheme)
@@ -37,6 +27,31 @@ export default function Personalization() {
   const [loading, setLoading] = useState(true)
   const colorOrder = ["Primary", "Secondary", "Tertiary", "Accent", "Background"];
   // Fetch colors from the database
+  const fetchImages = async () => {
+    setLoading(true);
+    try {
+      const [error, images] = await getImages();
+      console.log("Response from getImages:", images); // Verifica la estructura de los datos aquí
+      if (error) {
+        console.error("Error fetching images:", error);
+        setLoading(false);
+        return;
+      }
+
+      setTheme((prevTheme) => ({
+        ...prevTheme,
+        images: Array.isArray(images) ? images : [], // Asegúrate de que sea un array
+      }));
+    } catch (err) {
+      console.error("Unexpected error fetching images:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const carrouselImages = theme.images.filter((image) => image.tipo === "Carrousel");
+  const logoImage = theme.images.find((image) => image.tipo === "logo");
+  const heroImage = theme.images.find((image) => image.tipo === "hero");
+  console.log("Carrousel images:", carrouselImages);
   const fetchColors = async () => {
     setLoading(true)
     const [error, colors] = await getColors()
@@ -58,6 +73,7 @@ export default function Personalization() {
 
   useEffect(() => {
     fetchColors()
+    fetchImages()
   }, [])
 
   // Update a specific color
@@ -124,29 +140,6 @@ export default function Personalization() {
     })
   }
 
-  // Add a new image to the carousel
-  const addCarouselImage = (url) => {
-    setTheme({
-      ...theme,
-      images: {
-        ...theme.images,
-        carousel: [...theme.images.carousel, url],
-      },
-    })
-  }
-
-  // Remove an image from the carousel
-  const removeCarouselImage = (index) => {
-    const newCarousel = [...theme.images.carousel]
-    newCarousel.splice(index, 1)
-    setTheme({
-      ...theme,
-      images: {
-        ...theme.images,
-        carousel: newCarousel,
-      },
-    })
-  }
 
   // Save changes
   const saveChanges = () => {
@@ -260,104 +253,45 @@ export default function Personalization() {
               {/* Existing image management code */}
               <h3 className="text-lg font-medium mb-4">Imágenes del Portal</h3>
               <Accordion type="single" collapsible className="w-full">
-                {Object.entries(theme.images).map(([key, value]) => {
-                  if (key === "carousel") return null
-                  return (
-                    <AccordionItem key={key} value={key}>
-                      <AccordionTrigger className="py-2 px-2 hover:bg-gray-50 rounded-md">
-                        <div className="flex items-center">
-                          <ImageIcon className="w-4 h-4 mr-2" />
-                          <span className="capitalize">{key}</span>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-2">
-                        <div className="space-y-4 py-2">
-                          <div className="border rounded-md overflow-hidden">
-                            <img
-                              src={value || "/placeholder.svg"}
-                              alt={key}
-                              className="w-full h-auto object-contain max-h-32"
-                            />
-                          </div>
 
-                          <div className="space-y-2">
-                            <Label htmlFor={`image-url-${key}`}>URL de imagen</Label>
-                            <div className="flex gap-2">
-                              <Input
-                                id={`image-url-${key}`}
-                                placeholder="https://ejemplo.com/imagen.jpg"
-                                value={activeImage === key ? imageUrl : ""}
-                                onChange={(e) => setImageUrl(e.target.value)}
-                                onFocus={() => setActiveImage(key)}
-                              />
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  if (imageUrl && activeImage === key) {
-                                    updateImage(key, imageUrl)
-                                    setImageUrl("")
-                                  }
-                                }}
-                              >
-                                <Check className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Subir imagen</Label>
-                            <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
-                              <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                              <p className="text-sm text-gray-500">Arrastra una imagen o haz clic para seleccionar</p>
-                              <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0]
-                                  if (file) {
-                                    // En un caso real, aquí subiríamos el archivo
-                                    // y obtendríamos la URL
-                                    const fakeUrl = URL.createObjectURL(file)
-                                    updateImage(key, fakeUrl)
-                                  }
-                                }}
-                                id={`file-upload-${key}`}
-                              />
-                              <label
-                                htmlFor={`file-upload-${key}`}
-                                className="block w-full h-full absolute inset-0 cursor-pointer"
-                              >
-                                <span className="sr-only">Subir imagen</span>
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  )
-                })}
-                {/* Sección especial para el carrusel */}
-                <AccordionItem value="carousel">
+                <AccordionItem value="Carrousel">
                   <AccordionTrigger className="py-2 px-2 hover:bg-gray-50 rounded-md">
-                    <div className="flex items-center">
-                      <ImageIcon className="w-4 h-4 mr-2" />
-                      <span>Imágenes de Carrusel</span>
-                      <div className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-gray-100">
-                        {theme.images.carousel.length}
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">
+                        Carrusel de imágenes ({carrouselImages.length})
+                      </h3>
+                      <div className="border rounded-md p-2">
+                        <div className="grid grid-cols-3 gap-2">
+                          {carrouselImages.map((img, index) => (
+                            <img
+                              key={index}
+                              src={img.enlace || "/placeholder.svg"}
+                              alt={`Slide ${index + 1}`}
+                              className="w-full h-auto aspect-video object-cover rounded"
+                            />
+                          ))}
+                        </div>
+                        {carrouselImages.length === 0 && (
+                          <div className="text-center py-8 text-gray-500">
+                            No hay imágenes en el carrusel
+                          </div>
+                        )}
                       </div>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-2">
                     <div className="space-y-4 py-2">
-                      {/* Vista previa de las imágenes actuales */}
+                      {/* Vista previa de las imágenes del carrusel */}
                       <div className="space-y-2">
                         <Label>Imágenes actuales</Label>
                         <div className="grid grid-cols-2 gap-2">
-                          {theme.images.carousel.map((img, index) => (
-                            <div key={index} className="relative group border rounded-md overflow-hidden">
+                          {carrouselImages.map((img, index) => (
+                            <div
+                              key={index}
+                              className="relative group border rounded-md overflow-hidden"
+                            >
                               <img
-                                src={img || "/placeholder.svg"}
+                                src={img.enlace || "/placeholder.svg"}
                                 alt={`Slide ${index + 1}`}
                                 className="w-full h-auto object-cover aspect-video"
                               />
@@ -379,7 +313,7 @@ export default function Personalization() {
                         </div>
                       </div>
 
-                      {/* Agregar nueva imagen por URL */}
+                      {/* Agregar nueva imagen al carrusel */}
                       <div className="space-y-2">
                         <Label htmlFor="carousel-url">Agregar imagen por URL</Label>
                         <div className="flex gap-2">
@@ -393,8 +327,8 @@ export default function Personalization() {
                             size="sm"
                             onClick={() => {
                               if (imageUrl) {
-                                addCarouselImage(imageUrl)
-                                setImageUrl("")
+                                addCarouselImage(imageUrl);
+                                setImageUrl("");
                               }
                             }}
                           >
@@ -403,23 +337,23 @@ export default function Personalization() {
                         </div>
                       </div>
 
-                      {/* Subir nueva imagen */}
+                      {/* Subir nueva imagen al carrusel */}
                       <div className="space-y-2">
                         <Label>Subir nueva imagen</Label>
                         <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
                           <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                          <p className="text-sm text-gray-500">Arrastra una imagen o haz clic para seleccionar</p>
+                          <p className="text-sm text-gray-500">
+                            Arrastra una imagen o haz clic para seleccionar
+                          </p>
                           <input
                             type="file"
                             className="hidden"
                             accept="image/*"
                             onChange={(e) => {
-                              const file = e.target.files?.[0]
+                              const file = e.target.files?.[0];
                               if (file) {
-                                // En un caso real, aquí subiríamos el archivo
-                                // y obtendríamos la URL
-                                const fakeUrl = URL.createObjectURL(file)
-                                addCarouselImage(fakeUrl)
+                                const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
+                                addCarouselImage(fakeUrl);
                               }
                             }}
                             id="carousel-upload"
@@ -436,6 +370,7 @@ export default function Personalization() {
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
+
             </TabsContent>
           </Tabs>
           <div className="p-4 border-t">
@@ -497,19 +432,19 @@ export default function Personalization() {
             </div>
 
             <div>
-              <h3 className="text-sm font-medium mb-2">Carrusel de imágenes ({theme.images.carousel.length})</h3>
+              <h3 className="text-sm font-medium mb-2">Carrusel de imágenes ({carrouselImages.length})</h3>
               <div className="border rounded-md p-2">
                 <div className="grid grid-cols-3 gap-2">
-                  {theme.images.carousel.map((img, index) => (
+                  {carrouselImages.map((img, index) => (
                     <img
                       key={index}
-                      src={img || "/placeholder.svg"}
+                      src={img.enlace || "/placeholder.svg"} // Asegúrate de usar `img.url` si existe
                       alt={`Slide ${index + 1}`}
                       className="w-full h-auto aspect-video object-cover rounded"
                     />
                   ))}
                 </div>
-                {theme.images.carousel.length === 0 && (
+                {carrouselImages.length === 0 && (
                   <div className="text-center py-8 text-gray-500">No hay imágenes en el carrusel</div>
                 )}
               </div>
