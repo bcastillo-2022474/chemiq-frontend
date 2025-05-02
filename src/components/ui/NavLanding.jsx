@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/SkeletonsLanding"
 import { Button } from "@/components/ui/button"
 import ProjectModal from "@/components/ProjectModal"
 import { BASE_URL } from "@/lib/constants"
+import { getColors } from "../../actions/personalization"
 
 const NavBar = ({ loading: initialLoading }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -24,6 +25,32 @@ const NavBar = ({ loading: initialLoading }) => {
   const [error, setError] = useState(null)
   const [scrolled, setScrolled] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+    images: {}, // Otros datos del tema
+  });
+
+  const fetchColors = async () => {
+    setLoading(true);
+    const [error, colors] = await getColors();
+    if (error) {
+      console.error("Error fetching colors:", error);
+      setLoading(false);
+      return;
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    );
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }));
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchColors();
+  }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -81,7 +108,7 @@ const NavBar = ({ loading: initialLoading }) => {
 
   if (loading) {
     return (
-      <nav className="bg-base shadow-md fixed top-0 left-0 w-full z-50">
+      <nav className="shadow-md fixed top-0 left-0 w-full z-50" style={{ backgroundColor: theme.colors.Primary }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
@@ -106,7 +133,7 @@ const NavBar = ({ loading: initialLoading }) => {
 
   if (error) {
     return (
-      <nav className="bg-base shadow-md fixed top-0 left-0 w-full z-50">
+      <nav className="shadow-md fixed top-0 left-0 w-full z-50" style={{ backgroundColor: theme.colors.Primary }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
@@ -140,7 +167,8 @@ const NavBar = ({ loading: initialLoading }) => {
         }`}
         style={{
           height: scrolled ? '64px' : '64px',
-          transform: `translateY(${scrolled && isMenuOpen ? '0' : '0'}px)`
+          transform: `translateY(${scrolled && isMenuOpen ? '0' : '0'}px)`,
+          backgroundColor: theme.colors.Accent
         }}
       >
         {/* Progress bar */}
@@ -278,6 +306,7 @@ const NavBar = ({ loading: initialLoading }) => {
                   ? 'bg-base/95 backdrop-blur-md' 
                   : 'bg-base shadow-md'
               }`}
+              style={{ backgroundColor: theme.colors.Primary }}
             >
               <div className="flex flex-col space-y-2">
                 <a 

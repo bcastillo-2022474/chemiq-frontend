@@ -35,9 +35,9 @@ export const getColorByNameRequest = async ({ name }) => {
         })
 }
 
-export const updateColorRequest = async ({ id, color }) => {
+export const updateColorRequest = async ({ nombre, color }) => {
   return api
-    .put(`${API_URL}/${id}`, color)
+    .put(`${API_URL}/${nombre}`, color)
     .then(response => {
       return [null, response.data]
     })
