@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Check, ImageIcon, Palette, Upload } from "lucide-react"
-
+import Swal from "sweetalert2"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,16 +10,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { getColors, getColorByIdRequest, updateColorRequest } from "../../actions/personalization"
 
-// Datos de ejemplo para el tema
+// Initial theme structure
 const initialTheme = {
-  colors: {
-    primary: "#0070f3",
-    secondary: "#6c757d",
-    accent: "#f59e0b",
-    background: "#ffffff",
-    text: "#333333",
-  },
+  colors: {},
   images: {
     logo: "/placeholder.svg?height=80&width=200",
     hero: "/placeholder.svg?height=400&width=800",
@@ -39,19 +34,86 @@ export default function Personalization() {
   const [activeColor, setActiveColor] = useState(null)
   const [activeImage, setActiveImage] = useState(null)
   const [imageUrl, setImageUrl] = useState("")
-
-  // Función para actualizar un color
-  const updateColor = (key, value) => {
-    setTheme({
-      ...theme,
-      colors: {
-        ...theme.colors,
-        [key]: value,
-      },
-    })
+  const [loading, setLoading] = useState(true)
+  const colorOrder = ["Primary", "Secondary", "Tertiary", "Accent", "Background"];
+  // Fetch colors from the database
+  const fetchColors = async () => {
+    setLoading(true)
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      setLoading(false)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors) // Verifica los colores aquí
+    setLoading(false)
   }
 
-  // Función para actualizar una imagen
+  useEffect(() => {
+    fetchColors()
+  }, [])
+
+  // Update a specific color
+  const updateColor = (nombre, hex) => {
+    // Actualiza el estado local
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: {
+        ...prevTheme.colors,
+        [nombre]: hex,
+      },
+    }));
+  };
+
+  const saveColors = async () => {
+    try {
+      const colors = theme.colors; // Obtén los colores del estado local
+      const promises = Object.entries(colors).map(([nombre, hex]) =>
+        updateColorRequest({ nombre, color: { hex } })
+      );
+
+      const results = await Promise.all(promises);
+
+      // Manejo de errores en las solicitudes
+      const errors = results.filter(([error]) => error);
+      if (errors.length > 0) {
+        void Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudieron guardar algunos colores.",
+        });
+        return;
+      }
+
+      // Si todo se guarda correctamente
+      void Swal.fire({
+        icon: "success",
+        title: "Éxito",
+        text: "Colores actualizados correctamente.",
+      });
+    } catch (err) {
+      console.error("Error inesperado al guardar colores:", err);
+      void Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error inesperado al guardar los colores.",
+      });
+    }
+  };
+  const cancelChanges = () => {
+    fetchColors(); // Vuelve a cargar los colores desde la base de datos
+    setTheme(initialTheme); // Restablece el estado del tema al inicial
+    setActiveColor(null); // Cierra cualquier popover abierto
+    setImageUrl(""); // Limpia el campo de URL de imágenes
+  };
+  // Update an image
   const updateImage = (key, value) => {
     setTheme({
       ...theme,
@@ -62,7 +124,7 @@ export default function Personalization() {
     })
   }
 
-  // Función para agregar una imagen al carrusel
+  // Add a new image to the carousel
   const addCarouselImage = (url) => {
     setTheme({
       ...theme,
@@ -73,7 +135,7 @@ export default function Personalization() {
     })
   }
 
-  // Función para eliminar una imagen del carrusel
+  // Remove an image from the carousel
   const removeCarouselImage = (index) => {
     const newCarousel = [...theme.images.carousel]
     newCarousel.splice(index, 1)
@@ -86,10 +148,10 @@ export default function Personalization() {
     })
   }
 
-  // Función para guardar los cambios
+  // Save changes
   const saveChanges = () => {
-    console.log("Guardando tema:", theme)
-    // Aquí iría la lógica para guardar en la base de datos
+    console.log("Saving theme:", theme)
+    // Add logic to save the theme to the database
   }
 
   return (
@@ -99,7 +161,7 @@ export default function Personalization() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
-        {/* Panel de control */}
+        {/* Control Panel */}
         <div className="md:col-span-1 border rounded-lg shadow-sm">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-2 w-full">
@@ -115,68 +177,87 @@ export default function Personalization() {
 
             <TabsContent value="colors" className="p-4">
               <h3 className="text-lg font-medium mb-4">Colores del Portal</h3>
-              <div className="space-y-2">
-                {Object.entries(theme.colors).map(([key, value]) => (
-                  <div key={key} className="border rounded-md">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button
-                          className={`w-full flex items-center p-3 text-left hover:bg-gray-50 rounded-md ${
-                            activeColor === key ? "bg-gray-50" : ""
-                          }`}
-                          onClick={() => setActiveColor(key)}
-                        >
-                          <div
-                            className="w-4 h-4 rounded-full mr-2 border border-gray-300"
-                            style={{ backgroundColor: value }}
-                          />
-                          <span className="capitalize">{key}</span>
-                          <div className="ml-auto text-xs text-gray-500">{value}</div>
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80" align="start">
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <h4 className="font-medium">Color {key}</h4>
-                            <div className="w-full h-24 rounded-md border" style={{ backgroundColor: value }} />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor={`color-${key}`}>Seleccionar color</Label>
-                            <div className="flex gap-2">
-                              <Input
-                                id={`color-${key}`}
-                                value={value}
-                                onChange={(e) => updateColor(key, e.target.value)}
+              {loading ? (
+                <p>Cargando colores...</p>
+              ) : (
+                <div className="space-y-2">
+                  {colorOrder
+                    .filter((key) => theme.colors[key]) // Asegúrate de que el color exista en el estado
+                    .map((key) => (
+                      <div key={key} className="border rounded-md">
+                        <Popover open={activeColor === key} onOpenChange={(isOpen) => !isOpen && setActiveColor(null)}>
+                          <PopoverTrigger asChild>
+                            <button
+                              className={`w-full flex items-center p-3 text-left hover:bg-gray-50 rounded-md ${activeColor === key ? "bg-gray-50" : ""
+                                }`}
+                              onClick={() => setActiveColor(key)}
+                            >
+                              <div
+                                className="w-4 h-4 rounded-full mr-2 border border-gray-300"
+                                style={{ backgroundColor: theme.colors[key] }}
                               />
-                              <input
-                                type="color"
-                                value={value}
-                                onChange={(e) => updateColor(key, e.target.value)}
-                                className="w-10 h-10 p-1 rounded-md cursor-pointer"
-                              />
+                              <span className="capitalize">{key}</span>
+                              <div className="ml-auto text-xs text-gray-500">{theme.colors[key]}</div>
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 z-50 bg-white shadow-md rounded-md relative" align="start">
+                            {/* Botón de cierre */}
+                            <button
+                              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                              onClick={() => setActiveColor(null)} // Cierra el popover
+                            >
+                              ✕
+                            </button>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <h4 className="font-medium">Color {key}</h4>
+                                <div
+                                  className="w-full h-24 rounded-md border"
+                                  style={{ backgroundColor: theme.colors[key] }}
+                                />
+                              </div>
+                              <div className="grid gap-2">
+                                <Label htmlFor={`color-${key}`}>Seleccionar color</Label>
+                                <div className="flex gap-2">
+                                  <Input
+                                    id={`color-${key}`}
+                                    value={theme.colors[key]}
+                                    onChange={(e) => updateColor(key, e.target.value)}
+                                  />
+                                  <input
+                                    type="color"
+                                    value={theme.colors[key]}
+                                    onChange={(e) => updateColor(key, e.target.value)}
+                                    className="w-10 h-10 p-1 rounded-md cursor-pointer"
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-5 gap-2">
+                                {["#0070f3", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"].map((color) => (
+                                  <button
+                                    key={color}
+                                    className="w-full aspect-square rounded-md border p-1 relative"
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => updateColor(key, color)}
+                                  >
+                                    {theme.colors[key] === color && (
+                                      <Check className="absolute inset-0 m-auto text-white w-4 h-4" />
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                          <div className="grid grid-cols-5 gap-2">
-                            {["#0070f3", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"].map((color) => (
-                              <button
-                                key={color}
-                                className="w-full aspect-square rounded-md border p-1 relative"
-                                style={{ backgroundColor: color }}
-                                onClick={() => updateColor(key, color)}
-                              >
-                                {value === color && <Check className="absolute inset-0 m-auto text-white w-4 h-4" />}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                ))}
-              </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    ))}
+                </div>
+              )}
             </TabsContent>
 
+            {/* Images Tab */}
             <TabsContent value="images" className="p-4">
+              {/* Existing image management code */}
               <h3 className="text-lg font-medium mb-4">Imágenes del Portal</h3>
               <Accordion type="single" collapsible className="w-full">
                 {Object.entries(theme.images).map(([key, value]) => {
@@ -359,17 +440,17 @@ export default function Personalization() {
           </Tabs>
           <div className="p-4 border-t">
             <div className="flex gap-2">
-              <Button className="w-full" onClick={saveChanges}>
+              <Button className="w-full" onClick={saveColors}>
                 Guardar cambios
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={cancelChanges}>
                 Cancelar
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Área de previsualización */}
+        {/* Preview Area */}
         <div className="md:col-span-2 border rounded-lg shadow-sm p-6 overflow-auto">
           <h2 className="text-xl font-semibold mb-4">Vista previa</h2>
           <Separator className="mb-6" />
@@ -383,12 +464,17 @@ export default function Personalization() {
             <div>
               <h3 className="text-sm font-medium mb-2">Colores del tema</h3>
               <div className="grid grid-cols-5 gap-2">
-                {Object.entries(theme.colors).map(([key, value]) => (
-                  <div key={key} className="text-center">
-                    <div className="w-full aspect-square rounded-md mb-1" style={{ backgroundColor: value }} />
-                    <span className="text-xs capitalize">{key}</span>
-                  </div>
-                ))}
+                {colorOrder
+                  .filter((key) => theme.colors[key]) // Asegúrate de que el color exista en el estado
+                  .map((key) => (
+                    <div key={key} className="text-center">
+                      <div
+                        className="w-full aspect-square rounded-md mb-1"
+                        style={{ backgroundColor: theme.colors[key] }}
+                      />
+                      <span className="text-xs capitalize">{key}</span>
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -437,9 +523,30 @@ export default function Personalization() {
                 Este es un ejemplo de cómo se verían los colores en el contenido.
               </p>
               <div className="flex gap-2 mt-4">
-                <Button style={{ backgroundColor: theme.colors.primary }}>Botón primario</Button>
-                <Button style={{ backgroundColor: theme.colors.secondary }}>Botón secundario</Button>
-                <Button style={{ backgroundColor: theme.colors.accent }}>Botón acento</Button>
+                <Button
+                  style={{
+                    backgroundColor: theme.colors.Primary,
+                    color: theme.colors.text || "#fff",
+                  }}
+                >
+                  Botón primario
+                </Button>
+                <Button
+                  style={{
+                    backgroundColor: theme.colors.Secondary,
+                    color: theme.colors.text || "#fff",
+                  }}
+                >
+                  Botón secundario
+                </Button>
+                <Button
+                  style={{
+                    backgroundColor: theme.colors.Accent,
+                    color: theme.colors.text || "#fff",
+                  }}
+                >
+                  Botón acento
+                </Button>
               </div>
             </div>
           </div>

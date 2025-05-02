@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import Swal from "sweetalert2"
 import { useAuth } from "@/context/auth"
-
+import { getColors } from "../actions/personalization"
 const Button = ({ children, className, variant, ...props }) => (
   <button
     className={`px-4 py-2 rounded ${className} ${
@@ -19,6 +19,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const { login } = useAuth()
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setIsVisible(true)
@@ -39,6 +40,32 @@ const LoginPage = () => {
       "success"
     )
   }
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+    images: {}, // Otros datos del tema
+  });
+
+  const fetchColors = async () => {
+    setLoading(true);
+    const [error, colors] = await getColors();
+    if (error) {
+      console.error("Error fetching colors:", error);
+      setLoading(false);
+      return;
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    );
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }));
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchColors();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -150,7 +177,7 @@ const LoginPage = () => {
             <div>
               <Button
                 type="submit"
-                className="w-full bg-base text-white hover:bg-accent rounded-md"
+                className="w-full text-white hover:bg-accent rounded-md" style={{ backgroundColor: theme.colors.Primary }}
               >
                 Iniciar Sesión
               </Button>
