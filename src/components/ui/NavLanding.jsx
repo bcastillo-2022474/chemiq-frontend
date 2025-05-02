@@ -168,7 +168,7 @@ const NavBar = ({ loading: initialLoading }) => {
         style={{
           height: scrolled ? '64px' : '64px',
           transform: `translateY(${scrolled && isMenuOpen ? '0' : '0'}px)`,
-          backgroundColor: theme.colors.Accent
+          backgroundColor: theme.colors.Primary
         }}
       >
         {/* Progress bar */}
