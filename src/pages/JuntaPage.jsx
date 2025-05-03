@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Beaker, Users, Home, Settings, LogOut, Podcast, Menu } from "lucide-react";
+import { Beaker, Users, Home, Brush, Settings, LogOut, Podcast, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UsersSection from "@/components/junta/UsersSection";
 import ProjectsSection from "@/components/junta/ProjectSection";
 import PodcastSection from "@/components/junta/PodcastSection";
 import NewsSection from "@/components/junta/NewsSection";
 import Config from "@/components/junta/Config";
+import Personalization from "@/components/junta/Personalization"
 
 const sideNavItems = [
   { icon: Users, label: "Usuarios", href: "#" },
@@ -13,6 +14,7 @@ const sideNavItems = [
   { icon: Podcast, label: "Podcast", href: "#" },
   { icon: Podcast, label: "News", href: "#" },
   { icon: Settings, label: "Configuración", href: "#" },
+  { icon: Brush, label: "Personalization", href: "#" },
 ];
 
 function JuntaPage() {
@@ -37,6 +39,8 @@ function JuntaPage() {
         return <NewsSection />;
       case "Configuración":
         return <Config />;
+      case "Personalization":
+        return <Personalization/>
       default:
         return <div>Selecciona una sección</div>;
     }

@@ -8,6 +8,7 @@ import { Check, X, LoaderCircle } from "lucide-react"
 import { Skeleton, CarouselSkeleton, MemberCardSkeleton, TextSectionSkeleton, FormSkeleton, FeatureSkeleton, TitleSkeleton } from "@/components/SkeletonsLanding"
 import { sendEmailToSelfRequest } from "@/actions/email"
 import NavBar from "../components/ui/NavLanding"
+import { getColors } from "../actions/personalization"
 
 const Button = ({ children, className, variant = "" }) => (
   <button className={`px-4 py-2 rounded ${className} ${variant === "outline" ? "border border-current" : ""}`}>
@@ -40,6 +41,33 @@ const LandingPage = () => {
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [membersLoaded, setMembersLoaded] = useState(false)
   const [cards, setCards] = useState([])
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+    images: {}, // Otros datos del tema
+  });
+
+  const fetchColors = async () => {
+    setLoading(true)
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      setLoading(false)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors) // Verifica los colores aquí
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    fetchColors()
+  }, [])
 
   useEffect(() => {
     const loadMembers = async () => {
@@ -75,7 +103,7 @@ const LandingPage = () => {
     <div className="flex flex-col min-h-screen bg-white">
       <NavBar />
       <main className="flex-1 pt-16">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-tertiary">
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48" style={{ backgroundColor: theme.colors.Tertiary }}>
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
@@ -83,8 +111,8 @@ const LandingPage = () => {
                   <TextSectionSkeleton lines={4} className="max-w-3xl mx-auto" />
                 ) : (
                   <>
-                    <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-7 md:text-5xl lg:text-6xl/none text-accent">Asociación de Química</h1>
-                    <p className="mx-auto max-w-[900px] text-base md:text-xl">La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas. Nos enfocamos en impulsar el conocimiento científico, fomentando el intercambio de ideas y la colaboración entre estudiantes y profesionales del área.</p>
+                    <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-7 md:text-5xl lg:text-6xl/none" style={{ color: theme.colors.Accent }}>Asociación de Química</h1>
+                    <p className="mx-auto max-w-[900px] md:text-xl" style={{ color: theme.colors.Primary }}>La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas. Nos enfocamos en impulsar el conocimiento científico, fomentando el intercambio de ideas y la colaboración entre estudiantes y profesionales del área.</p>
                   </>
                 )}
               </div>
@@ -99,7 +127,7 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-        <section id="features" className="w-full py-12 md:py-12 lg:py-14 bg-background">
+        <section id="features" className="w-full py-12 md:py-12 lg:py-14" style={{ backgroundColor: theme.colors.Background }}>
           <div className="container px-4 md:px-6 mx-auto">
             {loading ? (
               <>
@@ -108,50 +136,50 @@ const LandingPage = () => {
               </>
             ) : (
               <>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8 text-accent">Nuestras Características</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8" style={{ color: theme.colors.Accent }}>Nuestras Características</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="flex flex-col items-center text-center">
-                    <AtomIcon className="h-12 w-12 text-base mb-4" />
-                    <h3 className="text-xl font-bold mb-2 text-accent">Investigación Innovadora</h3>
-                    <p className="text-base">Fomentamos la investigación avanzada y la innovación en diversas áreas del conocimiento, brindando a nuestros estudiantes universitarios el acceso a recursos y herramientas para desarrollar proyectos.</p>
+                    <AtomIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }}/>
+                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent }}>Investigación Innovadora</h3>
+                    <p style={{ color: theme.colors.Primary }}>Fomentamos la investigación avanzada y la innovación en diversas áreas del conocimiento, brindando a nuestros estudiantes universitarios el acceso a recursos y herramientas para desarrollar proyectos.</p>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <BookOpenIcon className="h-12 w-12 text-base mb-4" />
-                    <h3 className="text-xl font-bold mb-2 text-accent">Recursos Educativos</h3>
-                    <p className="text-base">Proveemos una amplia gama de recursos educativos diseñados para mejorar la experiencia de aprendizaje de nuestros estudiantes universitarios. Desde materiales didácticos hasta plataformas interactivas.</p>
+                    <BookOpenIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }}/>
+                    <h3 className="text-xl font-bold mb-2"style={{ color: theme.colors.Accent }}>Recursos Educativos</h3>
+                    <p style={{ color: theme.colors.Primary }}>Proveemos una amplia gama de recursos educativos diseñados para mejorar la experiencia de aprendizaje de nuestros estudiantes universitarios. Desde materiales didácticos hasta plataformas interactivas.</p>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <UsersIcon className="h-12 w-12 text-base mb-4" />
-                    <h3 className="text-xl font-bold mb-2 text-accent">Networking</h3>
-                    <p className="text-base">Creamos espacios de conexión entre estudiantes, profesionales y académicos, donde nuestros estudiantes pueden expandir su red de contactos. Fomentamos la colaboración y el intercambio de ideas.</p>
+                    <UsersIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }}/>
+                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent }}>Networking</h3>
+                    <p style={{ color: theme.colors.Primary }}>Creamos espacios de conexión entre estudiantes, profesionales y académicos, donde nuestros estudiantes pueden expandir su red de contactos. Fomentamos la colaboración y el intercambio de ideas.</p>
                   </div>
                 </div>
               </>
             )}
           </div>
         </section>
-        <section id="about" className="w-full bg-tertiary">
+        <section id="about" className="w-full" style={{ backgroundColor: theme.colors.Tertiary }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center w-full">
             <div className="flex flex-col justify-center space-y-4 w-full" style={{ padding: "100px" }}>
               {loading ? (
                 <TextSectionSkeleton lines={5} />
               ) : (
                 <>
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-accent">Sobre Nosotros</h2>
-                  <p className="text-base md:text-xl">La Asociación de Química nació con el propósito de dar respuesta a la necesidad de apoyo en el ámbito educativo. Sabemos que la educación es la llave para cambiar vidas, y estamos convencidos de que cada estudiante tiene un potencial único. Nuestra misión es brindar recursos y una red de apoyo a estudiantes que se comprometen con su educación y desean transformar su futuro.</p>
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl" style={{ color: theme.colors.Accent }}>Sobre Nosotros</h2>
+                  <p className="md:text-xl" style={{ color: theme.colors.Primary }}>La Asociación de Química nació con el propósito de dar respuesta a la necesidad de apoyo en el ámbito educativo. Sabemos que la educación es la llave para cambiar vidas, y estamos convencidos de que cada estudiante tiene un potencial único. Nuestra misión es brindar recursos y una red de apoyo a estudiantes que se comprometen con su educación y desean transformar su futuro.</p>
                 </>
               )}
             </div>
             <div className="w-full">{!imagesLoaded ? <CarouselSkeleton /> : <AutoCarousel images={images} />}</div>
           </div>
         </section>
-        <section id="members" className="w-full py-12 md:py-12 lg:py-12 bg-background">
-          {loading ? <TitleSkeleton /> : <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12 text-accent">Nuestra junta directiva</h2>}
-          <div className="flex items-center justify-center bg-background">{!membersLoaded ? <MemberCardSkeleton count={9} /> : <MemberCard cards={cards} />}</div>
+        <section id="members" className="w-full py-12 md:py-12 lg:py-12" style={{ backgroundColor: theme.colors.Background }}>
+          {loading ? <TitleSkeleton /> : <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12" style={{ color: theme.colors.Accent }}>Nuestra junta directiva</h2>}
+          <div className="flex items-center justify-center" style={{ backgroundColor: theme.colors.Background }}>{!membersLoaded ? <MemberCardSkeleton count={9} /> : <MemberCard cards={cards} />}</div>
         </section>
         <ContactSection loading={loading} />
       </main>
-      <footer className="w-full py-12 bg-base text-white">
+      <footer className="w-full py-12 text-white" style={{ backgroundColor: theme.colors.Primary }}>
         <div className="container px-4 md:px-6 mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {loading ? (
@@ -213,34 +241,82 @@ const LandingPage = () => {
 }
 
 function ContactSection({ loading }) {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" })
-  const [status, setStatus] = useState("idle")
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [status, setStatus] = useState("idle");
+  const [loading1, setLoading] = useState(true);
+
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+    images: {}, // Otros datos del tema
+  });
+
+  const fetchColors = async () => {
+    setLoading(true);
+    const [error, colors] = await getColors();
+    if (error) {
+      console.error("Error fetching colors:", error);
+      setLoading(false);
+      return;
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    );
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }));
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchColors();
+  }, []);
 
   const sendEmail = async (e) => {
     try {
-      e.preventDefault()
-      if (status !== "idle") return
-      setStatus("loading")
-      const [error] = await sendEmailToSelfRequest({ name: form.name, subject: form.subject, message: form.message, email: form.email })
-      if (error) throw error
-      setStatus("success")
-      setForm({ name: "", email: "", subject: "", message: "" })
+      e.preventDefault();
+      if (status !== "idle") return;
+      setStatus("loading");
+      const [error] = await sendEmailToSelfRequest({
+        name: form.name,
+        subject: form.subject,
+        message: form.message,
+        email: form.email,
+      });
+      if (error) throw error;
+      setStatus("success");
+      setForm({ name: "", email: "", subject: "", message: "" });
     } catch {
-      setStatus("error")
+      setStatus("error");
     } finally {
-      setTimeout(() => setStatus("idle"), 5000)
+      setTimeout(() => setStatus("idle"), 5000);
     }
-  }
+  };
 
   return (
-    <section id="contact" className="w-full py-12 md:py-14 lg:py-12 bg-tertiary">
+    <section
+      id="contact"
+      className="w-full py-12 md:py-14 lg:py-12"
+      style={{ backgroundColor: theme.colors.Tertiary }}
+    >
       <div className="container px-4 md:px-6 mx-auto">
         {loading ? (
           <TextSectionSkeleton lines={2} className="max-w-md mx-auto mb-8" />
         ) : (
           <>
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-4 text-accent">¿Tienes alguna pregunta?</h2>
-            <p className="text-center text-base mb-8 max-w-md mx-auto">Si tienes alguna duda o comentario, no dudes en enviarnos un mensaje. Nos encanta escuchar tus sugerencias y ayudarte con lo que necesites.</p>
+            <h2
+              className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-4"
+              style={{ color: theme.colors.Accent }}
+            >
+              ¿Tienes alguna pregunta?
+            </h2>
+            <p
+              className="text-center mb-8 max-w-md mx-auto"
+              style={{ color: theme.colors.Primary }}
+            >
+              Si tienes alguna duda o comentario, no dudes en enviarnos un mensaje. Nos encanta
+              escuchar tus sugerencias y ayudarte con lo que necesites.
+            </p>
           </>
         )}
         <div className="max-w-md mx-auto">
@@ -248,11 +324,40 @@ function ContactSection({ loading }) {
             <FormSkeleton />
           ) : (
             <form onSubmit={sendEmail} className="space-y-4">
-              <Input onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} value={form.name} placeholder="Tu nombre" />
-              <Input onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} type="email" value={form.email} placeholder="Tu email" />
-              <Input onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} value={form.subject} placeholder="Asunto" />
-              <textarea onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} value={form.message} className="w-full h-32 px-3 py-2 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-base" placeholder="Tu mensaje"></textarea>
-              <Button className="w-full bg-base text-white hover:bg-accent rounded-md flex gap-3 items-center justify-center">
+              <Input
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                value={form.name}
+                placeholder="Tu nombre"
+              />
+              <Input
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                type="email"
+                value={form.email}
+                placeholder="Tu email"
+              />
+              <Input
+                onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
+                value={form.subject}
+                placeholder="Asunto"
+              />
+              <textarea
+                onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+                value={form.message}
+                className="w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-base" style={{ color: theme.colors.Primary }}
+                placeholder="Tu mensaje"
+              ></textarea>
+              <Button
+                className="w-full text-white rounded-md flex gap-3 items-center justify-center"
+                style={{
+                  backgroundColor: theme.colors.Accent,
+                }}
+                onMouseEnter={(e) =>
+                  (e.target.style.backgroundColor = theme.colors.Primary)
+                } // Cambia el color al hacer hover
+                onMouseLeave={(e) =>
+                  (e.target.style.backgroundColor = theme.colors.Accent)
+                } // Restaura el color al salir del hover
+              >
                 {status === "idle" && <span>Enviar</span>}
                 {status === "loading" && (
                   <>
@@ -278,7 +383,7 @@ function ContactSection({ loading }) {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 export default LandingPage
