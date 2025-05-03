@@ -26,6 +26,10 @@ export default function Personalization() {
   const [imageUrl, setImageUrl] = useState("")
   const [imageName, setImageName] = useState("");
   const [loading, setLoading] = useState(true)
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewLogo, setPreviewLogo] = useState("");
+  const [previewBanner, setPreviewBanner] = useState("");
+  const [tempColors, setTempColors] = useState(theme.colors);
   const carrouselImages = theme.images.filter((image) => image.tipo === "Carrousel");
   const logoImage = theme.images.find((image) => image.tipo === "Logo");
   const LoginBanner = theme.images.find((image) => image.tipo === "LoginBanner");
@@ -78,22 +82,61 @@ export default function Personalization() {
 
   // Update a specific color
   const updateColor = (nombre, hex) => {
+    const isValidHex = /^#([0-9A-Fa-f]{3}){1,2}$/.test(hex);
+
     setTheme((prevTheme) => ({
       ...prevTheme,
       colors: {
         ...prevTheme.colors,
-        [nombre]: hex,
+        [nombre]: isValidHex ? hex : prevTheme.colors[nombre], 
       },
     }));
   };
-  const addCarouselImage = (url, nombre) => {
-    setTheme((prevTheme) => ({
-      ...prevTheme,
-      images: [
-        ...prevTheme.images,
-        { tipo: "Carrousel", enlace: url, nombre },
-      ],
-    }));
+  const [isAdding, setIsAdding] = useState(false);
+
+  const addCarouselImage = async (url, nombre) => {
+    if (isAdding) return; 
+    setIsAdding(true);
+
+    try {
+      const [error, createdImage] = await createImageRequest({
+        tipo: "Carrousel",
+        enlace: url,
+        nombre,
+      });
+
+      if (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo guardar la imagen. Intenta nuevamente.",
+        });
+        return;
+      }
+
+      setTheme((prevTheme) => ({
+        ...prevTheme,
+        images: [...prevTheme.images, createdImage],
+      }));
+
+      Swal.fire({
+        icon: "success",
+        title: "Éxito",
+        text: "Imagen agregada correctamente.",
+      });
+
+      setImageUrl("");
+      setImageName("");
+    } catch (err) {
+      console.error("Error al agregar la imagen:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error inesperado al agregar la imagen.",
+      });
+    } finally {
+      setIsAdding(false); 
+    }
   };
   const saveColors = async () => {
     try {
@@ -136,6 +179,31 @@ export default function Personalization() {
     setActiveColor(null);
     setImageUrl("");
   };
+  const handleColorChange = (nombre, hex) => {
+    if (hex === "") {
+      setTheme((prevTheme) => ({
+        ...prevTheme,
+        colors: {
+          ...prevTheme.colors,
+          [nombre]: "", 
+        },
+      }));
+      return;
+    }
+
+    const isValidHex = /^#([0-9A-Fa-f]{3}){1,2}$/.test(hex);
+
+    if (!isValidHex) {
+      Swal.fire({
+        icon: "warning",
+        title: "Color inválido",
+        text: "Por favor, ingresa un color hexadecimal válido.",
+      });
+      return;
+    }
+
+    updateColor(nombre, hex);
+  };
   const handleImageClick = (id) => {
     const imageToDelete = theme.images.find((image) => image.id === id);
 
@@ -164,7 +232,6 @@ export default function Personalization() {
           console.log("Eliminando imagen con ID:", imageToDelete.id);
           await deleteImageRequest(imageToDelete.id);
 
-          // Elimina la imagen del estado local
           setTheme((prevTheme) => ({
             ...prevTheme,
             images: prevTheme.images.filter((image) => image.id !== id),
@@ -342,7 +409,7 @@ export default function Personalization() {
               ) : (
                 <div className="space-y-2">
                   {colorOrder
-                    .filter((key) => theme.colors[key]) // Asegúrate de que el color exista en el estado
+                    .filter((key) => theme.colors[key]) 
                     .map((key) => (
                       <div key={key} className="border rounded-md">
                         <Popover open={activeColor === key} onOpenChange={(isOpen) => !isOpen && setActiveColor(null)}>
@@ -364,7 +431,7 @@ export default function Personalization() {
                             {/* Botón de cierre */}
                             <button
                               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                              onClick={() => setActiveColor(null)} // Cierra el popover
+                              onClick={() => setActiveColor(null)}
                             >
                               ✕
                             </button>
@@ -379,15 +446,58 @@ export default function Personalization() {
                               <div className="grid gap-2">
                                 <Label htmlFor={`color-${key}`}>Seleccionar color</Label>
                                 <div className="flex gap-2">
+                                  {/* Input de texto para el código hexadecimal */}
                                   <Input
                                     id={`color-${key}`}
-                                    value={theme.colors[key]}
-                                    onChange={(e) => updateColor(key, e.target.value)}
+                                    value={tempColors[key] || ""} 
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      setTempColors((prev) => ({
+                                        ...prev,
+                                        [key]: value, 
+                                      }));
+                                    }}
+                                    onBlur={() => {
+                                      const hex = tempColors[key];
+                                      if (hex === "") {
+                                        setTempColors((prev) => ({
+                                          ...prev,
+                                          [key]: theme.colors[key],
+                                        }));
+                                        return;
+                                      }
+
+                                      const isValidHex = /^#([0-9A-Fa-f]{3}){1,2}$/.test(hex);
+
+                                      if (!isValidHex) {
+                                        Swal.fire({
+                                          icon: "warning",
+                                          title: "Color inválido",
+                                          text: "Por favor, ingresa un color hexadecimal válido.",
+                                        });
+                                        setTempColors((prev) => ({
+                                          ...prev,
+                                          [key]: theme.colors[key], 
+                                        }));
+                                        return;
+                                      }
+
+                                      updateColor(key, hex);
+                                    }}
                                   />
+
+                                  {/* Selector de color */}
                                   <input
                                     type="color"
-                                    value={theme.colors[key]}
-                                    onChange={(e) => updateColor(key, e.target.value)}
+                                    value={tempColors[key] || theme.colors[key]} 
+                                    onChange={(e) => {
+                                      const value = e.target.value; 
+                                      setTempColors((prev) => ({
+                                        ...prev,
+                                        [key]: value, 
+                                      }));
+                                      updateColor(key, value); 
+                                    }}
                                     className="w-10 h-10 p-1 rounded-md cursor-pointer"
                                   />
                                 </div>
@@ -433,7 +543,7 @@ export default function Personalization() {
                             <div
                               key={img.id}
                               className="relative group border rounded-md overflow-hidden cursor-pointer"
-                              onClick={() => handleImageClick(img.id)} // Pasa el ID en lugar del índice
+                              onClick={() => handleImageClick(img.id)} 
                             >
                               <img
                                 src={img.enlace || "/placeholder.svg"}
@@ -495,37 +605,10 @@ export default function Personalization() {
                             />
                             <Button
                               size="sm"
+                              disabled={isAdding}
                               onClick={async () => {
                                 if (imageUrl && imageName) {
-                                  // Agregar imagen al estado local
-                                  addCarouselImage(imageUrl, imageName);
-
-                                  // Guardar imagen en la base de datos
-                                  const [error] = await createImageRequest({
-                                    tipo: "Carrousel",
-                                    enlace: imageUrl,
-                                    nombre: imageName,
-                                  });
-
-                                  if (error) {
-                                    Swal.fire({
-                                      icon: "error",
-                                      title: "Error",
-                                      text: "No se pudo guardar la imagen. Intenta nuevamente.",
-                                    });
-                                    return;
-                                  }
-
-                                  // Mostrar alerta de éxito
-                                  Swal.fire({
-                                    icon: "success",
-                                    title: "Éxito",
-                                    text: "Imagen agregada correctamente.",
-                                  });
-
-                                  // Limpiar campos
-                                  setImageUrl("");
-                                  setImageName("");
+                                  await addCarouselImage(imageUrl, imageName);
                                 } else {
                                   Swal.fire({
                                     icon: "warning",
@@ -542,14 +625,25 @@ export default function Personalization() {
                       )}
 
                       {/* Subir nueva imagen */}
+                      {/* Subir nueva imagen */}
                       {activeImage === "upload" && (
                         <div className="space-y-2">
                           <Label htmlFor="carousel-upload">Subir nueva imagen</Label>
                           <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
-                            <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                            <p className="text-sm text-gray-500">
-                              Arrastra una imagen o haz clic para seleccionar
-                            </p>
+                            {previewImage ? (
+                              <img
+                                src={previewImage}
+                                alt="Previsualización"
+                                className="w-full h-auto object-contain rounded-md"
+                              />
+                            ) : (
+                              <>
+                                <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                                <p className="text-sm text-gray-500">
+                                  Arrastra una imagen o haz clic para seleccionar
+                                </p>
+                              </>
+                            )}
                             <input
                               type="file"
                               className="hidden"
@@ -557,8 +651,9 @@ export default function Personalization() {
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
-                                  setImageUrl(fakeUrl);
+                                  const fakeUrl = URL.createObjectURL(file); 
+                                  setPreviewImage(fakeUrl); 
+                                  setImageUrl(fakeUrl); 
                                 }
                               }}
                               id="carousel-upload"
@@ -581,35 +676,8 @@ export default function Personalization() {
                               size="sm"
                               onClick={async () => {
                                 if (imageUrl && imageName) {
-                                  // Agregar imagen al estado local
-                                  addCarouselImage(imageUrl, imageName);
-
-                                  // Guardar imagen en la base de datos
-                                  const [error] = await createImageRequest({
-                                    tipo: "Carrousel",
-                                    enlace: imageUrl,
-                                    nombre: imageName,
-                                  });
-
-                                  if (error) {
-                                    Swal.fire({
-                                      icon: "error",
-                                      title: "Error",
-                                      text: "No se pudo guardar la imagen. Intenta nuevamente.",
-                                    });
-                                    return;
-                                  }
-
-                                  // Mostrar alerta de éxito
-                                  Swal.fire({
-                                    icon: "success",
-                                    title: "Éxito",
-                                    text: "Imagen agregada correctamente.",
-                                  });
-
-                                  // Limpiar campos
-                                  setImageUrl("");
-                                  setImageName("");
+                                  await addCarouselImage(imageUrl, imageName);
+                                  setPreviewImage("");
                                 } else {
                                   Swal.fire({
                                     icon: "warning",
@@ -702,10 +770,20 @@ export default function Personalization() {
                         <div className="space-y-2">
                           <Label>Subir nuevo logo</Label>
                           <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
-                            <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                            <p className="text-sm text-gray-500">
-                              Arrastra una imagen o haz clic para seleccionar
-                            </p>
+                            {previewLogo ? (
+                              <img
+                                src={previewLogo}
+                                alt="Previsualización del logo"
+                                className="w-full h-auto object-contain rounded-md"
+                              />
+                            ) : (
+                              <>
+                                <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                                <p className="text-sm text-gray-500">
+                                  Arrastra una imagen o haz clic para seleccionar
+                                </p>
+                              </>
+                            )}
                             <input
                               type="file"
                               className="hidden"
@@ -713,8 +791,9 @@ export default function Personalization() {
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
-                                  updateLogo(fakeUrl, logoImage?.nombre);
+                                  const fakeUrl = URL.createObjectURL(file); 
+                                  setPreviewLogo(fakeUrl); 
+                                  updateLogo(fakeUrl, logoImage?.nombre); 
                                 }
                               }}
                               id="logo-upload"
@@ -725,7 +804,8 @@ export default function Personalization() {
                             >
                               <span className="sr-only">Subir logo</span>
                             </label>
-                          </div><Button size="sm" onClick={saveLogo}>
+                          </div>
+                          <Button size="sm" onClick={saveLogo}>
                             Guardar
                           </Button>
                         </div>
@@ -808,10 +888,20 @@ export default function Personalization() {
                         <div className="space-y-2">
                           <Label>Subir nuevo banner</Label>
                           <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
-                            <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                            <p className="text-sm text-gray-500">
-                              Arrastra una imagen o haz clic para seleccionar
-                            </p>
+                            {previewBanner ? (
+                              <img
+                                src={previewBanner}
+                                alt="Previsualización del banner"
+                                className="w-full h-auto object-contain rounded-md"
+                              />
+                            ) : (
+                              <>
+                                <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                                <p className="text-sm text-gray-500">
+                                  Arrastra una imagen o haz clic para seleccionar
+                                </p>
+                              </>
+                            )}
                             <input
                               type="file"
                               className="hidden"
@@ -819,7 +909,8 @@ export default function Personalization() {
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
+                                  const fakeUrl = URL.createObjectURL(file); 
+                                  setPreviewBanner(fakeUrl); 
                                   updateLoginBanner(fakeUrl, LoginBanner?.nombre);
                                 }
                               }}
@@ -876,7 +967,7 @@ export default function Personalization() {
               <h3 className="text-sm font-medium mb-2">Colores del tema</h3>
               <div className="grid grid-cols-5 gap-2">
                 {colorOrder
-                  .filter((key) => theme.colors[key]) // Asegúrate de que el color exista en el estado
+                  .filter((key) => theme.colors[key]) 
                   .map((key) => (
                     <div key={key} className="text-center">
                       <div
@@ -904,7 +995,7 @@ export default function Personalization() {
                 <div className="grid grid-cols-3 gap-2">
                   {carrouselImages.map((img, index) => (
                     <img
-                      src={img.enlace || "/placeholder.svg"} // Usa el operador opcional `?.`
+                      src={img.enlace || "/placeholder.svg"} 
                       alt="Banner"
                       className="w-full h-auto rounded-md border"
                     />
