@@ -11,11 +11,33 @@ import { LoadingBeaker } from "@/components/LoadingBeaker";
 import { Outlet, Route, Routes } from "react-router-dom";
 import { NewsDetail } from "../components/NewForID";
 import { Calendar, Users } from "lucide-react";
-
+import { getColors } from "../actions/personalization";
 function UserPage() {
   const [isLoading, setIsLoading] = useState(true);
-
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+    images: {}, // Otros datos del tema
+  });
+  const fetchColors = async () => {
+      setLoading(true)
+      const [error, colors] = await getColors()
+      if (error) {
+        console.error("Error fetching colors:", error)
+        setLoading(false)
+        return
+      }
+      const formattedColors = Object.fromEntries(
+        colors.map((color) => [color.nombre, color.hex])
+      )
+      setTheme((prevTheme) => ({
+        ...prevTheme,
+        colors: formattedColors,
+      }))
+      console.log("Fetched colors:", formattedColors) // Verifica los colores aquí
+      setLoading(false)
+    }
   useEffect(() => {
+    fetchColors();
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -28,7 +50,7 @@ function UserPage() {
   }
 
   return (
-    <div className="flex h-screen bg-[#FFF8F0]">
+    <div className="flex h-screen" style={{backgroundColor: theme.colors.Background}}>
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto px-6 py-8">
@@ -42,8 +64,31 @@ function UserPage() {
 function HomePage() {
   const [loading, setLoading] = useState(true);
   const [modalContent, setModalContent] = useState(null);
-
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+    images: {}, // Otros datos del tema
+  });
+  console.log(theme.colors)
+  const fetchColors = async () => {
+    setLoading(true)
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      setLoading(false)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors) // Verifica los colores aquí
+    setLoading(false)
+  }
   useEffect(() => {
+    fetchColors();
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000);
@@ -71,7 +116,7 @@ function HomePage() {
 
   return (
     <>
-      <header className="relative h-48 mb-12 rounded-xl overflow-hidden bg-[#28BC98]">
+      <header className="relative h-48 mb-12 rounded-xl overflow-hidden" style={{backgroundColor: theme.colors.Primary}}>
         <div className="absolute inset-0">
           <svg
             className="w-full h-full opacity-20"
