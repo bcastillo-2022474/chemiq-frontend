@@ -26,13 +26,16 @@ export default function Personalization() {
   const [imageUrl, setImageUrl] = useState("")
   const [imageName, setImageName] = useState("");
   const [loading, setLoading] = useState(true)
+  const carrouselImages = theme.images.filter((image) => image.tipo === "Carrousel");
+  const logoImage = theme.images.find((image) => image.tipo === "Logo");
+  const LoginBanner = theme.images.find((image) => image.tipo === "LoginBanner");
   const colorOrder = ["Primary", "Secondary", "Tertiary", "Accent", "Background"];
   // Fetch colors from the database
   const fetchImages = async () => {
     setLoading(true);
     try {
       const [error, images] = await getImages();
-      console.log("Response from getImages:", images); // Verifica la estructura de los datos aquí
+      console.log("Response from getImages:", images);
       if (error) {
         console.error("Error fetching images:", error);
         setLoading(false);
@@ -41,7 +44,7 @@ export default function Personalization() {
 
       setTheme((prevTheme) => ({
         ...prevTheme,
-        images: Array.isArray(images) ? images : [], // Asegúrate de que sea un array
+        images: Array.isArray(images) ? images : [],
       }));
     } catch (err) {
       console.error("Unexpected error fetching images:", err);
@@ -49,9 +52,7 @@ export default function Personalization() {
       setLoading(false);
     }
   };
-  const carrouselImages = theme.images.filter((image) => image.tipo === "Carrousel");
-  const logoImage = theme.images.find((image) => image.tipo === "Logo");
-  const LoginBanner = theme.images.find((image) => image.tipo === "LoginBanner");
+
   const fetchColors = async () => {
     setLoading(true)
     const [error, colors] = await getColors()
@@ -67,7 +68,6 @@ export default function Personalization() {
       ...prevTheme,
       colors: formattedColors,
     }))
-    console.log("Fetched colors:", formattedColors) // Verifica los colores aquí
     setLoading(false)
   }
 
@@ -78,7 +78,6 @@ export default function Personalization() {
 
   // Update a specific color
   const updateColor = (nombre, hex) => {
-    // Actualiza el estado local
     setTheme((prevTheme) => ({
       ...prevTheme,
       colors: {
@@ -98,14 +97,14 @@ export default function Personalization() {
   };
   const saveColors = async () => {
     try {
-      const colors = theme.colors; // Obtén los colores del estado local
+      const colors = theme.colors;
       const promises = Object.entries(colors).map(([nombre, hex]) =>
         updateColorRequest({ nombre, color: { hex } })
       );
 
       const results = await Promise.all(promises);
 
-      // Manejo de errores en las solicitudes
+
       const errors = results.filter(([error]) => error);
       if (errors.length > 0) {
         void Swal.fire({
@@ -116,7 +115,6 @@ export default function Personalization() {
         return;
       }
 
-      // Si todo se guarda correctamente
       void Swal.fire({
         icon: "success",
         title: "Éxito",
@@ -132,22 +130,21 @@ export default function Personalization() {
     }
   };
   const cancelChanges = () => {
-    fetchColors(); // Vuelve a cargar los colores desde la base de datos
-    setTheme(initialTheme); // Restablece el estado del tema al inicial
-    setActiveColor(null); // Cierra cualquier popover abierto
-    setImageUrl(""); // Limpia el campo de URL de imágenes
+    fetchColors();
+    fetchImages();
+    setTheme(initialTheme);
+    setActiveColor(null);
+    setImageUrl("");
   };
-  const handleImageClick = (index) => {
-    const imageToDelete = theme.images[index]; // Obtén la imagen que se va a eliminar
+  const handleImageClick = (id) => {
+    const imageToDelete = theme.images.find((image) => image.id === id);
 
-    console.log("Imagen seleccionada para eliminar:", imageToDelete); // Verifica el contenido de la imagen
-    
-    if (!imageToDelete?.id) {
-      console.error("La imagen no tiene un ID válido:", imageToDelete);
+    if (!imageToDelete) {
+      console.error("No se encontró la imagen con el ID:", id);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "La imagen no tiene un ID válido y no se puede eliminar.",
+        text: "No se encontró la imagen seleccionada.",
       });
       return;
     }
@@ -164,14 +161,13 @@ export default function Personalization() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          console.log(imageToDelete.id)
-          console.log("Eliminando imagen con ID:", imageToDelete.id); // Verifica el ID que se envía
+          console.log("Eliminando imagen con ID:", imageToDelete.id);
           await deleteImageRequest(imageToDelete.id);
 
           // Elimina la imagen del estado local
           setTheme((prevTheme) => ({
             ...prevTheme,
-            images: prevTheme.images.filter((_, i) => i !== index),
+            images: prevTheme.images.filter((image) => image.id !== id),
           }));
 
           Swal.fire({
@@ -192,61 +188,132 @@ export default function Personalization() {
       }
     });
   };
-  const updateLogo = (url) => {
+  const updateLogo = (url, name) => {
     setTheme((prevTheme) => ({
       ...prevTheme,
       images: prevTheme.images.map((image) =>
-        image.tipo === "Logo" ? { ...image, enlace: url } : image
+        image.tipo === "Logo" ? { ...image, enlace: url, nombre: name } : image
       ),
     }));
   };
-  const saveImages = async () => {
+
+  const saveLogo = async () => {
     try {
-      const newImages = theme.images.filter((image) => !image?.id); // Filtra las imágenes sin ID (nuevas)
-      console.log("Nuevas imágenes a crear:", newImages);
-  
-      // Guarda las nuevas imágenes
-      const createPromises = newImages.map((image) =>
-        createImageRequest({
-          tipo: image.tipo,
-          enlace: image.enlace,
-          nombre: image.nombre,
-        })
-      );
-  
-      // Ejecuta todas las solicitudes de creación
-      const results = await Promise.all(createPromises);
-      console.log("Resultados de creación:", results);
-  
-      // Manejo de errores
-      const errors = results.filter(([error]) => error);
-      if (errors.length > 0) {
+      const logo = theme.images.find((image) => image.tipo === "Logo");
+      if (!logo) {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "No se pudieron guardar algunas imágenes.",
+          text: "No se encontró el logo para actualizar.",
         });
         return;
       }
-  
+
+      console.log("Datos enviados a updateImageRequest:", {
+        id: logo.id,
+        image: {
+          tipo: "Logo",
+          enlace: logo.enlace,
+          nombre: logo.nombre,
+        },
+      });
+
+      const [error] = await updateImageRequest({
+        id: logo.id,
+        image: {
+          tipo: "Logo",
+          enlace: logo.enlace,
+          nombre: logo.nombre,
+        },
+      });
+
+      if (error) {
+        console.error("Error en la solicitud:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo actualizar el logo.",
+        });
+        return;
+      }
+
       Swal.fire({
         icon: "success",
         title: "Éxito",
-        text: "Imágenes guardadas correctamente.",
+        text: "Logo actualizado correctamente.",
       });
-  
-      // Vuelve a cargar las imágenes desde la base de datos
-      fetchImages();
     } catch (err) {
-      console.error("Error al guardar imágenes:", err);
+      console.error("Error al guardar el logo:", err);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Ocurrió un error inesperado al guardar las imágenes.",
+        text: "Ocurrió un error inesperado al guardar el logo.",
       });
     }
   };
+  const updateLoginBanner = (url, name) => {
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      images: prevTheme.images.map((image) =>
+        image.tipo === "LoginBanner" ? { ...image, enlace: url, nombre: name } : image
+      ),
+    }));
+  };
 
+  const saveLoginBanner = async () => {
+    try {
+      const banner = theme.images.find((image) => image.tipo === "LoginBanner");
+      if (!banner) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se encontró el banner para actualizar.",
+        });
+        return;
+      }
+
+      console.log("Datos enviados a updateImageRequest:", {
+        id: banner.id,
+        image: {
+          tipo: "LoginBanner",
+          enlace: banner.enlace,
+          nombre: banner.nombre,
+        },
+      });
+
+      const [error] = await updateImageRequest({
+        id: banner.id,
+        image: {
+          tipo: "LoginBanner",
+          enlace: banner.enlace,
+          nombre: banner.nombre,
+        },
+      });
+
+      if (error) {
+        console.error("Error en la solicitud:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo actualizar el banner.",
+        });
+        return;
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Éxito",
+        text: "Banner actualizado correctamente.",
+      });
+    } catch (err) {
+      console.error("Error al guardar el banner:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error inesperado al guardar el banner.",
+      });
+    }
+  };
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6">
@@ -362,18 +429,17 @@ export default function Personalization() {
                       </h3>
                       <div className="border rounded-md p-2">
                         <div className="grid grid-cols-2 gap-2">
-                          {carrouselImages.map((img, index) => (
+                          {carrouselImages.map((img) => (
                             <div
-                              key={index}
+                              key={img.id}
                               className="relative group border rounded-md overflow-hidden cursor-pointer"
-                              onClick={() => handleImageClick(index)} // Llama a la función con el índice de la imagen
+                              onClick={() => handleImageClick(img.id)} // Pasa el ID en lugar del índice
                             >
                               <img
                                 src={img.enlace || "/placeholder.svg"}
-                                alt={img.nombre || `Slide ${index + 1}`}
+                                alt={img.nombre || "Imagen del carrusel"}
                                 className="w-full h-auto object-cover aspect-video"
                               />
-                              {/* Texto de hover para eliminar */}
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <span className="text-white text-sm font-medium">Eliminar</span>
                               </div>
@@ -390,80 +456,174 @@ export default function Personalization() {
                   </AccordionTrigger>
                   <AccordionContent className="px-2">
                     <div className="space-y-4 py-2">
-                      {/* Agregar nueva imagen al carrusel */}
+                      {/* Selector para URL o Subida */}
                       <div className="space-y-2">
-                        <Label htmlFor="carousel-name">Nombre de la imagen</Label>
-                        <Input
-                          id="carousel-name"
-                          placeholder="Nombre de la imagen"
-                          value={imageName}
-                          onChange={(e) => setImageName(e.target.value)}
-                        />
-                        <Label htmlFor="carousel-url">Agregar imagen por URL</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="carousel-url"
-                            placeholder="https://ejemplo.com/imagen.jpg"
-                            value={imageUrl}
-                            onChange={(e) => setImageUrl(e.target.value)}
-                          />
+                        <Label>Método de agregación</Label>
+                        <div className="flex gap-4">
                           <Button
-                            size="sm"
-                            onClick={() => {
-                              if (imageUrl && imageName) {
-                                addCarouselImage(imageUrl, imageName);
-                                setImageUrl("");
-                                setImageName("");
-                              } else {
-                                Swal.fire({
-                                  icon: "warning",
-                                  title: "Campos incompletos",
-                                  text: "Por favor, proporciona un nombre y una URL para la imagen.",
-                                });
-                              }
-                            }}
+                            variant={activeImage === "url" ? "default" : "outline"}
+                            onClick={() => setActiveImage("url")}
                           >
-                            Agregar
+                            Usar URL
+                          </Button>
+                          <Button
+                            variant={activeImage === "upload" ? "default" : "outline"}
+                            onClick={() => setActiveImage("upload")}
+                          >
+                            Subir Imagen
                           </Button>
                         </div>
                       </div>
 
-                      {/* Subir nueva imagen al carrusel */}
-                      <div className="space-y-2">
-                        <Label>Subir nueva imagen</Label>
-                        <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
-                          <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                          <p className="text-sm text-gray-500">
-                            Arrastra una imagen o haz clic para seleccionar
-                          </p>
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file && imageName) {
-                                const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
-                                addCarouselImage(fakeUrl, imageName);
-                                setImageName("");
-                              } else {
-                                Swal.fire({
-                                  icon: "warning",
-                                  title: "Campos incompletos",
-                                  text: "Por favor, proporciona un nombre para la imagen antes de subirla.",
-                                });
-                              }
-                            }}
-                            id="carousel-upload"
+                      {/* Agregar imagen por URL */}
+                      {activeImage === "url" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="carousel-name">Nombre de la imagen</Label>
+                          <Input
+                            id="carousel-name"
+                            placeholder="Nombre de la imagen"
+                            value={imageName}
+                            onChange={(e) => setImageName(e.target.value)}
                           />
-                          <label
-                            htmlFor="carousel-upload"
-                            className="block w-full h-full absolute inset-0 cursor-pointer"
-                          >
-                            <span className="sr-only">Subir imagen</span>
-                          </label>
+                          <Label htmlFor="carousel-url">Agregar imagen por URL</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              id="carousel-url"
+                              placeholder="https://ejemplo.com/imagen.jpg"
+                              value={imageUrl}
+                              onChange={(e) => setImageUrl(e.target.value)}
+                            />
+                            <Button
+                              size="sm"
+                              onClick={async () => {
+                                if (imageUrl && imageName) {
+                                  // Agregar imagen al estado local
+                                  addCarouselImage(imageUrl, imageName);
+
+                                  // Guardar imagen en la base de datos
+                                  const [error] = await createImageRequest({
+                                    tipo: "Carrousel",
+                                    enlace: imageUrl,
+                                    nombre: imageName,
+                                  });
+
+                                  if (error) {
+                                    Swal.fire({
+                                      icon: "error",
+                                      title: "Error",
+                                      text: "No se pudo guardar la imagen. Intenta nuevamente.",
+                                    });
+                                    return;
+                                  }
+
+                                  // Mostrar alerta de éxito
+                                  Swal.fire({
+                                    icon: "success",
+                                    title: "Éxito",
+                                    text: "Imagen agregada correctamente.",
+                                  });
+
+                                  // Limpiar campos
+                                  setImageUrl("");
+                                  setImageName("");
+                                } else {
+                                  Swal.fire({
+                                    icon: "warning",
+                                    title: "Campos incompletos",
+                                    text: "Por favor, proporciona un nombre y una URL para la imagen.",
+                                  });
+                                }
+                              }}
+                            >
+                              Agregar
+                            </Button>
+                          </div>
                         </div>
-                      </div>
+                      )}
+
+                      {/* Subir nueva imagen */}
+                      {activeImage === "upload" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="carousel-upload">Subir nueva imagen</Label>
+                          <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
+                            <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                            <p className="text-sm text-gray-500">
+                              Arrastra una imagen o haz clic para seleccionar
+                            </p>
+                            <input
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
+                                  setImageUrl(fakeUrl);
+                                }
+                              }}
+                              id="carousel-upload"
+                            />
+                            <label
+                              htmlFor="carousel-upload"
+                              className="block w-full h-full absolute inset-0 cursor-pointer"
+                            >
+                              <span className="sr-only">Subir imagen</span>
+                            </label>
+                          </div>
+                          <div className="flex gap-2">
+                            <Input
+                              id="carousel-name-upload"
+                              placeholder="Nombre de la imagen"
+                              value={imageName}
+                              onChange={(e) => setImageName(e.target.value)}
+                            />
+                            <Button
+                              size="sm"
+                              onClick={async () => {
+                                if (imageUrl && imageName) {
+                                  // Agregar imagen al estado local
+                                  addCarouselImage(imageUrl, imageName);
+
+                                  // Guardar imagen en la base de datos
+                                  const [error] = await createImageRequest({
+                                    tipo: "Carrousel",
+                                    enlace: imageUrl,
+                                    nombre: imageName,
+                                  });
+
+                                  if (error) {
+                                    Swal.fire({
+                                      icon: "error",
+                                      title: "Error",
+                                      text: "No se pudo guardar la imagen. Intenta nuevamente.",
+                                    });
+                                    return;
+                                  }
+
+                                  // Mostrar alerta de éxito
+                                  Swal.fire({
+                                    icon: "success",
+                                    title: "Éxito",
+                                    text: "Imagen agregada correctamente.",
+                                  });
+
+                                  // Limpiar campos
+                                  setImageUrl("");
+                                  setImageName("");
+                                } else {
+                                  Swal.fire({
+                                    icon: "warning",
+                                    title: "Campos incompletos",
+                                    text: "Por favor, proporciona un nombre para la imagen antes de subirla.",
+                                  });
+                                }
+                              }}
+                            >
+                              Agregar
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -474,7 +634,7 @@ export default function Personalization() {
                       <div className="border rounded-md p-2">
                         <div className="flex justify-center">
                           <img
-                            src={logoImage?.enlace || "/placeholder.svg"} // Asegúrate de usar `enlace` para la URL
+                            src={logoImage?.enlace || "/placeholder.svg"}
                             alt="Logo"
                             className="h-24 w-auto object-contain rounded"
                           />
@@ -489,59 +649,87 @@ export default function Personalization() {
                   </AccordionTrigger>
                   <AccordionContent className="px-2">
                     <div className="space-y-4 py-2">
-                      {/* Actualizar logo por URL */}
+                      {/* Editar nombre del logo */}
                       <div className="space-y-2">
-                        <Label htmlFor="logo-url">Actualizar logo por URL</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="logo-url"
-                            placeholder="https://ejemplo.com/logo.jpg"
-                            value={imageUrl}
-                            onChange={(e) => setImageUrl(e.target.value)}
-                          />
+                        <Label htmlFor="logo-name">Nombre del logo</Label>
+                        <Input
+                          id="logo-name"
+                          placeholder="Nombre del logo"
+                          value={logoImage?.nombre || ""}
+                          onChange={(e) => updateLogo(logoImage?.enlace, e.target.value)}
+                        />
+                      </div>
+
+                      {/* Selector para URL o Subida */}
+                      <div className="space-y-2">
+                        <Label>Método de actualización</Label>
+                        <div className="flex gap-4">
                           <Button
-                            size="sm"
-                            onClick={() => {
-                              if (imageUrl) {
-                                updateLogo(imageUrl);
-                                setImageUrl("");
-                              }
-                            }}
+                            variant={activeImage === "url" ? "default" : "outline"}
+                            onClick={() => setActiveImage("url")}
                           >
-                            Actualizar
+                            Usar URL
+                          </Button>
+                          <Button
+                            variant={activeImage === "upload" ? "default" : "outline"}
+                            onClick={() => setActiveImage("upload")}
+                          >
+                            Subir Imagen
                           </Button>
                         </div>
                       </div>
 
-                      {/* Subir nuevo logo */}
-                      <div className="space-y-2">
-                        <Label>Subir nuevo logo</Label>
-                        <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
-                          <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                          <p className="text-sm text-gray-500">
-                            Arrastra una imagen o haz clic para seleccionar
-                          </p>
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
-                                updateLogo(fakeUrl);
-                              }
-                            }}
-                            id="logo-upload"
-                          />
-                          <label
-                            htmlFor="logo-upload"
-                            className="block w-full h-full absolute inset-0 cursor-pointer"
-                          >
-                            <span className="sr-only">Subir logo</span>
-                          </label>
+                      {/* Actualizar logo por URL */}
+                      {activeImage === "url" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="logo-url">Actualizar logo por URL</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              id="logo-url"
+                              placeholder="https://ejemplo.com/logo.jpg"
+                              value={logoImage?.enlace || ""}
+                              onChange={(e) => updateLogo(e.target.value, logoImage?.nombre)}
+                            />
+                            <Button size="sm" onClick={saveLogo}>
+                              Guardar
+                            </Button>
+                          </div>
                         </div>
-                      </div>
+                      )}
+
+                      {/* Subir nuevo logo */}
+                      {activeImage === "upload" && (
+                        <div className="space-y-2">
+                          <Label>Subir nuevo logo</Label>
+                          <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
+                            <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                            <p className="text-sm text-gray-500">
+                              Arrastra una imagen o haz clic para seleccionar
+                            </p>
+                            <input
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
+                                  updateLogo(fakeUrl, logoImage?.nombre);
+                                }
+                              }}
+                              id="logo-upload"
+                            />
+                            <label
+                              htmlFor="logo-upload"
+                              className="block w-full h-full absolute inset-0 cursor-pointer"
+                            >
+                              <span className="sr-only">Subir logo</span>
+                            </label>
+                          </div><Button size="sm" onClick={saveLogo}>
+                            Guardar
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -552,7 +740,7 @@ export default function Personalization() {
                       <div className="border rounded-md p-2">
                         <div className="flex justify-center">
                           <img
-                            src={LoginBanner?.enlace || "/placeholder.svg"} // Asegúrate de usar `enlace` para la URL
+                            src={LoginBanner?.enlace || "/placeholder.svg"}
                             alt="Login Banner"
                             className="h-32 w-auto object-contain rounded"
                           />
@@ -567,59 +755,88 @@ export default function Personalization() {
                   </AccordionTrigger>
                   <AccordionContent className="px-2">
                     <div className="space-y-4 py-2">
-                      {/* Actualizar banner por URL */}
+                      {/* Editar nombre del banner */}
                       <div className="space-y-2">
-                        <Label htmlFor="banner-url">Actualizar banner por URL</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="banner-url"
-                            placeholder="https://ejemplo.com/banner.jpg"
-                            value={imageUrl}
-                            onChange={(e) => setImageUrl(e.target.value)}
-                          />
+                        <Label htmlFor="banner-name">Nombre del banner</Label>
+                        <Input
+                          id="banner-name"
+                          placeholder="Nombre del banner"
+                          value={LoginBanner?.nombre || ""}
+                          onChange={(e) => updateLoginBanner(LoginBanner?.enlace, e.target.value)}
+                        />
+                      </div>
+
+                      {/* Selector para URL o Subida */}
+                      <div className="space-y-2">
+                        <Label>Método de actualización</Label>
+                        <div className="flex gap-4">
                           <Button
-                            size="sm"
-                            onClick={() => {
-                              if (imageUrl) {
-                                updateLoginBanner(imageUrl);
-                                setImageUrl("");
-                              }
-                            }}
+                            variant={activeImage === "url" ? "default" : "outline"}
+                            onClick={() => setActiveImage("url")}
                           >
-                            Actualizar
+                            Usar URL
+                          </Button>
+                          <Button
+                            variant={activeImage === "upload" ? "default" : "outline"}
+                            onClick={() => setActiveImage("upload")}
+                          >
+                            Subir Imagen
                           </Button>
                         </div>
                       </div>
 
-                      {/* Subir nuevo banner */}
-                      <div className="space-y-2">
-                        <Label>Subir nuevo banner</Label>
-                        <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
-                          <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                          <p className="text-sm text-gray-500">
-                            Arrastra una imagen o haz clic para seleccionar
-                          </p>
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
-                                updateLoginBanner(fakeUrl);
-                              }
-                            }}
-                            id="banner-upload"
-                          />
-                          <label
-                            htmlFor="banner-upload"
-                            className="block w-full h-full absolute inset-0 cursor-pointer"
-                          >
-                            <span className="sr-only">Subir banner</span>
-                          </label>
+                      {/* Actualizar banner por URL */}
+                      {activeImage === "url" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="banner-url">Actualizar banner por URL</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              id="banner-url"
+                              placeholder="https://ejemplo.com/banner.jpg"
+                              value={LoginBanner?.enlace || ""}
+                              onChange={(e) => updateLoginBanner(e.target.value, LoginBanner?.nombre)}
+                            />
+                            <Button size="sm" onClick={saveLoginBanner}>
+                              Guardar
+                            </Button>
+                          </div>
                         </div>
-                      </div>
+                      )}
+
+                      {/* Subir nuevo banner */}
+                      {activeImage === "upload" && (
+                        <div className="space-y-2">
+                          <Label>Subir nuevo banner</Label>
+                          <div className="border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 relative">
+                            <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                            <p className="text-sm text-gray-500">
+                              Arrastra una imagen o haz clic para seleccionar
+                            </p>
+                            <input
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const fakeUrl = URL.createObjectURL(file); // Simula la URL de la imagen
+                                  updateLoginBanner(fakeUrl, LoginBanner?.nombre);
+                                }
+                              }}
+                              id="banner-upload"
+                            />
+                            <label
+                              htmlFor="banner-upload"
+                              className="block w-full h-full absolute inset-0 cursor-pointer"
+                            >
+                              <span className="sr-only">Subir banner</span>
+                            </label>
+                          </div>
+                          <Button size="sm" onClick={saveLoginBanner}>
+                            Guardar
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -633,13 +850,6 @@ export default function Personalization() {
               {activeTab === "colors" && (
                 <Button className="w-full" onClick={saveColors}>
                   Guardar colores
-                </Button>
-              )}
-
-              {/* Mostrar el botón de guardar imágenes solo si la pestaña activa es "images" */}
-              {activeTab === "images" && (
-                <Button className="w-full" onClick={saveImages}>
-                  Guardar imágenes
                 </Button>
               )}
 
@@ -677,15 +887,6 @@ export default function Personalization() {
                     </div>
                   ))}
               </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium mb-2">Imagen de héroe</h3>
-              <img
-                src={theme.images.hero || "/placeholder.svg"}
-                alt="Hero"
-                className="w-full h-auto rounded-md border"
-              />
             </div>
 
             <div>
