@@ -201,7 +201,7 @@ export function UserTable({ users, onEdit, onDelete }) {
         >
           Add User
         </button>
-      </div>
+      </div> 
 
       <div className="flex mb-4 gap-4">
         <div className="flex-grow">
