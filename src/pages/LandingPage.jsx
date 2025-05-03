@@ -9,6 +9,7 @@ import { Skeleton, CarouselSkeleton, MemberCardSkeleton, TextSectionSkeleton, Fo
 import { sendEmailToSelfRequest } from "@/actions/email"
 import NavBar from "../components/ui/NavLanding"
 import { getColors } from "../actions/personalization"
+import { getImages } from "../actions/image"
 
 const Button = ({ children, className, variant = "" }) => (
   <button className={`px-4 py-2 rounded ${className} ${variant === "outline" ? "border border-current" : ""}`}>
@@ -28,14 +29,6 @@ const handleSmoothScroll = (e, targetId) => {
   }
 }
 
-const images = [
-  "https://res.cloudinary.com/uvggt/image/upload/f_auto/v1619631396/2021/Abril/Biodi%C3%A9sel/Biodiesel-1.jpg",
-  "https://res.cloudinary.com/uvggt/image/upload/f_auto/v1707843136/2024/02%20Febrero/Premio%20ILAN/Premio-ILAN-Portada.jpg",
-  "https://res.cloudinary.com/webuvg/image/upload/f_auto,q_auto,w_329,c_scale,fl_lossy,dpr_2.63/v1602887269/WEB/Academico/Carreras/Ingenieria/Quimica/laboratorio-ing-quimica.jpg",
-  "https://res.cloudinary.com/uvggt/image/upload/f_auto/v1657039547/2022/Julio/Foro%20Desarrollo%20industrial%20verde/Ingenieria-Quimica-UVG-1.jpg",
-  "https://res.cloudinary.com/uvggt/image/upload/f_auto/v1649106331/2022/Abril/Bodi%C3%A9sel-Puma/Biodiesel-1.jpg"
-]
-
 const LandingPage = () => {
   const [loading, setLoading] = useState(true)
   const [imagesLoaded, setImagesLoaded] = useState(false)
@@ -46,6 +39,32 @@ const LandingPage = () => {
     images: {}, // Otros datos del tema
   });
 
+  const fetchCarouselImages = async () => {
+    setLoading(true);
+    try {
+      const [error, images] = await getImages();
+      if (error) {
+        console.error("Error fetching images:", error);
+        setLoading(false);
+        return;
+      }
+
+      // Filtra solo las imágenes de tipo "Carrousel"
+      const carouselImages = images.filter((image) => image.tipo === "Carrousel");
+
+      // Actualiza el estado con las imágenes del carrusel
+      setTheme((prevTheme) => ({
+        ...prevTheme,
+        images: carouselImages,
+      }));
+
+      console.log("Fetched carousel images:", carouselImages); // Verifica las imágenes obtenidas
+    } catch (err) {
+      console.error("Unexpected error fetching images:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   const fetchColors = async () => {
     setLoading(true)
     const [error, colors] = await getColors()
@@ -66,7 +85,8 @@ const LandingPage = () => {
   }
 
   useEffect(() => {
-    fetchColors()
+    fetchColors();
+    fetchCarouselImages();
   }, [])
 
   useEffect(() => {
@@ -139,17 +159,17 @@ const LandingPage = () => {
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8" style={{ color: theme.colors.Accent }}>Nuestras Características</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="flex flex-col items-center text-center">
-                    <AtomIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }}/>
+                    <AtomIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }} />
                     <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent }}>Investigación Innovadora</h3>
                     <p style={{ color: theme.colors.Primary }}>Fomentamos la investigación avanzada y la innovación en diversas áreas del conocimiento, brindando a nuestros estudiantes universitarios el acceso a recursos y herramientas para desarrollar proyectos.</p>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <BookOpenIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }}/>
-                    <h3 className="text-xl font-bold mb-2"style={{ color: theme.colors.Accent }}>Recursos Educativos</h3>
+                    <BookOpenIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }} />
+                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent }}>Recursos Educativos</h3>
                     <p style={{ color: theme.colors.Primary }}>Proveemos una amplia gama de recursos educativos diseñados para mejorar la experiencia de aprendizaje de nuestros estudiantes universitarios. Desde materiales didácticos hasta plataformas interactivas.</p>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <UsersIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }}/>
+                    <UsersIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }} />
                     <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent }}>Networking</h3>
                     <p style={{ color: theme.colors.Primary }}>Creamos espacios de conexión entre estudiantes, profesionales y académicos, donde nuestros estudiantes pueden expandir su red de contactos. Fomentamos la colaboración y el intercambio de ideas.</p>
                   </div>
@@ -166,11 +186,19 @@ const LandingPage = () => {
               ) : (
                 <>
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl" style={{ color: theme.colors.Accent }}>Sobre Nosotros</h2>
-                  <p className="md:text-xl" style={{ color: theme.colors.Primary }}>La Asociación de Química nació con el propósito de dar respuesta a la necesidad de apoyo en el ámbito educativo. Sabemos que la educación es la llave para cambiar vidas, y estamos convencidos de que cada estudiante tiene un potencial único. Nuestra misión es brindar recursos y una red de apoyo a estudiantes que se comprometen con su educación y desean transformar su futuro.</p>
+                  <p className="md:text-xl" style={{ color: theme.colors.Primary }}>
+                    La Asociación de Química nació con el propósito de dar respuesta a la necesidad de apoyo en el ámbito educativo. Sabemos que la educación es la llave para cambiar vidas, y estamos convencidos de que cada estudiante tiene un potencial único. Nuestra misión es brindar recursos y una red de apoyo a estudiantes que se comprometen con su educación y desean transformar su futuro.
+                  </p>
                 </>
               )}
             </div>
-            <div className="w-full">{!imagesLoaded ? <CarouselSkeleton /> : <AutoCarousel images={images} />}</div>
+            <div className="w-full">
+              {!loading && theme.images.length > 0 ? (
+                <AutoCarousel images={theme.images.map((img) => img.enlace)} />
+              ) : (
+                <CarouselSkeleton />
+              )}
+            </div>
           </div>
         </section>
         <section id="members" className="w-full py-12 md:py-12 lg:py-12" style={{ backgroundColor: theme.colors.Background }}>

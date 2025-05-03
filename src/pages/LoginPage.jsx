@@ -3,11 +3,11 @@ import { Link } from "react-router-dom"
 import Swal from "sweetalert2"
 import { useAuth } from "@/context/auth"
 import { getColors } from "../actions/personalization"
+import { getImages } from "../actions/image"
 const Button = ({ children, className, variant, ...props }) => (
   <button
-    className={`px-4 py-2 rounded ${className} ${
-      variant === "outline" ? "border border-current" : ""
-    }`}
+    className={`px-4 py-2 rounded ${className} ${variant === "outline" ? "border border-current" : ""
+      }`}
     {...props}
   >
     {children}
@@ -21,8 +21,33 @@ const LoginPage = () => {
   const { login } = useAuth()
   const [loading, setLoading] = useState(true);
 
+  const fetchBannerImages = async () => {
+    setLoading(true);
+    try {
+      const [error, images] = await getImages();
+      if (error) {
+        console.error("Error fetching images:", error);
+        setLoading(false);
+        return;
+      }
+
+      const bannerImages = images.filter((image) => image.tipo === "LoginBanner");
+
+      setTheme((prevTheme) => ({
+        ...prevTheme,
+        images: bannerImages,
+      }));
+
+      console.log("Fetched banner images:", bannerImages); 
+    } catch (err) {
+      console.error("Unexpected error fetching images:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    setIsVisible(true)
+    setIsVisible(true);
+    fetchBannerImages();
   }, [])
 
   const handleLogin = async e => {
@@ -70,31 +95,27 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       <div
-        className={`hidden lg:block lg:w-1/2 relative overflow-hidden transition-all duration-1000 ease-out ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
+        className={`hidden lg:block lg:w-1/2 relative overflow-hidden transition-all duration-1000 ease-out ${isVisible ? "opacity-100" : "opacity-0"
+          }`}
       >
         <img
-          src="https://res.cloudinary.com/uvggt/image/upload/f_auto/v1565039253/2019/Agosto/Girls%20STEAM%20club%203/Steam-club-1.jpg"
+          src={theme.images[0]?.enlace || "https://via.placeholder.com/1920x1080"}
           alt="Laboratorio de química"
-          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out ${
-            isVisible ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out ${isVisible ? "translate-x-0" : "-translate-x-full"
+            }`}
         />
       </div>
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div
-          className={`max-w-md w-full space-y-8 transition-all duration-700 ease-out transform ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+          className={`max-w-md w-full space-y-8 transition-all duration-700 ease-out transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
         >
           <div
-            className={`text-center transition-all duration-700 delay-100 ease-out ${
-              isVisible
+            className={`text-center transition-all duration-700 delay-100 ease-out ${isVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-4"
-            }`}
+              }`}
           >
             <h1 className="text-5xl font-bold text-gray-800">Iniciar Sesión</h1>
             <p className="mt-2 text-xl text-gray-600">
@@ -102,11 +123,10 @@ const LoginPage = () => {
             </p>
           </div>
           <form
-            className={`mt-8 space-y-6 transition-all duration-700 delay-200 ease-out ${
-              isVisible
+            className={`mt-8 space-y-6 transition-all duration-700 delay-200 ease-out ${isVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-4"
-            }`}
+              }`}
             onSubmit={handleLogin}
           >
             <div className="space-y-4">

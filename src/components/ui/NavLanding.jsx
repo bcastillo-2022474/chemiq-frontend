@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import ProjectModal from "@/components/ProjectModal"
 import { BASE_URL } from "@/lib/constants"
 import { getColors } from "../../actions/personalization"
+import { getImages } from "../../actions/image"
 
 const NavBar = ({ loading: initialLoading }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -30,6 +31,33 @@ const NavBar = ({ loading: initialLoading }) => {
     images: {}, // Otros datos del tema
   });
 
+  const fetchLogoImages = async () => {
+    setLoading(true);
+    try {
+      const [error, images] = await getImages();
+      if (error) {
+        console.error("Error fetching images:", error);
+        setLoading(false);
+        return;
+      }
+  
+      const logoImages = images.filter((image) => image.tipo === "Logo");
+  
+      setTheme((prevTheme) => ({
+        ...prevTheme,
+        images: {
+          ...prevTheme.images,
+          logo: logoImages[0], 
+        },
+      }));
+  
+      console.log("Fetched logo images:", logoImages); 
+    } catch (err) {
+      console.error("Unexpected error fetching images:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   const fetchColors = async () => {
     setLoading(true);
     const [error, colors] = await getColors();
@@ -50,6 +78,7 @@ const NavBar = ({ loading: initialLoading }) => {
 
   useEffect(() => {
     fetchColors();
+    fetchLogoImages();
   }, []);
 
   useEffect(() => {
@@ -138,7 +167,7 @@ const NavBar = ({ loading: initialLoading }) => {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <img src="https://iili.io/3Awgque.jpg" alt="Logo" className="w-[50px] h-[50px]" />
+                <img src={theme.images.logo?.enlace || "https://via.placeholder.com/150x150"} alt="Logo" className="w-[50px] h-[50px]" />
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8 items-center">
                 <p className="text-white">Error al cargar los proyectos</p>
@@ -183,7 +212,7 @@ const NavBar = ({ loading: initialLoading }) => {
               <div className="flex-shrink-0 flex items-center">
                 <span className="text-2xl font-bold text-white">
                   <img 
-                    src="https://iili.io/3Awgque.jpg" 
+                    src={theme.images.logo?.enlace || "https://via.placeholder.com/150x150"}
                     alt="Logo" 
                     className={`transition-all duration-300 ${
                       scrolled ? 'w-[40px] h-[40px]' : 'w-[50px] h-[50px]'
