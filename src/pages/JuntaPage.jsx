@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Beaker, Users, Home, Brush, Settings, LogOut, Podcast, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UsersSection from "@/components/junta/UsersSection";
@@ -7,7 +7,7 @@ import PodcastSection from "@/components/junta/PodcastSection";
 import NewsSection from "@/components/junta/NewsSection";
 import Config from "@/components/junta/Config";
 import Personalization from "@/components/junta/Personalization"
-
+import { getColors } from "../actions/personalization";
 const sideNavItems = [
   { icon: Users, label: "Usuarios", href: "#" },
   { icon: Beaker, label: "Proyectos", href: "#" },
@@ -21,6 +21,35 @@ function JuntaPage() {
   const [activeNavItem, setActiveNavItem] = useState("Usuarios");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to toggle sidebar
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false); // Define loading state
+
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+    images: {}, // Otros datos del tema
+  });
+
+  const fetchColors = async () => {
+    setLoading(true)
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      setLoading(false)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors) // Verifica los colores aquí
+    setLoading(false)
+  }
+  console.log(theme.colors)
+  useEffect(() => {
+    fetchColors();
+  }, [])
 
   const handleLogout = () => {
     localStorage.clear();
@@ -58,9 +87,9 @@ function JuntaPage() {
 
       {/* Sidebar */}
       <nav
-        className={`fixed top-0 left-0 h-full bg-tertiary py-8 px-4 z-40 transform transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-full py-8 px-4 z-40 transform transition-transform duration-300 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:relative md:translate-x-0 md:col-span-3`}
+        } md:relative md:translate-x-0 md:col-span-3`} style={{backgroundColor: theme.colors.Tertiary}}
       >
         <h1 className="text-xl font-light mb-8 px-4 text-gray-700">
           <img src="https://i.ibb.co/WpHRPRWS/Imagen-de-Whats-App-2025-04-02-a-las-20-45-15-1a4bcc2f-removebg-preview.png" className="w-full h-[50px]" />
@@ -70,7 +99,7 @@ function JuntaPage() {
             key={index}
             className={`w-full flex items-center p-4 mb-2 rounded-lg transition-colors duration-200 ${
               activeNavItem === item.label ? "bg-subase text-accent" : "text-gray-600 hover:bg-base"
-            }`}
+            }` } 
             onClick={() => {
               setActiveNavItem(item.label);
               setIsSidebarOpen(false); // Close sidebar on item click
