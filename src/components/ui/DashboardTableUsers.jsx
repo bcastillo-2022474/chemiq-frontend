@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { getColors } from "@/actions/personalization"
 
 export function UserTable({ users, onEdit, onDelete }) {
   const [filteredUsers, setFilteredUsers] = useState(users)
@@ -15,6 +16,29 @@ export function UserTable({ users, onEdit, onDelete }) {
     rol_id: "",
     img: ""
   })
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  })
+
+  const fetchColors = async () => {
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors)
+  }
+
+  useEffect(() => {
+    fetchColors()
+  }, [])
 
   const roleMapping = users.reduce((map, user) => {
     map[user.rol_id] = user.rol
@@ -35,7 +59,6 @@ export function UserTable({ users, onEdit, onDelete }) {
     setCurrentPage(1)
   }, [users, filterText, filterRole])
 
-  // Lógica de paginación
   const indexOfLastUser = currentPage * usersPerPage
   const indexOfFirstUser = indexOfLastUser - usersPerPage
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser)
@@ -65,8 +88,6 @@ export function UserTable({ users, onEdit, onDelete }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Aquí deberías implementar la lógica para guardar el nuevo usuario
-    // Por ejemplo, llamar a una función onAdd que se pase como prop
     console.log('Nuevo usuario:', newUser)
     setIsModalOpen(false)
     setNewUser({
@@ -92,10 +113,14 @@ export function UserTable({ users, onEdit, onDelete }) {
             onClick={prevPage}
             disabled={currentPage === 1}
             className={`relative inline-flex items-center rounded-md px-4 py-2 text-sm font-medium ${
-              currentPage === 1
-                ? "bg-gray-100 text-gray-400"
-                : "bg-white text-gray-700 hover:bg-gray-50"
+              currentPage === 1 ? "" : ""
             }`}
+            style={{
+              backgroundColor: currentPage === 1 ? '#fffaf5' : theme.colors.Background || '#fff8f0',
+              color: theme.colors.Tertiary || '#5f5f5f'
+            }}
+            onMouseEnter={(e) => !currentPage === 1 && (e.target.style.backgroundColor = '#f5e8df')}
+            onMouseLeave={(e) => !currentPage === 1 && (e.target.style.backgroundColor = theme.colors.Background || '#fff8f0')}
           >
             Anterior
           </button>
@@ -103,17 +128,21 @@ export function UserTable({ users, onEdit, onDelete }) {
             onClick={nextPage}
             disabled={currentPage === totalPages}
             className={`relative inline-flex items-center rounded-md px-4 py-2 text-sm font-medium ${
-              currentPage === totalPages
-                ? "bg-gray-100 text-gray-400"
-                : "bg-white text-gray-700 hover:bg-gray-50"
+              currentPage === totalPages ? "" : ""
             }`}
+            style={{
+              backgroundColor: currentPage === totalPages ? '#fffaf5' : theme.colors.Background || '#fff8f0',
+              color: theme.colors.Tertiary || '#5f5f5f'
+            }}
+            onMouseEnter={(e) => !currentPage === totalPages && (e.target.style.backgroundColor = '#f5e8df')}
+            onMouseLeave={(e) => !currentPage === totalPages && (e.target.style.backgroundColor = theme.colors.Background || '#fff8f0')}
           >
             Siguiente
           </button>
         </div>
         <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-gray-700">
+            <p style={{ color: theme.colors.Tertiary || '#5f5f5f' }} className="text-sm">
               Mostrando{" "}
               <span className="font-medium">{indexOfFirstUser + 1}</span> a{" "}
               <span className="font-medium">
@@ -131,9 +160,15 @@ export function UserTable({ users, onEdit, onDelete }) {
               <button
                 onClick={prevPage}
                 disabled={currentPage === 1}
-                className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 ${
+                className={`relative inline-flex items-center rounded-l-md px-2 py-2 focus:z-20 focus:outline-offset-0 ${
                   currentPage === 1 ? "cursor-not-allowed" : ""
                 }`}
+                style={{
+                  color: theme.colors.Tertiary || '#5f5f5f',
+                  borderColor: theme.colors.Tertiary || '#5f5f5f'
+                }}
+                onMouseEnter={(e) => !currentPage === 1 && (e.target.style.backgroundColor = '#f5e8df')}
+                onMouseLeave={(e) => !currentPage === 1 && (e.target.style.backgroundColor = 'transparent')}
               >
                 <span className="sr-only">Anterior</span>
                 <svg
@@ -153,11 +188,18 @@ export function UserTable({ users, onEdit, onDelete }) {
                 <button
                   key={number}
                   onClick={() => paginate(number)}
-                  className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                  className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:outline-offset-0 ${
                     currentPage === number
-                      ? "z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                      : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0"
+                      ? "z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                      : ""
                   }`}
+                  style={{
+                    backgroundColor: currentPage === number ? theme.colors.Primary || '#fc5000' : 'transparent',
+                    color: currentPage === number ? theme.colors.Secondary || '#e4e4e4' : theme.colors.Tertiary || '#5f5f5f',
+                    borderColor: theme.colors.Tertiary || '#5f5f5f'
+                  }}
+                  onMouseEnter={(e) => currentPage !== number && (e.target.style.backgroundColor = '#f5e8df')}
+                  onMouseLeave={(e) => currentPage !== number && (e.target.style.backgroundColor = 'transparent')}
                 >
                   {number}
                 </button>
@@ -165,9 +207,15 @@ export function UserTable({ users, onEdit, onDelete }) {
               <button
                 onClick={nextPage}
                 disabled={currentPage === totalPages}
-                className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 ${
+                className={`relative inline-flex items-center rounded-r-md px-2 py-2 focus:z-20 focus:outline-offset-0 ${
                   currentPage === totalPages ? "cursor-not-allowed" : ""
                 }`}
+                style={{
+                  color: theme.colors.Tertiary || '#5f5f5f',
+                  borderColor: theme.colors.Tertiary || '#5f5f5f'
+                }}
+                onMouseEnter={(e) => !currentPage === totalPages && (e.target.style.backgroundColor = '#f5e8df')}
+                onMouseLeave={(e) => !currentPage === totalPages && (e.target.style.backgroundColor = 'transparent')}
               >
                 <span className="sr-only">Siguiente</span>
                 <svg
@@ -191,13 +239,27 @@ export function UserTable({ users, onEdit, onDelete }) {
   }
 
   return (
-    <div className="w-full rounded-2xl bg-white p-6 shadow-lg">
-      <h1 className="text-xl font-semibold mb-6 text-gray-800">Users</h1>
+    <div className="w-full rounded-2xl p-6 shadow-lg" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
+      <h1 className="text-xl font-semibold mb-6" style={{ color: theme.colors.Accent || '#505050' }}>
+        Users
+      </h1>
 
       <div className="mb-4">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+          className="px-4 py-2 text-sm font-medium rounded-lg"
+          style={{
+            backgroundColor: theme.colors.Primary || '#fc5000',
+            color: theme.colors.Secondary || '#e4e4e4'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = theme.colors.Accent || '#505050'
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = theme.colors.Primary || '#fc5000'
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+          }}
         >
           Add User
         </button>
@@ -210,14 +272,22 @@ export function UserTable({ users, onEdit, onDelete }) {
             placeholder="Filter by Carne, Name, or Email"
             value={filterText}
             onChange={e => setFilterText(e.target.value)}
-            className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+            style={{
+              backgroundColor: theme.colors.Background || '#fff8f0',
+              color: theme.colors.Tertiary || '#5f5f5f'
+            }}
           />
         </div>
         <div className="w-48">
           <select
             value={filterRole}
             onChange={e => setFilterRole(e.target.value)}
-            className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+            style={{
+              backgroundColor: theme.colors.Background || '#fff8f0',
+              color: theme.colors.Tertiary || '#5f5f5f'
+            }}
           >
             <option value="">All Roles</option>
             {roles.map(role => (
@@ -232,20 +302,32 @@ export function UserTable({ users, onEdit, onDelete }) {
       <div className="w-full overflow-x-auto">
         <table className="w-full text-left border-separate border-spacing-y-2">
           <thead>
-            <tr className="bg-gray-100 text-gray-600">
-              <th className="py-4 px-6 rounded-tl-lg">Avatar</th>
-              <th className="py-4 px-6">Carne</th>
-              <th className="py-4 px-6">Nombre estudiante</th>
-              <th className="py-4 px-6">Email</th>
-              <th className="py-4 px-6">Role</th>
-              <th className="py-4 px-6 rounded-tr-lg">Actions</th>
+            <tr style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
+              <th className="py-4 px-6 rounded-tl-lg" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                Avatar
+              </th>
+              <th className="py-4 px-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                Carne
+              </th>
+              <th className="py-4 px-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                Nombre estudiante
+              </th>
+              <th className="py-4 px-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                Email
+              </th>
+              <th className="py-4 px-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                Role
+              </th>
+              <th className="py-4 px-6 rounded-tr-lg" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
             {currentUsers.map(user => (
-              <tr key={user.carne} className="bg-white shadow-sm rounded-lg">
+              <tr key={user.carne} className="shadow-sm rounded-lg" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
                 <td className="py-4 px-6">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#fffaf5' }}>
                     {user.img ? (
                       <img
                         src={user.img}
@@ -253,29 +335,53 @@ export function UserTable({ users, onEdit, onDelete }) {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-gray-700 font-semibold">
+                      <span style={{ color: theme.colors.Tertiary || '#5f5f5f' }} className="font-semibold">
                         {user.nombre[0]}
                       </span>
                     )}
                   </div>
                 </td>
-                <td className="py-4 px-6 text-gray-800">{user.carne}</td>
-                <td className="py-4 px-6 text-gray-600">{user.nombre}</td>
-                <td className="py-4 px-6 text-gray-700">{user.correo}</td>
-                <td className="py-4 px-6 text-gray-700">
+                <td className="py-4 px-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                  {user.carne}
+                </td>
+                <td className="py-4 px-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                  {user.nombre}
+                </td>
+                <td className="py-4 px-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                  {user.correo}
+                </td>
+                <td className="py-4 px-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
                   {roleMapping[user.rol_id]}
                 </td>
                 <td className="py-4 px-6">
                   <div className="flex gap-3">
                     <button
                       onClick={() => onEdit(user)}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                      className="px-4 py-2 text-sm font-medium rounded-lg"
+                      style={{
+                        backgroundColor: theme.colors.Background || '#fff8f0',
+                        color: theme.colors.Tertiary || '#5f5f5f'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#f5e8df'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = theme.colors.Background || '#fff8f0'}
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => onDelete(user.carne)}
-                      className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
+                      className="px-4 py-2 text-sm font-medium rounded-lg"
+                      style={{
+                        backgroundColor: theme.colors.Primary || '#fc5000',
+                        color: theme.colors.Secondary || '#e4e4e4'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = theme.colors.Accent || '#505050'
+                        e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = theme.colors.Primary || '#fc5000'
+                        e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+                      }}
                     >
                       Delete
                     </button>
@@ -290,12 +396,14 @@ export function UserTable({ users, onEdit, onDelete }) {
       <Pagination />
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Add New User</h2>
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(95, 95, 95, 0.5)' }}>
+          <div className="p-6 rounded-lg shadow-xl w-full max-w-md" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
+            <h2 className="text-xl font-bold mb-4" style={{ color: theme.colors.Accent || '#505050' }}>
+              Add New User
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
                   Carné
                 </label>
                 <input
@@ -303,11 +411,16 @@ export function UserTable({ users, onEdit, onDelete }) {
                   name="carne"
                   value={newUser.carne}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+                  style={{
+                    borderColor: theme.colors.Tertiary || '#5f5f5f',
+                    color: theme.colors.Tertiary || '#5f5f5f',
+                    backgroundColor: theme.colors.Background || '#fff8f0'
+                  }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
                   Nombre
                 </label>
                 <input
@@ -315,11 +428,16 @@ export function UserTable({ users, onEdit, onDelete }) {
                   name="nombre"
                   value={newUser.nombre}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+                  style={{
+                    borderColor: theme.colors.Tertiary || '#5f5f5f',
+                    color: theme.colors.Tertiary || '#5f5f5f',
+                    backgroundColor: theme.colors.Background || '#fff8f0'
+                  }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
                   Correo
                 </label>
                 <input
@@ -327,11 +445,16 @@ export function UserTable({ users, onEdit, onDelete }) {
                   name="correo"
                   value={newUser.correo}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+                  style={{
+                    borderColor: theme.colors.Tertiary || '#5f5f5f',
+                    color: theme.colors.Tertiary || '#5f5f5f',
+                    backgroundColor: theme.colors.Background || '#fff8f0'
+                  }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
                   Password
                 </label>
                 <input
@@ -339,18 +462,28 @@ export function UserTable({ users, onEdit, onDelete }) {
                   name="password"
                   value={newUser.password}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+                  style={{
+                    borderColor: theme.colors.Tertiary || '#5f5f5f',
+                    color: theme.colors.Tertiary || '#5f5f5f',
+                    backgroundColor: theme.colors.Background || '#fff8f0'
+                  }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
                   Rol
                 </label>
                 <select
                   name="rol_id"
                   value={newUser.rol_id}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+                  style={{
+                    borderColor: theme.colors.Tertiary || '#5f5f5f',
+                    color: theme.colors.Tertiary || '#5f5f5f',
+                    backgroundColor: theme.colors.Background || '#fff8f0'
+                  }}
                 >
                   <option value="">Seleccionar Rol</option>
                   {roles.map(role => (
@@ -361,7 +494,7 @@ export function UserTable({ users, onEdit, onDelete }) {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
                   URL de imagen
                 </label>
                 <input
@@ -369,20 +502,43 @@ export function UserTable({ users, onEdit, onDelete }) {
                   name="img"
                   value={newUser.img}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+                  style={{
+                    borderColor: theme.colors.Tertiary || '#5f5f5f',
+                    color: theme.colors.Tertiary || '#5f5f5f',
+                    backgroundColor: theme.colors.Background || '#fff8f0'
+                  }}
                 />
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                  className="px-4 py-2 text-sm font-medium rounded-lg"
+                  style={{
+                    backgroundColor: theme.colors.Background || '#fff8f0',
+                    color: theme.colors.Tertiary || '#5f5f5f'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5e8df'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = theme.colors.Background || '#fff8f0'}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                  className="px-4 py-2 text-sm font-medium rounded-lg"
+                  style={{
+                    backgroundColor: theme.colors.Primary || '#fc5000',
+                    color: theme.colors.Secondary || '#e4e4e4'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = theme.colors.Accent || '#505050'
+                    e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = theme.colors.Primary || '#fc5000'
+                    e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+                  }}
                 >
                   Save
                 </button>

@@ -17,8 +17,17 @@ const Button = ({ children, className, variant = "" }) => (
   </button>
 )
 
-const Input = ({ placeholder, type = "text", onChange, value }) => (
-  <input type={type} onChange={onChange} placeholder={placeholder} value={value} className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-base" />
+const Input = ({ placeholder, type = "text", onChange, value, theme }) => (
+  <input 
+    type={type} 
+    onChange={onChange} 
+    placeholder={placeholder} 
+    value={value} 
+    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#fc5000]" 
+    style={{ 
+      color: theme?.colors?.Tertiary || '#5f5f5f'
+    }} 
+  />
 )
 
 const handleSmoothScroll = (e, targetId) => {
@@ -49,22 +58,21 @@ const LandingPage = () => {
         return;
       }
 
-      // Filtra solo las imágenes de tipo "Carrousel"
       const carouselImages = images.filter((image) => image.tipo === "Carrousel");
 
-      // Actualiza el estado con las imágenes del carrusel
       setTheme((prevTheme) => ({
         ...prevTheme,
         images: carouselImages,
       }));
 
-      console.log("Fetched carousel images:", carouselImages); // Verifica las imágenes obtenidas
+      console.log("Fetched carousel images:", carouselImages);
     } catch (err) {
       console.error("Unexpected error fetching images:", err);
     } finally {
       setLoading(false);
     }
   };
+
   const fetchColors = async () => {
     setLoading(true)
     const [error, colors] = await getColors()
@@ -80,7 +88,7 @@ const LandingPage = () => {
       ...prevTheme,
       colors: formattedColors,
     }))
-    console.log("Fetched colors:", formattedColors) // Verifica los colores aquí
+    console.log("Fetched colors:", formattedColors)
     setLoading(false)
   }
 
@@ -120,10 +128,10 @@ const LandingPage = () => {
   }, [])
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
       <NavBar />
       <main className="flex-1 pt-16">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48" style={{ backgroundColor: theme.colors.Tertiary }}>
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
@@ -131,8 +139,12 @@ const LandingPage = () => {
                   <TextSectionSkeleton lines={4} className="max-w-3xl mx-auto" />
                 ) : (
                   <>
-                    <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-7 md:text-5xl lg:text-6xl/none" style={{ color: theme.colors.Accent }}>Asociación de Química</h1>
-                    <p className="mx-auto max-w-[900px] md:text-xl" style={{ color: theme.colors.Primary }}>La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas. Nos enfocamos en impulsar el conocimiento científico, fomentando el intercambio de ideas y la colaboración entre estudiantes y profesionales del área.</p>
+                    <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-7 md:text-5xl lg:text-6xl/none" style={{ color: theme.colors.Accent || '#505050' }}>
+                      Asociación de Química
+                    </h1>
+                    <p className="mx-auto max-w-[900px] md:text-xl" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                      La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas. Nos enfocamos en impulsar el conocimiento científico, fomentando el intercambio de ideas y la colaboración entre estudiantes y profesionales del área.
+                    </p>
                   </>
                 )}
               </div>
@@ -147,7 +159,7 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-        <section id="features" className="w-full py-12 md:py-12 lg:py-14" style={{ backgroundColor: theme.colors.Background }}>
+        <section id="features" className="w-full py-12 md:py-12 lg:py-14" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
           <div className="container px-4 md:px-6 mx-auto">
             {loading ? (
               <>
@@ -156,38 +168,54 @@ const LandingPage = () => {
               </>
             ) : (
               <>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8" style={{ color: theme.colors.Accent }}>Nuestras Características</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-8" style={{ color: theme.colors.Accent || '#505050' }}>
+                  Nuestras Características
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="flex flex-col items-center text-center">
-                    <AtomIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }} />
-                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent }}>Investigación Innovadora</h3>
-                    <p style={{ color: theme.colors.Primary }}>Fomentamos la investigación avanzada y la innovación en diversas áreas del conocimiento, brindando a nuestros estudiantes universitarios el acceso a recursos y herramientas para desarrollar proyectos.</p>
+                    <AtomIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary || '#fc5000' }} />
+                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent || '#505050' }}>
+                      Investigación Innovadora
+                    </h3>
+                    <p style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                      Fomentamos la investigación avanzada y la innovación en diversas áreas del conocimiento, brindando a nuestros estudiantes universitarios el acceso a recursos y herramientas para desarrollar proyectos.
+                    </p>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <BookOpenIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }} />
-                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent }}>Recursos Educativos</h3>
-                    <p style={{ color: theme.colors.Primary }}>Proveemos una amplia gama de recursos educativos diseñados para mejorar la experiencia de aprendizaje de nuestros estudiantes universitarios. Desde materiales didácticos hasta plataformas interactivas.</p>
+                    <BookOpenIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary || '#fc5000' }} />
+                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent || '#505050' }}>
+                      Recursos Educativos
+                    </h3>
+                    <p style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                      Proveemos una amplia gama de recursos educativos diseñados para mejorar la experiencia de aprendizaje de nuestros estudiantes universitarios. Desde materiales didácticos hasta plataformas interactivas.
+                    </p>
                   </div>
                   <div className="flex flex-col items-center text-center">
-                    <UsersIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary }} />
-                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent }}>Networking</h3>
-                    <p style={{ color: theme.colors.Primary }}>Creamos espacios de conexión entre estudiantes, profesionales y académicos, donde nuestros estudiantes pueden expandir su red de contactos. Fomentamos la colaboración y el intercambio de ideas.</p>
+                    <UsersIcon className="h-12 w-12 mb-4" style={{ color: theme.colors.Primary || '#fc5000' }} />
+                    <h3 className="text-xl font-bold mb-2" style={{ color: theme.colors.Accent || '#505050' }}>
+                      Networking
+                    </h3>
+                    <p style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                      Creamos espacios de conexión entre estudiantes, profesionales y académicos, donde nuestros estudiantes pueden expandir su red de contactos. Fomentamos la colaboración y el intercambio de ideas.
+                    </p>
                   </div>
                 </div>
               </>
             )}
           </div>
         </section>
-        <section id="about" className="w-full" style={{ backgroundColor: theme.colors.Tertiary }}>
+        <section id="about" className="w-full" style={{ backgroundColor: theme.colors.Tertiary || '#5f5f5f' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 items-center w-full">
             <div className="flex flex-col justify-center space-y-4 w-full" style={{ padding: "100px" }}>
               {loading ? (
                 <TextSectionSkeleton lines={5} />
               ) : (
                 <>
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl" style={{ color: theme.colors.Accent }}>Sobre Nosotros</h2>
-                  <p className="md:text-xl" style={{ color: theme.colors.Primary }}>
-                    La Asociación de Química nació con el propósito de dar respuesta a la necesidad de apoyo en el ámbito educativo. Sabemos que la educación es la llave para cambiar vidas, y estamos convencidos de que cada estudiante tiene un potencial único. Nuestra misión es brindar recursos y una red de apoyo a estudiantes que se comprometen con su educación y desean transformar su futuro.
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                    Sobre Nosotros
+                  </h2>
+                  <p className="md:text-xl" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                    La Asociación de Química nació con el propósito de dar respuesta a la necesidad de apoyo en el ámbito educativo. Sabemos que la educación es la llave para cambiar vidas, y estamos convencido de que cada estudiante tiene un potencial único. Nuestra misión es brindar recursos y una red de apoyo a estudiantes que se comprometen con su educación y desean transformar su futuro.
                   </p>
                 </>
               )}
@@ -201,13 +229,21 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-        <section id="members" className="w-full py-12 md:py-12 lg:py-12" style={{ backgroundColor: theme.colors.Background }}>
-          {loading ? <TitleSkeleton /> : <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12" style={{ color: theme.colors.Accent }}>Nuestra junta directiva</h2>}
-          <div className="flex items-center justify-center" style={{ backgroundColor: theme.colors.Background }}>{!membersLoaded ? <MemberCardSkeleton count={9} /> : <MemberCard cards={cards} />}</div>
+        <section id="members" className="w-full py-12 md:py-12 lg:py-12" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
+          {loading ? (
+            <TitleSkeleton />
+          ) : (
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12" style={{ color: theme.colors.Accent || '#505050' }}>
+              Nuestra junta directiva
+            </h2>
+          )}
+          <div className="flex items-center justify-center" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
+            {!membersLoaded ? <MemberCardSkeleton count={9} /> : <MemberCard cards={cards} />}
+          </div>
         </section>
         <ContactSection loading={loading} />
       </main>
-      <footer className="w-full py-12 text-white" style={{ backgroundColor: theme.colors.Primary }}>
+      <footer className="w-full py-12" style={{ backgroundColor: theme.colors.Primary || '#fc5000' }}>
         <div className="container px-4 md:px-6 mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {loading ? (
@@ -230,33 +266,134 @@ const LandingPage = () => {
             ) : (
               <>
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Asociación de Química</h3>
-                  <p className="text-sm">La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas.</p>
+                  <h3 className="text-lg font-semibold mb-4" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                    Asociación de Química
+                  </h3>
+                  <p className="text-sm" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                    La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas.
+                  </p>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold mb-4">Enlaces rápidos</h4>
+                  <h4 className="text-lg font-semibold mb-4" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                    Enlaces rápidos
+                  </h4>
                   <ul className="space-y-2">
-                    <li><a href="#" onClick={(e) => handleSmoothScroll(e, "#")} className="text-sm hover:underline">Inicio</a></li>
-                    <li><a href="#features" onClick={(e) => handleSmoothScroll(e, "#features")} className="text-sm hover:underline">Características</a></li>
-                    <li><a href="#about" onClick={(e) => handleSmoothScroll(e, "#about")} className="text-sm hover:underline">Sobre Nosotros</a></li>
-                    <li><a href="#contact" onClick={(e) => handleSmoothScroll(e, "#contact")} className="text-sm hover:underline">Contacto</a></li>
+                    <li>
+                      <a
+                        href="#"
+                        onClick={(e) => handleSmoothScroll(e, "#")}
+                        className="text-sm"
+                        style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                        onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
+                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                      >
+                        Inicio
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#features"
+                        onClick={(e) => handleSmoothScroll(e, "#features")}
+                        className="text-sm"
+                        style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                        onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
+                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                      >
+                        Características
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#about"
+                        onClick={(e) => handleSmoothScroll(e, "#about")}
+                        className="text-sm"
+                        style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                        onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
+                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                      >
+                        Sobre Nosotros
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#contact"
+                        onClick={(e) => handleSmoothScroll(e, "#contact")}
+                        className="text-sm"
+                        style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                        onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
+                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                      >
+                        Contacto
+                      </a>
+                    </li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold mb-4">Contáctanos</h4>
+                  <h4 className="text-lg font-semibold mb-4" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                    Contáctanos
+                  </h4>
                   <ul className="space-y-2">
-                    <li className="flex items-center gap-2"><MapPin className="h-5 w-5" /><span className="text-sm">Universidad del Valle de Guatemala</span></li>
-                    <li className="flex items-center gap-2"><Mail className="h-5 w-5" /><span className="text-sm">info@example.com</span></li>
-                    <li className="flex items-center gap-2"><Phone className="h-5 w-5" /><span className="text-sm">+1 555 555 5555</span></li>
+                    <li className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
+                      <span className="text-sm" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                        Universidad del Valle de Guatemala
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Mail className="h-5 w-5" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
+                      <span className="text-sm" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                        info@example.com
+                      </span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Phone className="h-5 w-5" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
+                      <span className="text-sm" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                        +1 555 555 5555
+                      </span>
+                    </li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold mb-4">Síguenos</h4>
+                  <h4 className="text-lg font-semibold mb-4" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
+                    Síguenos
+                  </h4>
                   <div className="flex items-center gap-4">
-                    <a href="#" className="text-white hover:scale-110 transition-transform"><Facebook className="h-6 w-6" /></a>
-                    <a href="#" className="text-white hover:scale-110 transition-transform"><Twitter className="h-6 w-6" /></a>
-                    <a href="#" className="text-white hover:scale-110 transition-transform"><Linkedin className="h-6 w-6" /></a>
-                    <a href="#" className="text-white hover:scale-110 transition-transform"><Instagram className="h-6 w-6" /></a>
+                    <a
+                      href="#"
+                      className="hover:scale-110 transition-transform"
+                      style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                      onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
+                      onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                    >
+                      <Facebook className="h-6 w-6" />
+                    </a>
+                    <a
+                      href="#"
+                      className="hover:scale-110 transition-transform"
+                      style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                      onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
+                      onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                    >
+                      <Twitter className="h-6 w-6" />
+                    </a>
+                    <a
+                      href="#"
+                      className="hover:scale-110 transition-transform"
+                      style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                      onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
+                      onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                    >
+                      <Linkedin className="h-6 w-6" />
+                    </a>
+                    <a
+                      href="#"
+                      className="hover:scale-110 transition-transform"
+                      style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                      onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
+                      onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                    >
+                      <Instagram className="h-6 w-6" />
+                    </a>
                   </div>
                 </div>
               </>
@@ -325,7 +462,7 @@ function ContactSection({ loading }) {
     <section
       id="contact"
       className="w-full py-12 md:py-14 lg:py-12"
-      style={{ backgroundColor: theme.colors.Tertiary }}
+      style={{ backgroundColor: theme.colors.Tertiary || '#5f5f5f' }}
     >
       <div className="container px-4 md:px-6 mx-auto">
         {loading ? (
@@ -334,16 +471,15 @@ function ContactSection({ loading }) {
           <>
             <h2
               className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-4"
-              style={{ color: theme.colors.Accent }}
+              style={{ color: theme.colors.Secondary || '#e4e4e4' }}
             >
               ¿Tienes alguna pregunta?
             </h2>
             <p
               className="text-center mb-8 max-w-md mx-auto"
-              style={{ color: theme.colors.Primary }}
+              style={{ color: theme.colors.Secondary || '#e4e4e4' }}
             >
-              Si tienes alguna duda o comentario, no dudes en enviarnos un mensaje. Nos encanta
-              escuchar tus sugerencias y ayudarte con lo que necesites.
+              Si tienes alguna duda o comentario, no dudes en enviarnos un mensaje. Nos encanta escuchar tus sugerencias y ayudarte con lo que necesites.
             </p>
           </>
         )}
@@ -356,53 +492,63 @@ function ContactSection({ loading }) {
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 value={form.name}
                 placeholder="Tu nombre"
+                theme={theme}
               />
               <Input
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 type="email"
                 value={form.email}
                 placeholder="Tu email"
+                theme={theme}
               />
               <Input
                 onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
                 value={form.subject}
                 placeholder="Asunto"
+                theme={theme}
               />
               <textarea
                 onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
                 value={form.message}
-                className="w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-base" style={{ color: theme.colors.Primary }}
+                className="w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+                style={{ 
+                  color: theme.colors.Secondary || '#e4e4e4',
+                  backgroundColor: theme.colors.Background || '#fff8f0'
+                }}
                 placeholder="Tu mensaje"
               ></textarea>
               <Button
-                className="w-full text-white rounded-md flex gap-3 items-center justify-center"
+                className="w-full rounded-md flex gap-3 items-center justify-center"
                 style={{
-                  backgroundColor: theme.colors.Accent,
+                  backgroundColor: theme.colors.Primary || '#fc5000',
+                  color: theme.colors.Secondary || '#e4e4e4'
                 }}
-                onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = theme.colors.Primary)
-                } // Cambia el color al hacer hover
-                onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = theme.colors.Accent)
-                } // Restaura el color al salir del hover
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = theme.colors.Accent || '#505050';
+                  e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = theme.colors.Primary || '#fc5000';
+                  e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+                }}
               >
                 {status === "idle" && <span>Enviar</span>}
                 {status === "loading" && (
                   <>
                     <span>Enviando</span>
-                    <LoaderCircle className="animate-spin" />
+                    <LoaderCircle className="animate-spin" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
                   </>
                 )}
                 {status === "success" && (
                   <>
                     <span>Enviado</span>
-                    <Check />
+                    <Check style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
                   </>
                 )}
                 {status === "error" && (
                   <>
                     <span>Error</span>
-                    <X />
+                    <X style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
                   </>
                 )}
               </Button>

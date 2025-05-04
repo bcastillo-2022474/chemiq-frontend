@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { LayoutDashboard, Users, FlaskRoundIcon as Flask, Settings, LogOut, Newspaper, Podcast, X } from "lucide-react"
 import { useAuth } from "@/context/auth.jsx"
+import { getColors } from "@/actions/personalization"
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard/stats" },
@@ -14,28 +15,39 @@ const navItems = [
   { name: "Settings", icon: Settings, href: "/settings" },
 ]
 
-export function Sidebar({
-  colors = {
-    background: "white",
-    text: "text-gray-600",
-    textHover: "hover:text-blue-600",
-    activeText: "text-blue-600 font-medium",
-    buttonBackground: "bg-red-500",
-    buttonHover: "hover:bg-red-600",
-    buttonText: "text-white",
-  },
-}) {
+export function Sidebar() {
   const location = useLocation()
   const { logout } = useAuth()
-
   const navigate = useNavigate()
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  })
+
+  const fetchColors = async () => {
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors)
+  }
+
+  useEffect(() => {
+    fetchColors()
+  }, [])
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
+    localStorage.clear()
+    navigate("/login")
+  }
 
-  // Function to close sidebar on mobile when navigating
   const closeSidebarOnMobile = () => {
     if (window.innerWidth < 768) {
       const event = new CustomEvent("closeSidebar")
@@ -43,7 +55,6 @@ export function Sidebar({
     }
   }
 
-  // Listen for custom closeSidebar event
   useEffect(() => {
     const handleCloseSidebar = () => {
       // This will be handled by the parent component
@@ -58,45 +69,76 @@ export function Sidebar({
   return (
     <div
       className="h-full flex flex-col"
-      style={{ backgroundColor: colors.background }} // Apply background color
+      style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}
     >
-      {/* Close button only visible on mobile */}
       <button
-        className={`md:hidden self-end p-4 ${colors.text} ${colors.textHover}`}
+        className="md:hidden self-end p-4"
+        style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+        onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
+        onMouseLeave={(e) => e.target.style.color = theme.colors.Tertiary || '#5f5f5f'}
         onClick={() => window.dispatchEvent(new CustomEvent("closeSidebar"))}
       >
-        <X className="h-6 w-6" />
+        <X className="h-6 w-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }} />
       </button>
 
       <div className="p-6 flex-1 overflow-y-auto">
-        <h1 className={`text-2xl font-bold mb-8 ${colors.text}`}>Chemistry Lab</h1>
+        <h1 className="text-2xl font-bold mb-8" style={{ color: theme.colors.Accent || '#505050' }}>
+          Chemistry Lab
+        </h1>
         <nav className="space-y-4">
           {navItems.map((item) => (
             <Link
               key={item.name}
               to={item.href}
               className={`flex items-center gap-3 transition-colors ${
-                location.pathname === item.href ? colors.activeText : `${colors.text} ${colors.textHover}`
+                location.pathname === item.href ? 'font-medium' : ''
               }`}
+              style={{
+                color: location.pathname === item.href 
+                  ? theme.colors.Primary || '#fc5000' 
+                  : theme.colors.Tertiary || '#5f5f5f'
+              }}
+              onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
+              onMouseLeave={(e) => e.target.style.color = location.pathname === item.href 
+                ? theme.colors.Primary || '#fc5000' 
+                : theme.colors.Tertiary || '#5f5f5f'}
               onClick={closeSidebarOnMobile}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon 
+                className="h-5 w-5" 
+                style={{
+                  color: location.pathname === item.href 
+                    ? theme.colors.Primary || '#fc5000' 
+                    : theme.colors.Tertiary || '#5f5f5f'
+                }}
+              />
               <span>{item.name}</span>
             </Link>
           ))}
         </nav>
       </div>
 
-      <div className="p-6 border-t">
+      <div className="p-6" style={{ borderTop: `1px solid ${theme.colors.Tertiary || '#5f5f5f'}` }}>
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-3 ${colors.buttonBackground} p-3 rounded-lg ${colors.buttonText} ${colors.buttonHover} transition-colors`}
+          className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors"
+          style={{
+            backgroundColor: theme.colors.Primary || '#fc5000',
+            color: theme.colors.Secondary || '#e4e4e4'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = theme.colors.Accent || '#505050'
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = theme.colors.Primary || '#fc5000'
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+          }}
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-5 w-5" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
           <span>Logout</span>
         </button>
       </div>
     </div>
   )
 }
-
