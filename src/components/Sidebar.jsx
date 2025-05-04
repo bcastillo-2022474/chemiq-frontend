@@ -1,6 +1,6 @@
 "use client"
 
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Home, Podcast, Newspaper, Beaker, User, ChevronDown, LogOut, FlaskRound } from "lucide-react"
 import {
   DropdownMenu,
@@ -22,6 +22,8 @@ const navItems = [
   { name: "Noticias", component: "news", icon: Newspaper },
   { name: "Proyectos", component: "project", icon: Beaker },
 ]
+
+
 
 export function Sidebar({
   colors = {
@@ -48,6 +50,13 @@ export function Sidebar({
     errorText: "#FF0000",
   },
 }) {
+
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
   const { user, logout } = useAuth()
   const location = useLocation()
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -225,7 +234,7 @@ export function Sidebar({
               <DropdownMenuItem
                 className="cursor-pointer"
                 style={{ color: colors.textHover }}
-                onClick={logout}
+                onClick={handleLogout}
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Cerrar Sesión</span>

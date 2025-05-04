@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { LayoutDashboard, Users, FlaskRoundIcon as Flask, Settings, LogOut, Newspaper, Podcast, X } from "lucide-react"
 import { useAuth } from "@/context/auth.jsx"
 
@@ -27,6 +27,13 @@ export function Sidebar({
 }) {
   const location = useLocation()
   const { logout } = useAuth()
+
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
 
   // Function to close sidebar on mobile when navigating
   const closeSidebarOnMobile = () => {
@@ -82,7 +89,7 @@ export function Sidebar({
 
       <div className="p-6 border-t">
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className={`w-full flex items-center gap-3 ${colors.buttonBackground} p-3 rounded-lg ${colors.buttonText} ${colors.buttonHover} transition-colors`}
         >
           <LogOut className="h-5 w-5" />
