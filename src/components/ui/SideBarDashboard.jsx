@@ -7,11 +7,11 @@ import { useAuth } from "@/context/auth.jsx"
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard/stats" },
-  { name: "Users", icon: Users, href: "/dashboard/users" },
-  { name: "Projects", icon: Flask, href: "/dashboard/projects" },
-  { name: "News", icon: Newspaper, href: "/dashboard/news" },
+  { name: "Usuarios", icon: Users, href: "/dashboard/users" },
+  { name: "Proyectos", icon: Flask, href: "/dashboard/projects" },
+  { name: "Noticias", icon: Newspaper, href: "/dashboard/news" },
   { name: "Podcast", icon: Podcast, href: "/dashboard/podcast" },
-  { name: "Settings", icon: Settings, href: "/settings" },
+  { name: "Ajustes", icon: Settings, href: "/settings" },
 ]
 
 export function Sidebar({

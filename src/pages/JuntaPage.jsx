@@ -8,7 +8,9 @@ import NewsSection from "@/components/junta/NewsSection";
 import Config from "@/components/junta/Config";
 import Personalization from "@/components/junta/Personalization"
 import { getColors } from "../actions/personalization";
+import DashboardPage from "./DashboardStatsControll";
 const sideNavItems = [
+  { icon: Home, label: "Estadisticas", href: "#" },
   { icon: Users, label: "Usuarios", href: "#" },
   { icon: Beaker, label: "Proyectos", href: "#" },
   { icon: Podcast, label: "Podcast", href: "#" },
@@ -18,7 +20,7 @@ const sideNavItems = [
 ];
 
 function JuntaPage() {
-  const [activeNavItem, setActiveNavItem] = useState("Usuarios");
+  const [activeNavItem, setActiveNavItem] = useState("Estadisticas"); // Default active item
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to toggle sidebar
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false); // Define loading state
@@ -58,6 +60,8 @@ function JuntaPage() {
 
   const renderSection = () => {
     switch (activeNavItem) {
+      case "Estadisticas":
+        return <DashboardPage />;
       case "Usuarios":
         return <UsersSection />;
       case "Proyectos":
