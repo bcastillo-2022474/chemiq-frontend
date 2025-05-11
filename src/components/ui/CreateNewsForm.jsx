@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getColors } from "@/actions/personalization";
 
 export function CreateNewsForm({ onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -7,6 +8,29 @@ export function CreateNewsForm({ onSubmit, onCancel }) {
     img: '',
     tipo: 'general' 
   });
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  });
+
+  const fetchColors = async () => {
+    const [error, colors] = await getColors();
+    if (error) {
+      console.error("Error fetching colors:", error);
+      return;
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    );
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }));
+    console.log("Fetched colors:", formattedColors);
+  };
+
+  useEffect(() => {
+    fetchColors();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,7 +48,7 @@ export function CreateNewsForm({ onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="titulo" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="titulo" className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
           Título
         </label>
         <input
@@ -34,12 +58,17 @@ export function CreateNewsForm({ onSubmit, onCancel }) {
           value={formData.titulo}
           onChange={handleChange}
           required
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+          className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fc5000] transition-all"
+          style={{
+            borderColor: theme.colors.Tertiary || '#5f5f5f',
+            backgroundColor: theme.colors.Background || '#fff8f0',
+            color: theme.colors.Tertiary || '#5f5f5f'
+          }}
         />
       </div>
 
       <div>
-        <label htmlFor="contenido" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="contenido" className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
           Contenido
         </label>
         <textarea
@@ -49,12 +78,17 @@ export function CreateNewsForm({ onSubmit, onCancel }) {
           onChange={handleChange}
           required
           rows={4}
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+          className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fc5000] transition-all"
+          style={{
+            borderColor: theme.colors.Tertiary || '#5f5f5f',
+            backgroundColor: theme.colors.Background || '#fff8f0',
+            color: theme.colors.Tertiary || '#5f5f5f'
+          }}
         />
       </div>
 
       <div>
-        <label htmlFor="img" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="img" className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
           URL de la imagen
         </label>
         <input
@@ -64,12 +98,17 @@ export function CreateNewsForm({ onSubmit, onCancel }) {
           value={formData.img}
           onChange={handleChange}
           required
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+          className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fc5000] transition-all"
+          style={{
+            borderColor: theme.colors.Tertiary || '#5f5f5f',
+            backgroundColor: theme.colors.Background || '#fff8f0',
+            color: theme.colors.Tertiary || '#5f5f5f'
+          }}
         />
       </div>
 
       <div>
-        <label htmlFor="tipo" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="tipo" className="block text-sm font-medium" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
           Tipo
         </label>
         <select
@@ -78,7 +117,12 @@ export function CreateNewsForm({ onSubmit, onCancel }) {
           value={formData.tipo}
           onChange={handleChange}
           required
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+          className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fc5000] transition-all"
+          style={{
+            borderColor: theme.colors.Tertiary || '#5f5f5f',
+            backgroundColor: theme.colors.Background || '#fff8f0',
+            color: theme.colors.Tertiary || '#5f5f5f'
+          }}
         >
           <option value="general">General</option>
           <option value="evento">Evento</option>
@@ -90,13 +134,32 @@ export function CreateNewsForm({ onSubmit, onCancel }) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+          className="px-4 py-2 border rounded-md transition-all"
+          style={{
+            borderColor: theme.colors.Tertiary || '#5f5f5f',
+            color: theme.colors.Tertiary || '#5f5f5f',
+            backgroundColor: theme.colors.Background || '#fff8f0'
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#f5e8df'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = theme.colors.Background || '#fff8f0'}
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-4 py-2 rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
+          style={{
+            backgroundColor: theme.colors.Primary || '#fc5000',
+            color: theme.colors.Secondary || '#e4e4e4'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = theme.colors.Accent || '#505050';
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = theme.colors.Primary || '#fc5000';
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+          }}
         >
           Crear Noticia
         </button>

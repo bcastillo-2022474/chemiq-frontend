@@ -1,11 +1,12 @@
-import { useState } from "react"
-import Swal from "sweetalert2"
-import { Modal } from "../components/ui/DashboardModalEditUsers"
-import { NewsTable } from "../components/ui/DashboardTableNews"
-import { CreateNewsForm } from "../components/ui/CreateNewsForm"
-import { useNews } from "../hooks/useNews"
-import { EditNewsForm } from "../components/EditNewsForm"
-import LoaderCustom from "../components/ui/LoaderCustom"
+import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import { Modal } from "../components/ui/DashboardModalEditUsers";
+import { NewsTable } from "../components/ui/DashboardTableNews";
+import { CreateNewsForm } from "../components/ui/CreateNewsForm";
+import { useNews } from "../hooks/useNews";
+import { EditNewsForm } from "../components/EditNewsForm";
+import LoaderCustom from "../components/ui/LoaderCustom";
+import { getColors } from "@/actions/personalization";
 
 export default function NewsHome() {
   const {
@@ -15,11 +16,34 @@ export default function NewsHome() {
     createNews,
     updateNews,
     deleteNews
-  } = useNews()
+  } = useNews();
   
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [editingNews, setEditingNews] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingNews, setEditingNews] = useState(null);
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  });
+
+  const fetchColors = async () => {
+    const [error, colors] = await getColors();
+    if (error) {
+      console.error("Error fetching colors:", error);
+      return;
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    );
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }));
+    console.log("Fetched colors:", formattedColors);
+  };
+
+  useEffect(() => {
+    fetchColors();
+  }, []);
 
   // Manejador para crear nueva noticia
   const handleCreate = async (newsData) => {
@@ -32,23 +56,25 @@ export default function NewsHome() {
           text: "La noticia ha sido creada correctamente",
           icon: "success",
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: theme.colors.Primary || '#fc5000'
         });
       }
     } catch (error) {
       Swal.fire({
         title: "Error",
         text: "No se pudo crear la noticia",
-        icon: "error"
+        icon: "error",
+        confirmButtonColor: theme.colors.Primary || '#fc5000'
       });
     }
   };
 
   // Manejador para abrir el modal de edición
   const handleEdit = newsItem => {
-    setEditingNews(newsItem)
-    setIsModalOpen(true)
-  }
+    setEditingNews(newsItem);
+    setIsModalOpen(true);
+  };
 
   // Manejador para eliminar noticia
   const handleDelete = async (newsId) => {
@@ -57,8 +83,8 @@ export default function NewsHome() {
       text: "No podrás revertir esta acción!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: theme.colors.Primary || '#fc5000',
+      cancelButtonColor: theme.colors.Tertiary || '#5f5f5f',
       confirmButtonText: "Sí, eliminar!",
       cancelButtonText: "Cancelar"
     });
@@ -72,18 +98,20 @@ export default function NewsHome() {
             text: "La noticia ha sido eliminada correctamente",
             icon: "success",
             timer: 2000,
-            showConfirmButton: false
+            showConfirmButton: false,
+            confirmButtonColor: theme.colors.Primary || '#fc5000'
           });
         }
       } catch (error) {
         Swal.fire({
           title: "Error",
           text: "No se pudo eliminar la noticia",
-          icon: "error"
+          icon: "error",
+          confirmButtonColor: theme.colors.Primary || '#fc5000'
         });
       }
     }
-  }
+  };
 
   // Manejador para guardar cambios en la edición
   const handleSave = async (updatedNews) => {
@@ -97,30 +125,32 @@ export default function NewsHome() {
           text: "La noticia ha sido actualizada correctamente",
           icon: "success",
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: theme.colors.Primary || '#fc5000'
         });
       }
     } catch (error) {
       Swal.fire({
         title: "Error",
         text: "No se pudo actualizar la noticia",
-        icon: "error"
+        icon: "error",
+        confirmButtonColor: theme.colors.Primary || '#fc5000'
       });
     }
-  }
+  };
 
   // Manejador para cerrar modales
   const handleCloseModals = () => {
     setIsModalOpen(false);
     setIsCreateModalOpen(false);
     setEditingNews(null);
-  }
+  };
 
   // Renderizado condicional para error
   if (error) {
     return (
       <div className="flex justify-center items-center h-full">
-        <div className="text-red-500 text-center">
+        <div className="text-center" style={{ color: theme.colors.Primary || '#fc5000' }}>
           <h3 className="text-xl font-bold mb-2">Error</h3>
           <p>{error}</p>
         </div>
@@ -129,13 +159,27 @@ export default function NewsHome() {
   }
 
   return (
-    <main className="flex-1 overflow-auto p-8">
+    <main className="flex-1 overflow-auto p-8" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
       {/* Header con título y botón de crear */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Gestión de Noticias</h1>
+        <h1 className="text-2xl font-bold" style={{ color: theme.colors.Accent || '#505050' }}>
+          Gestión de Noticias
+        </h1>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+          className="px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-2"
+          style={{
+            backgroundColor: theme.colors.Primary || '#fc5000',
+            color: theme.colors.Secondary || '#e4e4e4'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = theme.colors.Accent || '#505050';
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = theme.colors.Primary || '#fc5000';
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+          }}
         >
           <svg 
             className="w-5 h-5" 
@@ -159,7 +203,7 @@ export default function NewsHome() {
         <LoaderCustom />
       ) : (
         /* Tabla de noticias */
-        <div className="bg-white rounded-lg shadow">
+        <div className="rounded-lg shadow" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
           <NewsTable 
             news={news} 
             onEdit={handleEdit} 
@@ -195,5 +239,5 @@ export default function NewsHome() {
         />
       </Modal>
     </main>
-  )
+  );
 }

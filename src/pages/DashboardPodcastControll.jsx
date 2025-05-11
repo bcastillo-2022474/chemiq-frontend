@@ -1,11 +1,12 @@
-import { useState } from "react"
-import Swal from "sweetalert2"
-import { Modal } from "../components/ui/DashboardModalEditUsers"
-import { PodcastTable } from "../components/ui/DashboardTablePodcasts"
-import { CreatePodcastForm } from "../components/ui/CreatePodcastForm"
-import { EditPodcastForm } from "../components/ui/EditPodcastForm"
-import { usePodcasts } from "../hooks/usePodcasts"
-import LoaderCustom from "../components/ui/LoaderCustom"
+import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import { Modal } from "../components/ui/DashboardModalEditUsers";
+import { PodcastTable } from "../components/ui/DashboardTablePodcasts";
+import { CreatePodcastForm } from "../components/ui/CreatePodcastForm";
+import { EditPodcastForm } from "../components/ui/EditPodcastForm";
+import { usePodcasts } from "../hooks/usePodcasts";
+import LoaderCustom from "../components/ui/LoaderCustom";
+import { getColors } from "@/actions/personalization";
 
 export default function PodcastHome() {
   const {
@@ -15,11 +16,34 @@ export default function PodcastHome() {
     createPodcast,
     updatePodcast,
     deletePodcast
-  } = usePodcasts()
+  } = usePodcasts();
   
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [editingPodcast, setEditingPodcast] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingPodcast, setEditingPodcast] = useState(null);
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  });
+
+  const fetchColors = async () => {
+    const [error, colors] = await getColors();
+    if (error) {
+      console.error("Error fetching colors:", error);
+      return;
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    );
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }));
+    console.log("Fetched colors:", formattedColors);
+  };
+
+  useEffect(() => {
+    fetchColors();
+  }, []);
 
   // Manejador para crear nuevo podcast
   const handleCreate = async (podcastData) => {
@@ -32,7 +56,8 @@ export default function PodcastHome() {
           text: "El podcast ha sido creado correctamente",
           icon: "success",
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: theme.colors.Primary || '#fc5000'
         });
       } else {
         throw new Error(error);
@@ -41,16 +66,17 @@ export default function PodcastHome() {
       Swal.fire({
         title: "Error",
         text: "No se pudo crear el podcast",
-        icon: "error"
+        icon: "error",
+        confirmButtonColor: theme.colors.Primary || '#fc5000'
       });
     }
   };
 
   // Manejador para editar
   const handleEdit = podcast => {
-    setEditingPodcast(podcast)
-    setIsModalOpen(true)
-  }
+    setEditingPodcast(podcast);
+    setIsModalOpen(true);
+  };
 
   // Manejador para eliminar
   const handleDelete = async (podcastId) => {
@@ -59,8 +85,8 @@ export default function PodcastHome() {
       text: "No podrás revertir esta acción!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: theme.colors.Primary || '#fc5000',
+      cancelButtonColor: theme.colors.Tertiary || '#5f5f5f',
       confirmButtonText: "Sí, eliminar!",
       cancelButtonText: "Cancelar"
     });
@@ -74,7 +100,8 @@ export default function PodcastHome() {
             text: "El podcast ha sido eliminado correctamente",
             icon: "success",
             timer: 2000,
-            showConfirmButton: false
+            showConfirmButton: false,
+            confirmButtonColor: theme.colors.Primary || '#fc5000'
           });
         } else {
           throw new Error(error);
@@ -83,11 +110,12 @@ export default function PodcastHome() {
         Swal.fire({
           title: "Error",
           text: "No se pudo eliminar el podcast",
-          icon: "error"
+          icon: "error",
+          confirmButtonColor: theme.colors.Primary || '#fc5000'
         });
       }
     }
-  }
+  };
 
   // Manejador para guardar cambios
   const handleSave = async (updatedPodcast) => {
@@ -101,7 +129,8 @@ export default function PodcastHome() {
           text: "El podcast ha sido actualizado correctamente",
           icon: "success",
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
+          confirmButtonColor: theme.colors.Primary || '#fc5000'
         });
       } else {
         throw new Error(error);
@@ -110,22 +139,23 @@ export default function PodcastHome() {
       Swal.fire({
         title: "Error",
         text: "No se pudo actualizar el podcast",
-        icon: "error"
+        icon: "error",
+        confirmButtonColor: theme.colors.Primary || '#fc5000'
       });
     }
-  }
+  };
 
   // Manejador para cerrar modales
   const handleCloseModals = () => {
     setIsModalOpen(false);
     setIsCreateModalOpen(false);
     setEditingPodcast(null);
-  }
+  };
 
   if (error) {
     return (
       <div className="flex justify-center items-center h-full">
-        <div className="text-red-500 text-center">
+        <div className="text-center" style={{ color: theme.colors.Primary || '#fc5000' }}>
           <h3 className="text-xl font-bold mb-2">Error</h3>
           <p>{error}</p>
         </div>
@@ -134,13 +164,27 @@ export default function PodcastHome() {
   }
 
   return (
-    <main className="flex-1 overflow-auto p-8">
+    <main className="flex-1 overflow-auto p-8" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
       {/* Header con título y botón de crear */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Gestión de Podcasts</h1>
+        <h1 className="text-2xl font-bold" style={{ color: theme.colors.Accent || '#505050' }}>
+          Gestión de Podcasts
+        </h1>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+          className="px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-2"
+          style={{
+            backgroundColor: theme.colors.Primary || '#fc5000',
+            color: theme.colors.Secondary || '#e4e4e4'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = theme.colors.Accent || '#505050';
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = theme.colors.Primary || '#fc5000';
+            e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+          }}
         >
           <svg 
             className="w-5 h-5" 
@@ -164,7 +208,7 @@ export default function PodcastHome() {
         <LoaderCustom />
       ) : (
         /* Tabla de podcasts */
-        <div className="bg-white rounded-lg shadow">
+        <div className="rounded-lg shadow" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
           <PodcastTable 
             podcasts={podcasts} 
             onEdit={handleEdit} 
@@ -200,5 +244,5 @@ export default function PodcastHome() {
         />
       </Modal>
     </main>
-  )
+  );
 }

@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react"
 import { getProjectsRequest } from "@/actions/projects"
 import { getMembersByProjectIdRequest, addMembersToProjectRequest } from "@/actions/members"
-import { getMyProjects } from "../actions/getMyProjects"
-import { updateMyProject, deleteMyProject } from "@/actions/getMyProjects"
+import { getMyProjects, updateMyProject, deleteMyProject } from "@/actions/getMyProjects"
 import { ProjectCard } from "./ProjectCard"
 import { AddMemberModal } from "@/components/ui/DashboardModalProjectMember"
+import { getColors } from "@/actions/personalization"
 
 export const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("proyectos")
@@ -18,8 +18,28 @@ export const ProjectsSection = () => {
   const [loading, setLoading] = useState(true)
   const [currentTab, setCurrentTab] = useState("general")
   const [searchTerm, setSearchTerm] = useState("")
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  })
+
+  const fetchColors = async () => {
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors)
+  }
 
   useEffect(() => {
+    fetchColors()
     const fetchProjects = async () => {
       const [error, projects] = await getProjectsRequest()
       if (!error) {
@@ -119,19 +139,41 @@ export const ProjectsSection = () => {
 
   return (
     <div className="space-y-8">
-      <div className="bg-white rounded-xl p-6 shadow-sm">
-        <h2 className="text-2xl font-bold text-[#0B2F33] mb-4">Proyectos de la Asociación</h2>
+      <div
+        className="rounded-xl p-6 shadow-sm"
+        style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}
+      >
+        <h2
+          className="text-2xl font-bold mb-4"
+          style={{ color: theme.colors.Accent || '#505050' }}
+        >
+          Proyectos de la Asociación
+        </h2>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div className="flex gap-4 border-b">
             <button
-              className={`pb-3 px-4 font-medium ${activeTab === "proyectos" ? "border-b-2 border-[#28BC98] text-[#28BC98]" : "text-gray-500 hover:text-gray-700"}`}
+              className={`pb-3 px-4 font-medium ${
+                activeTab === "proyectos"
+                  ? `border-b-2 text-[${theme.colors.Primary || '#fc5000'}]`
+                  : `text-[${theme.colors.Tertiary || '#5f5f5f'}] hover:text-[${theme.colors.Accent || '#505050'}]`
+              }`}
+              style={{
+                borderBottomColor: activeTab === "proyectos" ? theme.colors.Primary || '#fc5000' : 'transparent'
+              }}
               onClick={() => setActiveTab("proyectos")}
             >
               Todos los Proyectos
             </button>
             <button
-              className={`pb-3 px-4 font-medium ${activeTab === "misProyectos" ? "border-b-2 border-[#28BC98] text-[#28BC98]" : "text-gray-500 hover:text-gray-700"}`}
+              className={`pb-3 px-4 font-medium ${
+                activeTab === "misProyectos"
+                  ? `border-b-2 text-[${theme.colors.Primary || '#fc5000'}]`
+                  : `text-[${theme.colors.Tertiary || '#5f5f5f'}] hover:text-[${theme.colors.Accent || '#505050'}]`
+              }`}
+              style={{
+                borderBottomColor: activeTab === "misProyectos" ? theme.colors.Primary || '#fc5000' : 'transparent'
+              }}
               onClick={() => setActiveTab("misProyectos")}
             >
               Mis Proyectos
@@ -142,7 +184,8 @@ export const ProjectsSection = () => {
           <div className="relative w-full md:w-64">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <svg
-                className="w-4 h-4 text-gray-500"
+                className="w-4 h-4"
+                style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -159,10 +202,16 @@ export const ProjectsSection = () => {
             </div>
             <input
               type="search"
-              className="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-[#28BC98] focus:border-[#28BC98]"
+              className="block w-full p-2.5 pl-10 text-sm rounded-lg focus:ring-2 transition-all"
               placeholder="Buscar proyectos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                color: theme.colors.Accent || '#505050',
+                borderColor: theme.colors.Secondary || '#e4e4e4',
+                backgroundColor: theme.colors.Background || '#fff8f0',
+                focusRingColor: theme.colors.Primary || '#fc5000'
+              }}
             />
           </div>
         </div>
@@ -172,14 +221,35 @@ export const ProjectsSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className="animate-pulse">
-              <div className="bg-gray-200 h-48 rounded-t-xl"></div>
-              <div className="bg-white rounded-b-xl p-5 space-y-3">
-                <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-full"></div>
-                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              <div
+                className="h-48 rounded-t-xl"
+                style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+              ></div>
+              <div
+                className="rounded-b-xl p-5 space-y-3"
+                style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}
+              >
+                <div
+                  className="h-5 rounded w-3/4"
+                  style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+                ></div>
+                <div
+                  className="h-4 rounded w-full"
+                  style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+                ></div>
+                <div
+                  className="h-4 rounded w-2/3"
+                  style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+                ></div>
                 <div className="flex justify-between pt-2">
-                  <div className="h-7 w-7 bg-gray-200 rounded-full"></div>
-                  <div className="h-5 bg-gray-200 rounded w-20"></div>
+                  <div
+                    className="h-7 w-7 rounded-full"
+                    style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+                  ></div>
+                  <div
+                    className="h-5 rounded w-20"
+                    style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -197,7 +267,11 @@ export const ProjectsSection = () => {
                       e.stopPropagation()
                       setEditingProject({ ...proyecto })
                     }}
-                    className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-full shadow-lg transition-transform hover:scale-110"
+                    className="p-2 rounded-full shadow-lg transition-transform hover:scale-110"
+                    style={{
+                      backgroundColor: theme.colors.Primary || '#fc5000',
+                      color: theme.colors.Secondary || '#e4e4e4'
+                    }}
                     title="Editar proyecto"
                   >
                     <svg
@@ -220,7 +294,11 @@ export const ProjectsSection = () => {
                       e.stopPropagation()
                       handleDeleteProject(proyecto.id)
                     }}
-                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-transform hover:scale-110"
+                    className="p-2 rounded-full shadow-lg transition-transform hover:scale-110"
+                    style={{
+                      backgroundColor: theme.colors.Accent || '#505050',
+                      color: theme.colors.Secondary || '#e4e4e4'
+                    }}
                     title="Eliminar proyecto"
                   >
                     <svg
@@ -244,11 +322,15 @@ export const ProjectsSection = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-xl p-10 text-center">
+        <div
+          className="rounded-xl p-10 text-center"
+          style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}
+        >
           <div className="flex flex-col items-center justify-center space-y-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-16 w-16 text-gray-300"
+              className="h-16 w-16"
+              style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -260,8 +342,16 @@ export const ProjectsSection = () => {
                 d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-            <h3 className="text-xl font-medium text-gray-700">No hay proyectos disponibles</h3>
-            <p className="text-gray-500 max-w-md">
+            <h3
+              className="text-xl font-medium"
+              style={{ color: theme.colors.Accent || '#505050' }}
+            >
+              No hay proyectos disponibles
+            </h3>
+            <p
+              className="max-w-md"
+              style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+            >
               {searchTerm
                 ? `No se encontraron proyectos que coincidan con "${searchTerm}"`
                 : "No hay proyectos disponibles en este momento."}
@@ -269,7 +359,10 @@ export const ProjectsSection = () => {
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
-                className="mt-2 text-[#28BC98] hover:text-[#239E83] font-medium"
+                className="mt-2 font-medium"
+                style={{ color: theme.colors.Primary || '#fc5000' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Accent || '#505050'}
+                onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Primary || '#fc5000'}
               >
                 Limpiar búsqueda
               </button>
@@ -280,10 +373,21 @@ export const ProjectsSection = () => {
 
       {/* Modal de detalles del proyecto */}
       {selectedProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4"
+          style={{ backgroundColor: `${theme.colors.Tertiary || '#5f5f5f'}80` }}
+        >
+          <div
+            className="rounded-lg max-w-4xl w-full p-6 relative max-h-[90vh] overflow-y-auto"
+            style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}
+          >
             <button
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+              className="absolute top-4 right-4 rounded-full p-2 transition-colors"
+              style={{
+                color: theme.colors.Tertiary || '#5f5f5f',
+                backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33`,
+                ':hover': { backgroundColor: theme.colors.Secondary || '#e4e4e4' }
+              }}
               onClick={() => setSelectedProject(null)}
             >
               <svg
@@ -298,8 +402,21 @@ export const ProjectsSection = () => {
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-2xl font-bold text-[#0B2F33]">{selectedProject.nombre}</h2>
-              <span className="bg-[#28BC98]/90 text-white text-xs font-medium px-2.5 py-1 rounded-full">Activo</span>
+              <h2
+                className="text-2xl font-bold"
+                style={{ color: theme.colors.Accent || '#505050' }}
+              >
+                {selectedProject.nombre}
+              </h2>
+              <span
+                className="text-xs font-medium px-2.5 py-1 rounded-full"
+                style={{
+                  backgroundColor: `${theme.colors.Primary || '#fc5000'}e6`,
+                  color: theme.colors.Secondary || '#e4e4e4'
+                }}
+              >
+                Activo
+              </span>
             </div>
 
             <div className="space-y-6">
@@ -314,9 +431,18 @@ export const ProjectsSection = () => {
                     href={selectedProject.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors group"
+                    className="absolute inset-0 flex items-center justify-center transition-colors group"
+                    style={{ backgroundColor: `${theme.colors.Tertiary || '#5f5f5f'}4d` }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${theme.colors.Tertiary || '#5f5f5f'}80`}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = `${theme.colors.Tertiary || '#5f5f5f'}4d`}
                   >
-                    <div className="bg-red-600 text-white p-4 rounded-full group-hover:scale-110 transition-transform">
+                    <div
+                      className="p-4 rounded-full group-hover:scale-110 transition-transform"
+                      style={{
+                        backgroundColor: theme.colors.Primary || '#fc5000',
+                        color: theme.colors.Secondary || '#e4e4e4'
+                      }}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-8 w-8"
@@ -332,10 +458,23 @@ export const ProjectsSection = () => {
 
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="md:col-span-2">
-                  <h3 className="text-xl font-semibold text-[#0B2F33] mb-3">Descripción</h3>
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">{selectedProject.informacion}</p>
+                  <h3
+                    className="text-xl font-semibold mb-3"
+                    style={{ color: theme.colors.Accent || '#505050' }}
+                  >
+                    Descripción
+                  </h3>
+                  <p
+                    className="leading-relaxed whitespace-pre-line"
+                    style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+                  >
+                    {selectedProject.informacion}
+                  </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-xl">
+                <div
+                  className="p-4 rounded-xl"
+                  style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+                >
                   <MembersSection projectId={selectedProject.id} />
                 </div>
               </div>
@@ -346,10 +485,21 @@ export const ProjectsSection = () => {
 
       {/* Modal de edición de proyecto */}
       {editingProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4"
+          style={{ backgroundColor: `${theme.colors.Tertiary || '#5f5f5f'}80` }}
+        >
+          <div
+            className="rounded-lg max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto"
+            style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}
+          >
             <button
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+              className="absolute top-4 right-4 rounded-full p-2 transition-colors"
+              style={{
+                color: theme.colors.Tertiary || '#5f5f5f',
+                backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33`,
+                ':hover': { backgroundColor: theme.colors.Secondary || '#e4e4e4' }
+              }}
               onClick={() => setEditingProject(null)}
             >
               <svg
@@ -363,18 +513,37 @@ export const ProjectsSection = () => {
               </svg>
             </button>
 
-            <h2 className="text-xl font-bold mb-4 text-[#0B2F33]">Editar Proyecto</h2>
+            <h2
+              className="text-xl font-bold mb-4"
+              style={{ color: theme.colors.Accent || '#505050' }}
+            >
+              Editar Proyecto
+            </h2>
 
             <div className="space-y-4">
               <div className="flex gap-4 border-b">
                 <button
-                  className={`pb-3 px-4 font-medium ${currentTab === "general" ? "border-b-2 border-[#28BC98] text-[#28BC98]" : "text-gray-500 hover:text-gray-700"}`}
+                  className={`pb-3 px-4 font-medium ${
+                    currentTab === "general"
+                      ? `border-b-2 text-[${theme.colors.Primary || '#fc5000'}]`
+                      : `text-[${theme.colors.Tertiary || '#5f5f5f'}] hover:text-[${theme.colors.Accent || '#505050'}]`
+                  }`}
+                  style={{
+                    borderBottomColor: currentTab === "general" ? theme.colors.Primary || '#fc5000' : 'transparent'
+                  }}
                   onClick={() => setCurrentTab("general")}
                 >
                   Datos Generales
                 </button>
                 <button
-                  className={`pb-3 px-4 font-medium ${currentTab === "members" ? "border-b-2 border-[#28BC98] text-[#28BC98]" : "text-gray-500 hover:text-gray-700"}`}
+                  className={`pb-3 px-4 font-medium ${
+                    currentTab === "members"
+                      ? `border-b-2 text-[${theme.colors.Primary || '#fc5000'}]`
+                      : `text-[${theme.colors.Tertiary || '#5f5f5f'}] hover:text-[${theme.colors.Accent || '#505050'}]`
+                  }`}
+                  style={{
+                    borderBottomColor: currentTab === "members" ? theme.colors.Primary || '#fc5000' : 'transparent'
+                  }}
                   onClick={() => setCurrentTab("members")}
                 >
                   Miembros
@@ -385,7 +554,12 @@ export const ProjectsSection = () => {
                 <div className="space-y-4">
                   {/* Nombre */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-1">Nombre del Proyecto</label>
+                    <label
+                      className="text-sm font-medium block mb-1"
+                      style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+                    >
+                      Nombre del Proyecto
+                    </label>
                     <input
                       type="text"
                       value={editingProject.nombre}
@@ -395,13 +569,22 @@ export const ProjectsSection = () => {
                           nombre: e.target.value,
                         })
                       }
-                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-[#28BC98] focus:border-[#28BC98]"
+                      className="w-full p-2.5 border rounded-lg focus:ring-2 transition-all"
+                      style={{
+                        borderColor: theme.colors.Secondary || '#e4e4e4',
+                        focusRingColor: theme.colors.Primary || '#fc5000'
+                      }}
                     />
                   </div>
 
                   {/* Información */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-1">Descripción</label>
+                    <label
+                      className="text-sm font-medium block mb-1"
+                      style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+                    >
+                      Descripción
+                    </label>
                     <textarea
                       value={editingProject.informacion}
                       onChange={(e) =>
@@ -410,19 +593,29 @@ export const ProjectsSection = () => {
                           informacion: e.target.value,
                         })
                       }
-                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-[#28BC98] focus:border-[#28BC98]"
+                      className="w-full p-2.5 border rounded-lg focus:ring-2 transition-all"
+                      style={{
+                        borderColor: theme.colors.Secondary || '#e4e4e4',
+                        focusRingColor: theme.colors.Primary || '#fc5000'
+                      }}
                       rows="4"
                     />
                   </div>
 
                   {/* YouTube */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-1">Enlace YouTube</label>
+                    <label
+                      className="text-sm font-medium block mb-1"
+                      style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+                    >
+                      Enlace YouTube
+                    </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 text-gray-400"
+                          className="h-5 w-5"
+                          style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
                           fill="currentColor"
                           viewBox="0 0 24 24"
                         >
@@ -438,20 +631,30 @@ export const ProjectsSection = () => {
                             youtube: e.target.value,
                           })
                         }
-                        className="w-full p-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-[#28BC98] focus:border-[#28BC98]"
+                        className="w-full p-2.5 pl-10 border rounded-lg focus:ring-2 transition-all"
                         placeholder="https://youtube.com/watch?v="
+                        style={{
+                          borderColor: theme.colors.Secondary || '#e4e4e4',
+                          focusRingColor: theme.colors.Primary || '#fc5000'
+                        }}
                       />
                     </div>
                   </div>
 
                   {/* Imagen */}
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-1">URL de la Imagen</label>
+                    <label
+                      className="text-sm font-medium block mb-1"
+                      style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+                    >
+                      URL de la Imagen
+                    </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 text-gray-400"
+                          className="h-5 w-5"
+                          style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -473,15 +676,27 @@ export const ProjectsSection = () => {
                             img: e.target.value,
                           })
                         }
-                        className="w-full p-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-[#28BC98] focus:border-[#28BC98]"
+                        className="w-full p-2.5 pl-10 border rounded-lg focus:ring-2 transition-all"
                         placeholder="https://ejemplo.com/imagen.jpg"
+                        style={{
+                          borderColor: theme.colors.Secondary || '#e4e4e4',
+                          focusRingColor: theme.colors.Primary || '#fc5000'
+                        }}
                       />
                     </div>
 
                     {editingProject.img && (
                       <div className="mt-3">
-                        <p className="text-sm text-gray-500 mb-2">Vista previa:</p>
-                        <div className="relative rounded-lg overflow-hidden border border-gray-200">
+                        <p
+                          className="text-sm mb-2"
+                          style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+                        >
+                          Vista previa:
+                        </p>
+                        <div
+                          className="relative rounded-lg overflow-hidden border"
+                          style={{ borderColor: theme.colors.Secondary || '#e4e4e4' }}
+                        >
                           <img
                             src={editingProject.img || "/placeholder.svg"}
                             alt="Vista previa"
@@ -498,7 +713,13 @@ export const ProjectsSection = () => {
 
                   <button
                     onClick={handleUpdateProject}
-                    className="bg-[#28BC98] hover:bg-[#239E83] text-white py-2.5 px-4 rounded-lg w-full font-medium transition-colors mt-4"
+                    className="py-2.5 px-4 rounded-lg w-full font-medium transition-colors"
+                    style={{
+                      backgroundColor: theme.colors.Primary || '#fc5000',
+                      color: theme.colors.Secondary || '#e4e4e4'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.colors.Accent || '#505050'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.colors.Primary || '#fc5000'}
                   >
                     Guardar Cambios
                   </button>
@@ -511,7 +732,13 @@ export const ProjectsSection = () => {
                   <div className="flex justify-end mb-4">
                     <button
                       onClick={() => setIsAddMemberModalOpen(true)}
-                      className="bg-[#28BC98] hover:bg-[#239E83] text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                      className="py-2 px-4 rounded-lg font-medium transition-colors"
+                      style={{
+                        backgroundColor: theme.colors.Primary || '#fc5000',
+                        color: theme.colors.Secondary || '#e4e4e4'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.colors.Accent || '#505050'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.colors.Primary || '#fc5000'}
                     >
                       Agregar Miembros
                     </button>
@@ -568,11 +795,20 @@ function MembersSection({ projectId, onMembersUpdated }) {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="h-6 w-1/4 bg-gray-200 rounded animate-pulse" />
+        <div
+          className="h-6 w-1/4 rounded animate-pulse"
+          style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+        />
         {Array.from({ length: 3 }).map((_, index) => (
           <div key={index} className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
-            <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
+            <div
+              className="w-10 h-10 rounded-full animate-pulse"
+              style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+            />
+            <div
+              className="h-4 w-1/2 rounded animate-pulse"
+              style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` }}
+            />
           </div>
         ))}
       </div>
@@ -581,32 +817,54 @@ function MembersSection({ projectId, onMembersUpdated }) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-[#28BC98]">Integrantes</h3>
+      <h3
+        className="text-xl font-semibold"
+        style={{ color: theme.colors.Primary || '#fc5000' }}
+      >
+        Integrantes
+      </h3>
       {members.length > 0 ? (
         <div className="space-y-3">
           {members.map(({ user: member }) => (
             <div
               key={member.carne}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-3 p-2 rounded-lg transition-colors"
+              style={{ ':hover': { backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}33` } }}
             >
               <img
                 src={member?.img || "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"}
                 alt={member.name}
-                className="w-10 h-10 rounded-full object-cover border-2 border-[#28BC98]/20"
+                className="w-10 h-10 rounded-full object-cover border-2"
+                style={{ borderColor: `${theme.colors.Tertiary || '#5f5f5f'}33` }}
                 onError={(e) => {
                   e.target.onerror = null
                   e.target.src = "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
                 }}
               />
               <div>
-                <p className="text-sm font-medium text-gray-800">{member.name}</p>
-                <p className="text-xs text-gray-500">{member.carne}</p>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: theme.colors.Accent || '#505050' }}
+                >
+                  {member.name}
+                </p>
+                <p
+                  className="text-xs"
+                  style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+                >
+                  {member.carne}
+                </p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-4 text-gray-500">No hay integrantes registrados en este proyecto.</div>
+        <div
+          className="text-center py-4"
+          style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+        >
+          No hay integrantes registrados en este proyecto.
+        </div>
       )}
     </div>
   )
