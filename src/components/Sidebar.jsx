@@ -10,11 +10,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/context/auth.jsx"
-import { useState, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import { BASE_URL } from "@/lib/constants.js"
-import { useUsers } from "@/hooks/useUsers.js";
-import { updateUserRequest } from "@/actions/users.js";
-import { uploadImageRequest } from "@/actions/image-bucket.js";
+import { useUsers } from "@/hooks/useUsers.js"
+import { updateUserRequest } from "@/actions/users.js"
+import { uploadImageRequest } from "@/actions/image-bucket.js"
+import { getColors } from "@/actions/personalization"
 
 const navItems = [
   { name: "Inicio", component: "", icon: Home },
@@ -23,40 +24,32 @@ const navItems = [
   { name: "Proyectos", component: "project", icon: Beaker },
 ]
 
+export function Sidebar() {
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  })
 
+  const fetchColors = async () => {
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors)
+  }
 
-export function Sidebar({
-  colors = {
-    background: "#0B2F33",
-    text: "#FFF8F0",
-    textHover: "#7DE2A6",
-    activeBackground: "#28BC98",
-    activeText: "#0B2F33",
-    border: "#FFF8F0",
-    iconBackground: "#28BC98",
-    iconText: "#0B2F33",
-    modalBackground: "#0B2F33",
-    modalText: "#FFF8F0",
-    modalBorder: "#28BC98",
-    modalHeaderText: "#28BC98",
-    modalButtonBackground: "#28BC98",
-    modalButtonText: "#0B2F33",
-    modalButtonHover: "#7DE2A6",
-    modalCancelButtonBackground: "#FFF8F0",
-    modalCancelButtonText: "#FFF8F0",
-    modalCancelButtonHover: "#FFF8F0",
-    errorBackground: "rgba(255, 0, 0, 0.1)",
-    errorBorder: "rgba(255, 0, 0, 0.3)",
-    errorText: "#FF0000",
-  },
-}) {
+  useEffect(() => {
+    fetchColors()
+  }, [])
 
   const navigate = useNavigate()
-
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
   const { user, logout } = useAuth()
   const location = useLocation()
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -72,13 +65,18 @@ export function Sidebar({
 
   const isSectionSelected = navItems.some((item) => item.component === location.pathname.split("/")[2])
 
+  const handleLogout = () => {
+    localStorage.clear()
+    navigate("/login")
+  }
+
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }))
-    setErrorMessage("") // Clear errorMessage when user types
+    setErrorMessage("")
   }
 
   const handleImageClick = () => {
@@ -89,10 +87,9 @@ export function Sidebar({
     if (e.target.files && e.target.files[0]) {
       console.log("Archivo seleccionado:", e.target.files[0].name)
       const [error, response] = await uploadImageRequest({ file: e.target.files[0] })
-
       if (error) {
-        setErrorMessage(error.message || "Error al subir la imagen");
-        return;
+        setErrorMessage(error.message || "Error al subir la imagen")
+        return
       }
       setFormData({
         ...formData,
@@ -129,11 +126,11 @@ export function Sidebar({
       id: user.carne,
       user: {
         ...user,
-        ...dataToSend
+        ...dataToSend,
       },
     })
     if (error) {
-      setErrorMessage(error.message || "Error al actualizar el perfil");
+      setErrorMessage(error.message || "Error al actualizar el perfil")
     }
 
     setIsModalOpen(false)
@@ -143,19 +140,28 @@ export function Sidebar({
     <>
       <aside
         className="flex flex-col h-screen w-16 md:w-64 transition-all duration-300"
-        style={{ backgroundColor: colors.background, color: colors.text }}
+        style={{
+          backgroundColor: theme.colors.Tertiary || '#5f5f5f',
+          color: theme.colors.Secondary || '#e4e4e4',
+        }}
       >
         <div
           className="p-4 border-b flex items-center justify-center md:justify-start"
-          style={{ borderColor: `${colors.border}/10` }}
+          style={{ borderColor: `${theme.colors.Secondary || '#e4e4e4'}1a` }}
         >
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: colors.iconBackground }}
+            style={{ backgroundColor: theme.colors.Primary || '#fc5000' }}
           >
-            <FlaskRound className="w-4 h-4" style={{ color: colors.iconText }} />
+            <FlaskRound
+              className="w-4 h-4"
+              style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+            />
           </div>
-          <h1 className="ml-3 text-xl font-bold hidden md:block" style={{ color: colors.text }}>
+          <h1
+            className="ml-3 text-xl font-bold hidden md:block"
+            style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+          >
             CHEMIQ
           </h1>
         </div>
@@ -172,16 +178,31 @@ export function Sidebar({
                   to={item.component && `./${item.component}`}
                   key={item.name}
                   className={`flex items-center justify-center md:justify-start w-full p-2 rounded-lg transition-all duration-200 ${
-                    isActive ? "font-medium" : "hover:bg-opacity-10"
+                    isActive ? "font-medium" : ""
                   }`}
                   style={{
-                    backgroundColor: isActive ? colors.activeBackground : "transparent",
-                    color: isActive ? colors.activeText : colors.text,
+                    backgroundColor: isActive
+                      ? theme.colors.Primary || '#fc5000'
+                      : "transparent",
+                    color: isActive
+                      ? theme.colors.Secondary || '#e4e4e4'
+                      : theme.colors.Secondary || '#e4e4e4',
                   }}
+                  onMouseEnter={(e) =>
+                    !isActive &&
+                    (e.currentTarget.style.backgroundColor = `${theme.colors.Secondary || '#e4e4e4'}1a`)
+                  }
+                  onMouseLeave={(e) =>
+                    !isActive && (e.currentTarget.style.backgroundColor = "transparent")
+                  }
                 >
                   <item.icon
                     className="w-5 h-5"
-                    style={{ color: isActive ? colors.activeText : colors.text }}
+                    style={{
+                      color: isActive
+                        ? theme.colors.Secondary || '#e4e4e4'
+                        : theme.colors.Secondary || '#e4e4e4',
+                    }}
                   />
                   <span className="ml-3 hidden md:block">{item.name}</span>
                 </Link>
@@ -192,21 +213,28 @@ export function Sidebar({
 
         <div
           className="p-4 border-t"
-          style={{ borderColor: `${colors.border}/10` }}
+          style={{ borderColor: `${theme.colors.Secondary || '#e4e4e4'}1a` }}
         >
           <DropdownMenu>
             <DropdownMenuTrigger
               className="flex items-center justify-center md:justify-start w-full p-2 rounded-lg transition-colors"
-              style={{ color: colors.text }}
+              style={{ color: theme.colors.Secondary || '#e4e4e4' }}
             >
               <div
                 className="relative w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
-                style={{ backgroundColor: `${colors.iconBackground}/20` }}
+                style={{ backgroundColor: `${theme.colors.Primary || '#fc5000'}33` }}
               >
                 {user.img ? (
-                  <img src={user.img || "/placeholder.svg"} alt="Avatar" className="w-full h-full object-cover" />
+                  <img
+                    src={user.img || "/placeholder.svg"}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <User className="w-4 h-4" style={{ color: colors.text }} />
+                  <User
+                    className="w-4 h-4"
+                    style={{ color: theme.colors.Secondary || '#e4e4e4' }}
+                  />
                 )}
               </div>
               <span className="ml-3 hidden md:block truncate">{user.nombre}</span>
@@ -216,24 +244,26 @@ export function Sidebar({
             <DropdownMenuContent
               className="w-56"
               style={{
-                backgroundColor: colors.modalBackground,
-                borderColor: `${colors.modalBorder}/20`,
-                color: colors.modalText,
+                backgroundColor: theme.colors.Background || '#fff8f0',
+                borderColor: `${theme.colors.Primary || '#fc5000'}33`,
+                color: theme.colors.Accent || '#505050',
               }}
               align="end"
             >
               <DropdownMenuItem
                 className="cursor-pointer"
-                style={{ color: colors.text }}
+                style={{ color: theme.colors.Accent || '#505050' }}
                 onClick={() => setIsModalOpen(true)}
               >
                 <User className="mr-2 h-4 w-4" />
                 <span>Mi Perfil</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator style={{ backgroundColor: `${colors.border}/10` }} />
+              <DropdownMenuSeparator
+                style={{ backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}1a` }}
+              />
               <DropdownMenuItem
                 className="cursor-pointer"
-                style={{ color: colors.textHover }}
+                style={{ color: theme.colors.Primary || '#fc5000' }}
                 onClick={handleLogout}
               >
                 <LogOut className="mr-2 h-4 w-4" />
@@ -246,30 +276,34 @@ export function Sidebar({
 
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300"
+          className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300"
+          style={{ backgroundColor: `${theme.colors.Tertiary || '#5f5f5f'}b3` }}
         >
           <div
             className="w-full max-w-2xl rounded-xl shadow-lg p-6 m-4 max-h-[90vh] overflow-y-auto"
             style={{
-              backgroundColor: colors.modalBackground,
-              color: colors.modalText,
-              borderColor: colors.modalBorder,
-              boxShadow: `0 4px 6px -1px ${colors.modalBorder}/10`,
+              backgroundColor: theme.colors.Background || '#fff8f0',
+              color: theme.colors.Accent || '#505050',
+              borderColor: theme.colors.Primary || '#fc5000',
+              boxShadow: `0 4px 6px -1px ${theme.colors.Primary || '#fc5000'}1a`,
             }}
           >
             <div
               className="flex justify-between items-center mb-6 border-b pb-4"
-              style={{ borderColor: `${colors.border}/10` }}
+              style={{ borderColor: `${theme.colors.Secondary || '#e4e4e4'}1a` }}
             >
-              <h2 className="text-2xl font-bold" style={{ color: colors.modalHeaderText }}>
+              <h2
+                className="text-2xl font-bold"
+                style={{ color: theme.colors.Primary || '#fc5000' }}
+              >
                 Editar Perfil
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
                 style={{
-                  color: colors.modalText,
-                  backgroundColor: `${colors.modalCancelButtonBackground}/5`,
+                  color: theme.colors.Accent || '#505050',
+                  backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}0d`,
                 }}
               >
                 ✕
@@ -282,7 +316,7 @@ export function Sidebar({
                   <div className="mb-5">
                     <label
                       className="block mb-2 text-sm font-medium"
-                      style={{ color: `${colors.text}/80` }}
+                      style={{ color: `${theme.colors.Accent || '#505050'}cc` }}
                     >
                       Nombre
                     </label>
@@ -293,11 +327,11 @@ export function Sidebar({
                       onChange={handleInputChange}
                       className="w-full p-3 rounded-lg focus:outline-none focus:ring-1 transition-all"
                       style={{
-                        backgroundColor: colors.modalBackground,
-                        borderColor: `${colors.modalBorder}/30`,
-                        color: colors.modalText,
-                        focusBorderColor: colors.modalBorder,
-                        focusRingColor: colors.modalBorder,
+                        backgroundColor: theme.colors.Background || '#fff8f0',
+                        borderColor: `${theme.colors.Primary || '#fc5000'}4d`,
+                        color: theme.colors.Accent || '#505050',
+                        focusBorderColor: theme.colors.Primary || '#fc5000',
+                        focusRingColor: theme.colors.Primary || '#fc5000',
                       }}
                       required
                     />
@@ -306,7 +340,7 @@ export function Sidebar({
                   <div className="mb-5">
                     <label
                       className="block mb-2 text-sm font-medium"
-                      style={{ color: `${colors.text}/80` }}
+                      style={{ color: `${theme.colors.Accent || '#505050'}cc` }}
                     >
                       Correo
                     </label>
@@ -317,11 +351,11 @@ export function Sidebar({
                       onChange={handleInputChange}
                       className="w-full p-3 rounded-lg focus:outline-none focus:ring-1 transition-all"
                       style={{
-                        backgroundColor: colors.modalBackground,
-                        borderColor: `${colors.modalBorder}/30`,
-                        color: colors.modalText,
-                        focusBorderColor: colors.modalBorder,
-                        focusRingColor: colors.modalBorder,
+                        backgroundColor: theme.colors.Background || '#fff8f0',
+                        borderColor: `${theme.colors.Primary || '#fc5000'}4d`,
+                        color: theme.colors.Accent || '#505050',
+                        focusBorderColor: theme.colors.Primary || '#fc5000',
+                        focusRingColor: theme.colors.Primary || '#fc5000',
                       }}
                       required
                     />
@@ -332,8 +366,8 @@ export function Sidebar({
                   <div
                     className="relative w-32 h-32 rounded-full flex items-center justify-center overflow-hidden border-2 mb-3 cursor-pointer group"
                     style={{
-                      backgroundColor: `${colors.iconBackground}/20`,
-                      borderColor: `${colors.modalBorder}/30`,
+                      backgroundColor: `${theme.colors.Primary || '#fc5000'}33`,
+                      borderColor: `${theme.colors.Primary || '#fc5000'}4d`,
                     }}
                     onClick={handleImageClick}
                   >
@@ -346,11 +380,13 @@ export function Sidebar({
                         />
                         <div
                           className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200"
-                          style={{ backgroundColor: `${colors.modalBackground}/70` }}
+                          style={{
+                            backgroundColor: `${theme.colors.Tertiary || '#5f5f5f'}b3`,
+                          }}
                         >
                           <div
                             className="text-sm font-medium text-center px-2"
-                            style={{ color: colors.modalHeaderText }}
+                            style={{ color: theme.colors.Primary || '#fc5000' }}
                           >
                             Cambiar imagen
                           </div>
@@ -358,14 +394,19 @@ export function Sidebar({
                       </>
                     ) : (
                       <>
-                        <User className="w-12 h-12" style={{ color: colors.modalText }} />
+                        <User
+                          className="w-12 h-12"
+                          style={{ color: theme.colors.Accent || '#505050' }}
+                        />
                         <div
                           className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200"
-                          style={{ backgroundColor: `${colors.modalBackground}/70` }}
+                          style={{
+                            backgroundColor: `${theme.colors.Tertiary || '#5f5f5f'}b3`,
+                          }}
                         >
                           <div
                             className="text-sm font-medium text-center px-2"
-                            style={{ color: colors.modalHeaderText }}
+                            style={{ color: theme.colors.Primary || '#fc5000' }}
                           >
                             Subir imagen
                           </div>
@@ -383,7 +424,7 @@ export function Sidebar({
                   <div className="w-full">
                     <label
                       className="block mb-2 text-sm font-medium text-center"
-                      style={{ color: `${colors.text}/80` }}
+                      style={{ color: `${theme.colors.Accent || '#505050'}cc` }}
                     >
                       URL de la imagen
                     </label>
@@ -394,11 +435,11 @@ export function Sidebar({
                       onChange={handleInputChange}
                       className="w-full p-3 rounded-lg focus:outline-none focus:ring-1 transition-all"
                       style={{
-                        backgroundColor: colors.modalBackground,
-                        borderColor: `${colors.modalBorder}/30`,
-                        color: colors.modalText,
-                        focusBorderColor: colors.modalBorder,
-                        focusRingColor: colors.modalBorder,
+                        backgroundColor: theme.colors.Background || '#fff8f0',
+                        borderColor: `${theme.colors.Primary || '#fc5000'}4d`,
+                        color: theme.colors.Accent || '#505050',
+                        focusBorderColor: theme.colors.Primary || '#fc5000',
+                        focusRingColor: theme.colors.Primary || '#fc5000',
                       }}
                       placeholder="https://example.com/image.jpg"
                     />
@@ -406,10 +447,13 @@ export function Sidebar({
                 </div>
               </div>
 
-              <div className="border-t pt-5 mt-5" style={{ borderColor: `${colors.border}/10` }}>
+              <div
+                className="border-t pt-5 mt-5"
+                style={{ borderColor: `${theme.colors.Secondary || '#e4e4e4'}1a` }}
+              >
                 <h3
                   className="text-lg font-medium mb-4"
-                  style={{ color: colors.modalHeaderText }}
+                  style={{ color: theme.colors.Primary || '#fc5000' }}
                 >
                   Cambiar Contraseña
                 </h3>
@@ -417,7 +461,7 @@ export function Sidebar({
                   <div>
                     <label
                       className="block mb-2 text-sm font-medium"
-                      style={{ color: `${colors.text}/80` }}
+                      style={{ color: `${theme.colors.Accent || '#505050'}cc` }}
                     >
                       Nueva contraseña (opcional)
                     </label>
@@ -428,11 +472,11 @@ export function Sidebar({
                       onChange={handleInputChange}
                       className="w-full p-3 rounded-lg focus:outline-none focus:ring-1 transition-all"
                       style={{
-                        backgroundColor: colors.modalBackground,
-                        borderColor: `${colors.modalBorder}/30`,
-                        color: colors.modalText,
-                        focusBorderColor: colors.modalBorder,
-                        focusRingColor: colors.modalBorder,
+                        backgroundColor: theme.colors.Background || '#fff8f0',
+                        borderColor: `${theme.colors.Primary || '#fc5000'}4d`,
+                        color: theme.colors.Accent || '#505050',
+                        focusBorderColor: theme.colors.Primary || '#fc5000',
+                        focusRingColor: theme.colors.Primary || '#fc5000',
                       }}
                       placeholder="Mínimo 8 caracteres"
                     />
@@ -441,7 +485,7 @@ export function Sidebar({
                   <div>
                     <label
                       className="block mb-2 text-sm font-medium"
-                      style={{ color: `${colors.text}/80` }}
+                      style={{ color: `${theme.colors.Accent || '#505050'}cc` }}
                     >
                       Confirmar nueva contraseña
                     </label>
@@ -452,11 +496,11 @@ export function Sidebar({
                       onChange={handleInputChange}
                       className="w-full p-3 rounded-lg focus:outline-none focus:ring-1 transition-all"
                       style={{
-                        backgroundColor: colors.modalBackground,
-                        borderColor: `${colors.modalBorder}/30`,
-                        color: colors.modalText,
-                        focusBorderColor: colors.modalBorder,
-                        focusRingColor: colors.modalBorder,
+                        backgroundColor: theme.colors.Background || '#fff8f0',
+                        borderColor: `${theme.colors.Primary || '#fc5000'}4d`,
+                        color: theme.colors.Accent || '#505050',
+                        focusBorderColor: theme.colors.Primary || '#fc5000',
+                        focusRingColor: theme.colors.Primary || '#fc5000',
                       }}
                       placeholder="Repite la contraseña"
                     />
@@ -468,23 +512,26 @@ export function Sidebar({
                 <div
                   className="text-sm p-3 rounded-lg"
                   style={{
-                    backgroundColor: colors.errorBackground,
-                    borderColor: colors.errorBorder,
-                    color: colors.errorText,
+                    backgroundColor: `#FF000019`,
+                    borderColor: `#FF00004d`,
+                    color: '#FF0000',
                   }}
                 >
                   {errorMessage}
                 </div>
               )}
 
-              <div className="flex justify-end gap-4 pt-4 border-t mt-5" style={{ borderColor: `${colors.border}/10` }}>
+              <div
+                className="flex justify-end gap-4 pt-4 border-t mt-5"
+                style={{ borderColor: `${theme.colors.Secondary || '#e4e4e4'}1a` }}
+              >
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="px-5 py-2.5 rounded-lg transition-colors"
                   style={{
-                    backgroundColor: `${colors.modalCancelButtonBackground}/5`,
-                    color: colors.modalCancelButtonText,
+                    backgroundColor: `${theme.colors.Secondary || '#e4e4e4'}0d`,
+                    color: theme.colors.Accent || '#505050',
                   }}
                 >
                   Cancelar
@@ -493,8 +540,8 @@ export function Sidebar({
                   type="submit"
                   className="px-5 py-2.5 rounded-lg font-medium transition-colors"
                   style={{
-                    backgroundColor: colors.modalButtonBackground,
-                    color: colors.modalButtonText,
+                    backgroundColor: theme.colors.Primary || '#fc5000',
+                    color: theme.colors.Secondary || '#e4e4e4',
                   }}
                 >
                   Guardar Cambios
@@ -507,4 +554,3 @@ export function Sidebar({
     </>
   )
 }
-

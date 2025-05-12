@@ -1,12 +1,42 @@
+import { useState, useEffect } from "react"
 import "./LoadingBeaker.css"
+import { getColors } from "@/actions/personalization"
 
 export function LoadingBeaker() {
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  })
+
+  const fetchColors = async () => {
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors)
+  }
+
+  useEffect(() => {
+    fetchColors()
+  }, [])
+
   return (
-    <div className="fixed inset-0 bg-[#FFF8F0] flex items-center justify-center z-50">
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50"
+      style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}
+    >
       <div className="relative flex items-center justify-center w-40 h-40">
         {/* Anillo de carga */}
         <svg
-          className="absolute animate-spin-slow w-40 h-40 text-[#28BC98]"
+          className="absolute animate-spin-slow w-40 h-40"
+          style={{ color: theme.colors.Primary || '#fc5000' }}
           viewBox="0 0 100 100"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -38,7 +68,8 @@ export function LoadingBeaker() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="w-24 h-24 text-[#0B2F33] relative z-10"
+          className="w-24 h-24 relative z-10"
+          style={{ color: theme.colors.Accent || '#505050' }}
         >
           {/* Beaker base */}
           <path d="M4.5 3h15" />
@@ -50,8 +81,7 @@ export function LoadingBeaker() {
             y="11"
             width="12"
             height="10"
-            fill="#28BC98"
-            fillOpacity="0.2"
+            style={{ fill: theme.colors.Primary || '#fc5000', fillOpacity: 0.2 }}
           />
           
           {/* Marcas de medición */}
@@ -62,7 +92,10 @@ export function LoadingBeaker() {
         </svg>
         
         {/* Texto de carga */}
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[#0B2F33] font-medium">
+        <div
+          className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap font-medium"
+          style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
+        >
           Cargando...
         </div>
       </div>

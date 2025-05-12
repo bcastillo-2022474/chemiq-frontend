@@ -1,9 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Swal from "sweetalert2"
-import { generateResetLinkRequest } from "@/actions/users.js";
-import {
-  Check, X, LoaderCircle
-} from "lucide-react"
+import { generateResetLinkRequest } from "@/actions/users.js"
+import { Check, X, LoaderCircle } from "lucide-react"
+import { getColors } from "@/actions/personalization"
 
 const Button = ({ children, className, variant, ...props }) => (
   <button
@@ -17,10 +16,32 @@ const Button = ({ children, className, variant, ...props }) => (
 )
 
 const RecoveryPage = () => {
-  // idk what is this for, but I'll leave it here
   const isVisible = true
   const [email, setEmail] = useState("")
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState("idle")
+  const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  })
+
+  const fetchColors = async () => {
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors)
+  }
+
+  useEffect(() => {
+    fetchColors()
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -110,25 +131,37 @@ const RecoveryPage = () => {
                 <div>
                   <Button
                     type="submit"
-                    className="w-full bg-base text-white hover:bg-accent rounded-md flex gap-3 items-center justify-center"
+                    className="w-full rounded-md flex gap-3 items-center justify-center"
+                    style={{
+                      backgroundColor: theme.colors.Primary || '#fc5000',
+                      color: theme.colors.Secondary || '#e4e4e4'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = theme.colors.Accent || '#505050'
+                      e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = theme.colors.Primary || '#fc5000'
+                      e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+                    }}
                   >
                     {status === "idle" && <span>Enviar Enlace</span>}
                     {status === "loading" && (
                       <>
                         <span>Enviando</span>
-                        <LoaderCircle className="animate-spin"/>
+                        <LoaderCircle className="animate-spin" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
                       </>
                     )}
                     {status === "success" && (
                       <>
                         <span>Enviado</span>
-                        <Check/>
+                        <Check style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
                       </>
                     )}
                     {status === "error" && (
                       <>
                         <span>Error</span>
-                        <X/>
+                        <X style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
                       </>
                     )}
                   </Button>
