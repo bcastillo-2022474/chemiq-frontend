@@ -11,7 +11,7 @@ export const getNewsRequest = async () => {
     })
 }
 
-export const getNewByIdRequest = async ({ id }) => {
+export const getNewByIdRequest = async ({id}) => {
   return api
     .get(`/api/news/${id}`)
     .then(response => {

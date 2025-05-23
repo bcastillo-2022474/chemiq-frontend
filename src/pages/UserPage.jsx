@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FeaturedPodcast } from "@/components/FeaturedPodcast";
 import { FeaturedNews } from "@/components/FeaturedNews";
 import { FeaturedProject } from "@/components/FeaturedProject";
-import { NewsRoutes } from "@/components/NewsSection";
+import { NewsSection } from "@/components/NewsSection";
 import { YouTubeVideos } from "@/components/YouTubeVideos";
 import { ProjectsSection } from "@/components/ProjectsSection";
 import { LoadingBeaker } from "@/components/LoadingBeaker";
@@ -290,7 +290,7 @@ export function PortalRoutes() {
       <Route path="/" element={<UserPage />}>
         <Route index element={<HomePage />} />
         <Route path="podcast" element={<YouTubeVideos />} />
-        <Route path="news/*" element={<NewsRoutes />} />
+        <Route path="news" element={<NewsSection />} />
         <Route path="project" element={<ProjectsSection />} />
         <Route path="noticias/:id" element={<NewsDetail />} />
       </Route>
