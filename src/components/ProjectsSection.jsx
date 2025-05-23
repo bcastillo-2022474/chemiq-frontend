@@ -259,7 +259,7 @@ export const ProjectsSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((proyecto) => (
             <div key={proyecto.id} className="relative group">
-              <ProjectCard proyecto={proyecto} onClick={() => setSelectedProject(proyecto)} />
+              <ProjectCard proyecto={proyecto} onClick={() => setSelectedProject(proyecto)} theme={theme.colors} />
               {activeTab === "misProyectos" && (
                 <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
@@ -779,9 +779,29 @@ export const ProjectsSection = () => {
 function MembersSection({ projectId, onMembersUpdated }) {
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
+    const [theme, setTheme] = useState({
+    colors: {}, // Inicialmente vacío
+  })
+
+    const fetchColors = async () => {
+    const [error, colors] = await getColors()
+    if (error) {
+      console.error("Error fetching colors:", error)
+      return
+    }
+    const formattedColors = Object.fromEntries(
+      colors.map((color) => [color.nombre, color.hex])
+    )
+    setTheme((prevTheme) => ({
+      ...prevTheme,
+      colors: formattedColors,
+    }))
+    console.log("Fetched colors:", formattedColors)
+  }
 
   useEffect(() => {
     const fetchMembers = async () => {
+      console.log("Fetching members for project ID:", projectId)
       const [error, members] = await getMembersByProjectIdRequest({ id: projectId })
       if (!error) {
         console.log(members)
@@ -790,6 +810,7 @@ function MembersSection({ projectId, onMembersUpdated }) {
       }
     }
     fetchMembers()
+    fetchColors()
   }, [projectId, onMembersUpdated])
 
   if (loading) {
