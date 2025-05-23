@@ -3,34 +3,31 @@
 import { useState, useEffect } from "react"
 import NewsCard from "./NewsCard"
 import { getNewByIdRequest, getNewsRequest } from "@/actions/news"
-import { Link, Route, Routes, useParams } from "react-router-dom"
 import { ChevronLeft, Newspaper, Search, Calendar, Clock } from 'lucide-react'
 import { getColors } from "@/actions/personalization"
 
-function NewsSection() {
-  const [theme, setTheme] = useState({
-    colors: {}, // Inicialmente vacío
-  });
+export function NewsSection() {
+  const [theme, setTheme] = useState({ colors: {} })
+  const [selectedId, setSelectedId] = useState(null) // Nuevo estado para el id seleccionado
 
   const fetchColors = async () => {
-    const [error, colors] = await getColors();
+    const [error, colors] = await getColors()
     if (error) {
-      console.error("Error fetching colors:", error);
-      return;
+      console.error("Error fetching colors:", error)
+      return
     }
     const formattedColors = Object.fromEntries(
       colors.map((color) => [color.nombre, color.hex])
-    );
+    )
     setTheme((prevTheme) => ({
       ...prevTheme,
       colors: formattedColors,
-    }));
-    console.log("Fetched colors:", formattedColors);
-  };
+    }))
+  }
 
   useEffect(() => {
-    fetchColors();
-  }, []);
+    fetchColors()
+  }, [])
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -45,15 +42,17 @@ function NewsSection() {
           Mantente actualizado con noticias, anuncios y más de la Asociación de Química UVG
         </p>
       </div>
-      <Routes>
-        <Route index element={<ListArticles theme={theme} />} />
-        <Route path=":id" element={<ArticleDetail theme={theme} />} />
-      </Routes>
+      {/* Renderiza el detalle si hay id seleccionado, si no la lista */}
+      {selectedId ? (
+        <ArticleDetail id={selectedId} theme={theme} onBack={() => setSelectedId(null)} />
+      ) : (
+        <ListArticles theme={theme} onSelect={setSelectedId} />
+      )}
     </div>
   )
 }
 
-function ListArticles({ theme = { colors: {} } }) {
+function ListArticles({ theme = { colors: {} }, onSelect }) {
   const [newsItems, setNewsItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -68,11 +67,9 @@ function ListArticles({ theme = { colors: {} } }) {
       setNewsItems(news)
       setLoading(false)
     }
-
     void fetchNews()
   }, [])
 
-  // Filter news items based on search term
   const filteredNews = newsItems.filter(
     (item) =>
       item.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -128,7 +125,7 @@ function ListArticles({ theme = { colors: {} } }) {
             const showReadMore = item.contenido.split(" ").length > 50
 
             return (
-              <div key={item.id}>
+              <div key={item.id} onClick={() => onSelect(item.id)} style={{ cursor: "pointer" }}>
                 <NewsCard
                   id={item.id}
                   title={item.titulo}
@@ -172,23 +169,17 @@ function ListArticles({ theme = { colors: {} } }) {
   )
 }
 
-function ArticleDetail({ theme = { colors: {} } }) {
-  const { id } = useParams()
+function ArticleDetail({ id, theme = { colors: {} }, onBack }) {
   const [article, setArticle] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchNew() {
-      const [error, news] = await getNewByIdRequest({ id })
-      if (error) {
-        console.error("Error fetching news:", error)
-        return
-      }
-      setArticle(news)
+    async function fetchNews() {
+      const newsItem = await getNewByIdRequest({id})
+      setArticle(newsItem)
       setLoading(false)
     }
-
-    void fetchNew()
+    void fetchNews()
   }, [id])
 
   if (loading) {
@@ -214,23 +205,21 @@ function ArticleDetail({ theme = { colors: {} } }) {
 
   return (
     <div className="mt-6">
-      <Link
-        to="./.."
+      <button
         className="inline-flex items-center px-4 py-2 mb-6 rounded-lg transition-colors"
         style={{ backgroundColor: '#f5e8df', color: theme.colors.Tertiary || '#5f5f5f' }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.colors.Tertiary || '#5f5f5f'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5e8df'}
+        onClick={onBack}
       >
         <ChevronLeft className="w-4 h-4 mr-2" />
         Volver a noticias
-      </Link>
+      </button>
 
       <article className="rounded-xl overflow-hidden shadow-sm" style={{ backgroundColor: theme.colors.Background || '#fff8f0', borderColor: `${theme.colors.Tertiary || '#5f5f5f'}20` }}>
         {/* Hero Image */}
         <div className="relative">
           <img
-            src={article.img || "/placeholder.svg"}
-            alt={article.titulo}
+            src={article[1].img || "/placeholder.svg"}
+            alt={article[1].titulo}
             className="w-full object-cover h-72"
             onError={(e) => {
               e.target.onerror = null
@@ -240,19 +229,19 @@ function ArticleDetail({ theme = { colors: {} } }) {
           <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${theme.colors.Tertiary || '#5f5f5f'}b3, transparent)` }}></div>
           <div className="absolute bottom-0 left-0 p-6 md:p-8">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
-              {article.titulo}
+              {article[1].titulo}
             </h1>
             <div className="flex flex-wrap items-center gap-4" style={{ color: `${theme.colors.Secondary || '#e4e4e4'}cc` }}>
-              {article.created_at && (
+              {article[1].created_at && (
                 <span className="text-sm flex items-center">
                   <Calendar className="w-4 h-4 mr-1.5" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
-                  Publicado: {formatDate(article.created_at)}
+                  Publicado: {formatDate(article[1].created_at)}
                 </span>
               )}
-              {article.updated_at && article.updated_at !== article.created_at && (
+              {article[1].updated_at && article[1].updated_at !== article[1].created_at && (
                 <span className="text-sm flex items-center">
                   <Clock className="w-4 h-4 mr-1.5" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
-                  Actualizado: {formatDate(article.updated_at)}
+                  Actualizado: {formatDate(article[1].updated_at)}
                 </span>
               )}
             </div>
@@ -262,22 +251,22 @@ function ArticleDetail({ theme = { colors: {} } }) {
         {/* Content */}
         <div className="p-6 md:p-8 lg:p-10">
           <div className="prose max-w-none leading-relaxed" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
-            {article.contenido ? (
-              /^https?:\/\//.test(article.contenido) ? (
+            {article[1].contenido ? (
+              /^https?:\/\//.test(article[1].contenido) ? (
                 <p>
                   Más información:{" "}
                   <a
-                    href={article.contenido}
+                    href={article[1].contenido}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:underline"
                     style={{ color: theme.colors.Primary || '#fc5000' }}
                   >
-                    {article.contenido}
+                    {article[1].contenido}
                   </a>
                 </p>
               ) : (
-                <div dangerouslySetInnerHTML={{ __html: article.contenido }} />
+                <div dangerouslySetInnerHTML={{ __html: article[1].contenido }} />
               )
             ) : (
               <p className="italic" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
@@ -294,7 +283,6 @@ function ArticleDetail({ theme = { colors: {} } }) {
 // Helper function to format dates
 function formatDate(dateString) {
   if (!dateString) return "Sin fecha"
-  
   try {
     const date = new Date(dateString)
     return date.toLocaleDateString("es-ES", {
@@ -307,10 +295,3 @@ function formatDate(dateString) {
   }
 }
 
-export function NewsRoutes() {
-  return (
-    <Routes>
-      <Route path="/" element={<NewsSection />} />
-    </Routes>
-  )
-}

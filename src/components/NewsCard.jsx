@@ -4,7 +4,7 @@ import { formatDate } from "@/lib/utils"
 import { Link } from "react-router-dom"
 import { Calendar, ArrowRight, Clock } from 'lucide-react'
 
-const NewsCard = ({ id, title, description, date, imageUrl, showReadMore, createdAt }) => {
+const NewsCard = ({ id, title, description, date, imageUrl, createdAt }) => {
   return (
     <div className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col md:flex-row h-auto md:h-64 border border-gray-100 hover:border-[#28BC98]/20">
       {/* Image Section */}
@@ -55,15 +55,6 @@ const NewsCard = ({ id, title, description, date, imageUrl, showReadMore, create
             )}
           </div>
 
-          {showReadMore && (
-            <Link
-              to={`./${id}`}
-              className="inline-flex items-center text-sm font-medium text-[#28BC98] hover:text-[#239E83] transition-colors group-hover:underline"
-            >
-              Leer más
-              <ArrowRight className="w-3.5 h-3.5 ml-1.5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          )}
         </div>
       </div>
     </div>
