@@ -131,7 +131,7 @@ const LandingPage = () => {
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
       <NavBar />
       <main className="flex-1 pt-16">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48" style={{ backgroundColor: theme.colors.Tertiary || '#fff8f0' }}>
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
@@ -139,10 +139,10 @@ const LandingPage = () => {
                   <TextSectionSkeleton lines={4} className="max-w-3xl mx-auto" />
                 ) : (
                   <>
-                    <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-7 md:text-5xl lg:text-6xl/none" style={{ color: theme.colors.Accent || '#505050' }}>
+                    <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-7 md:text-5xl lg:text-6xl/none" style={{ color: theme.colors.Secondary || '#505050' }}>
                       Asociación de Química
                     </h1>
-                    <p className="mx-auto max-w-[900px] md:text-xl" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>
+                    <p className="mx-auto max-w-[900px] md:text-xl" style={{ color: theme.colors.Secondary || '#5f5f5f' }}>
                       La Asociación de Química es una comunidad dedicada a la promoción del estudio, la investigación y la difusión de la química en todas sus ramas. Nos enfocamos en impulsar el conocimiento científico, fomentando el intercambio de ideas y la colaboración entre estudiantes y profesionales del área.
                     </p>
                   </>
