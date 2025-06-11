@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     user: null,
     refreshing: false // Added refreshing state
   })
-  
+
   const setRefreshing = (refreshing) => {
     setAuthState(prev => ({ ...prev, refreshing }))
   }

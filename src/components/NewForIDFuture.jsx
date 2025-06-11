@@ -34,7 +34,7 @@ export function NewsDetail() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [relatedNews, setRelatedNews] = useState([])
   const contentRef = useRef(null)
-  const [viewCount, setViewCount] = useState(Math.floor(Math.random() * 500) + 100)
+  const [viewCount] = useState(Math.floor(Math.random() * 500) + 100)
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 50) + 10)
   const [hasLiked, setHasLiked] = useState(false)
 
@@ -116,7 +116,7 @@ export function NewsDetail() {
         month: "long",
         day: "numeric",
       })
-    } catch (err) {
+    } catch {
       return dateString
     }
   }

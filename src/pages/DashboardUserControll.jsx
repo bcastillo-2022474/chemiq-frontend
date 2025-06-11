@@ -3,7 +3,6 @@ import Swal from "sweetalert2"
 import { Modal } from "../components/ui/DashboardModalEditUsers"
 import { UserTable } from "../components/ui/DashboardTableUsers"
 import { useUsers } from "../hooks/useUsers"
-import { Loader2 } from "lucide-react"
 import LoaderCustom from "../components/ui/LoaderCustom"
 import { getColors } from "@/actions/personalization"
 

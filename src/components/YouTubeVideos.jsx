@@ -10,11 +10,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { getColors } from "@/actions/personalization"

@@ -62,7 +62,7 @@ export default function PodcastHome() {
       } else {
         throw new Error(error);
       }
-    } catch (error) {
+    } catch {
       Swal.fire({
         title: "Error",
         text: "No se pudo crear el podcast",
@@ -106,7 +106,7 @@ export default function PodcastHome() {
         } else {
           throw new Error(error);
         }
-      } catch (error) {
+      } catch {
         Swal.fire({
           title: "Error",
           text: "No se pudo eliminar el podcast",
@@ -135,7 +135,7 @@ export default function PodcastHome() {
       } else {
         throw new Error(error);
       }
-    } catch (error) {
+    } catch {
       Swal.fire({
         title: "Error",
         text: "No se pudo actualizar el podcast",

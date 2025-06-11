@@ -290,7 +290,7 @@ function formatDate(dateString) {
       month: "long",
       day: "numeric",
     })
-  } catch (error) {
+  } catch {
     return "Fecha inválida"
   }
 }

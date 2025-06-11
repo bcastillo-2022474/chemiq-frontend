@@ -1,6 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
-import { useEffect } from "react";
-import { setUpInterceptors } from "@/lib/http";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from "@/context/auth";
 import { NoAuth } from "@/routes/no-auth";
 import { Auth } from "@/routes/auth";

@@ -1,10 +1,9 @@
 "use client"
 
 import { formatDate } from "@/lib/utils"
-import { Link } from "react-router-dom"
-import { Calendar, ArrowRight, Clock } from 'lucide-react'
+import { Calendar, Clock } from 'lucide-react'
 
-const NewsCard = ({ id, title, description, date, imageUrl, createdAt }) => {
+const NewsCard = ({  title, description, date, imageUrl, createdAt }) => {
   return (
     <div className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col md:flex-row h-auto md:h-64 border border-gray-100 hover:border-[#28BC98]/20">
       {/* Image Section */}

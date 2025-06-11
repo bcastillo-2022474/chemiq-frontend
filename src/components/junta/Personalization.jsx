@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
-import { getColors, getColorByIdRequest, updateColorRequest } from "../../actions/personalization"
+import { getColors, updateColorRequest } from "../../actions/personalization"
 import { getImages, deleteImageRequest, updateImageRequest, createImageRequest } from "../../actions/image"
 // Initial theme structure
 const initialTheme = {
@@ -993,8 +993,9 @@ export default function Personalization() {
               <h3 className="text-sm font-medium mb-2">Carrusel de imágenes ({carrouselImages.length})</h3>
               <div className="border rounded-md p-2">
                 <div className="grid grid-cols-3 gap-2">
-                  {carrouselImages.map((img, index) => (
+                  {carrouselImages.map((img) => (
                     <img
+                      key={img.id}
                       src={img.enlace || "/placeholder.svg"} 
                       alt="Banner"
                       className="w-full h-auto rounded-md border"
