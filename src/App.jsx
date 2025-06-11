@@ -30,14 +30,6 @@ function App() {
 }
 
 function RoutesWrapper() {
-  const navigate = useNavigate();
-  // get current route
-
-  useEffect(() => {
-    setUpInterceptors(navigate)
-  }, []);
-
-
   return (
     <>
       <AuthProvider>
