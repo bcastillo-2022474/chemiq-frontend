@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/ui/SideBarDashboard"
 import { Outlet } from "react-router-dom"
 import { Menu } from "lucide-react"
 import { getColors } from "@/actions/personalization"
+import { cn } from "@/lib/utils.js";
 
 export function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -40,18 +41,20 @@ export function Dashboard() {
     <div className="flex h-screen relative overflow-hidden" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
       <button
         onClick={toggleSidebar}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md"
+        className={cn(
+          "md:hidden fixed top-4 left-4 z-50 p-2 rounded-md"
+        )}
         style={{
           backgroundColor: theme.colors.Primary || '#fc5000',
           color: theme.colors.Secondary || '#e4e4e4'
         }}
         onMouseEnter={(e) => {
-          e.target.style.backgroundColor = theme.colors.Accent || '#505050'
-          e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+          e.currentTarget.style.backgroundColor = theme.colors.Accent || '#000'
+          e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'
         }}
         onMouseLeave={(e) => {
-          e.target.style.backgroundColor = theme.colors.Primary || '#fc5000'
-          e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+          e.currentTarget.style.backgroundColor = theme.colors.Primary || '#fc5000'
+          e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'
         }}
         aria-label="Toggle menu"
       >

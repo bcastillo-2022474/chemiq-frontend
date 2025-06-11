@@ -284,8 +284,8 @@ const LandingPage = () => {
                         onClick={(e) => handleSmoothScroll(e, "#")}
                         className="text-sm"
                         style={{ color: theme.colors.Secondary || '#e4e4e4' }}
-                        onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
-                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                        onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Background || '#fff8f0'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'}
                       >
                         Inicio
                       </a>
@@ -296,8 +296,8 @@ const LandingPage = () => {
                         onClick={(e) => handleSmoothScroll(e, "#features")}
                         className="text-sm"
                         style={{ color: theme.colors.Secondary || '#e4e4e4' }}
-                        onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
-                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                        onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Background || '#fff8f0'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'}
                       >
                         Características
                       </a>
@@ -308,8 +308,8 @@ const LandingPage = () => {
                         onClick={(e) => handleSmoothScroll(e, "#about")}
                         className="text-sm"
                         style={{ color: theme.colors.Secondary || '#e4e4e4' }}
-                        onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
-                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                        onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Background || '#fff8f0'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'}
                       >
                         Sobre Nosotros
                       </a>
@@ -320,8 +320,8 @@ const LandingPage = () => {
                         onClick={(e) => handleSmoothScroll(e, "#contact")}
                         className="text-sm"
                         style={{ color: theme.colors.Secondary || '#e4e4e4' }}
-                        onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
-                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                        onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Background || '#fff8f0'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'}
                       >
                         Contacto
                       </a>
@@ -362,8 +362,8 @@ const LandingPage = () => {
                       href="#"
                       className="hover:scale-110 transition-transform"
                       style={{ color: theme.colors.Secondary || '#e4e4e4' }}
-                      onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
-                      onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                      onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Background || '#fff8f0'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'}
                     >
                       <Facebook className="h-6 w-6" />
                     </a>
@@ -371,8 +371,8 @@ const LandingPage = () => {
                       href="#"
                       className="hover:scale-110 transition-transform"
                       style={{ color: theme.colors.Secondary || '#e4e4e4' }}
-                      onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
-                      onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                      onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Background || '#fff8f0'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'}
                     >
                       <Twitter className="h-6 w-6" />
                     </a>
@@ -380,8 +380,8 @@ const LandingPage = () => {
                       href="#"
                       className="hover:scale-110 transition-transform"
                       style={{ color: theme.colors.Secondary || '#e4e4e4' }}
-                      onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
-                      onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                      onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Background || '#fff8f0'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'}
                     >
                       <Linkedin className="h-6 w-6" />
                     </a>
@@ -389,8 +389,8 @@ const LandingPage = () => {
                       href="#"
                       className="hover:scale-110 transition-transform"
                       style={{ color: theme.colors.Secondary || '#e4e4e4' }}
-                      onMouseEnter={(e) => e.target.style.color = theme.colors.Background || '#fff8f0'}
-                      onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
+                      onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Background || '#fff8f0'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'}
                     >
                       <Instagram className="h-6 w-6" />
                     </a>
@@ -489,26 +489,26 @@ function ContactSection({ loading }) {
           ) : (
             <form onSubmit={sendEmail} className="space-y-4">
               <Input
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.currentTarget.value }))}
                 value={form.name}
                 placeholder="Tu nombre"
                 theme={theme}
               />
               <Input
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.currentTarget.value }))}
                 type="email"
                 value={form.email}
                 placeholder="Tu email"
                 theme={theme}
               />
               <Input
-                onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, subject: e.currentTarget.value }))}
                 value={form.subject}
                 placeholder="Asunto"
                 theme={theme}
               />
               <textarea
-                onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, message: e.currentTarget.value }))}
                 value={form.message}
                 className="w-full h-32 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#fc5000]"
                 style={{ 
@@ -524,12 +524,12 @@ function ContactSection({ loading }) {
                   color: theme.colors.Secondary || '#e4e4e4'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = theme.colors.Accent || '#505050';
-                  e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+                  e.currentTarget.style.backgroundColor = theme.colors.Accent || '#505050';
+                  e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = theme.colors.Primary || '#fc5000';
-                  e.target.style.color = theme.colors.Secondary || '#e4e4e4';
+                  e.currentTarget.style.backgroundColor = theme.colors.Primary || '#fc5000';
+                  e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4';
                 }}
               >
                 {status === "idle" && <span>Enviar</span>}
