@@ -19,11 +19,10 @@ import { ActionButtons } from "@/components/modals/project/ActionButtons.jsx";
 
 export function AddProjectModal({ onClose, defaultValues, onSubmit }) {
   const [selectedFile, setSelectedFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState(defaultValues.img ?? null)
+  const [previewUrl, setPreviewUrl] = useState(defaultValues?.img ?? null)
   const [isUploading, setIsUploading] = useState(false)
   const [theme, setTheme] = useState({ colors: {} })
   const { users, loading: usersLoading, error: usersError } = useUsers()
-  console.log(defaultValues)
 
   const {
     control,
