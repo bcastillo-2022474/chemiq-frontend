@@ -2,18 +2,17 @@ import { useState, useEffect } from "react";
 import { ProjectList } from "@/components/ui/DashboardProjectList";
 import { ProjectDetails } from "@/components/ui/DashboardProjectsDetails";
 import { AddMemberModal } from "@/components/ui/DashboardModalProjectMember";
-import { AddProjectModal } from "@/components/ui/DashboardModalAddProject";
 import { useProyectos } from "@/hooks/useProjects";
 import { getMembersByProjectIdRequest } from "../actions/members";
 import { deleteProjectRequest } from "../actions/projects";
 import { useUsers } from "@/hooks/useUsers";
-import { EditProjectModal } from "../components/ui/DashboardProjectsEdit";
 import LoaderCustom from "../components/ui/LoaderCustom";
+import { AddProjectModal } from "@/components/modals/project/ProjectModal.jsx";
 
 export function Projects() {
-  const { proyectos, loading, error, createProyecto, updateProyecto, fetchProyectos } = useProyectos();
+  const { proyectos, loading, error, updateProyecto, fetchProyectos } = useProyectos();
   const { users } = useUsers();
-  
+
   const [selectedProject, setSelectedProject] = useState(null);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
@@ -33,7 +32,7 @@ export function Projects() {
 
   useEffect(() => {
     if (!isUpdating) return;
-    
+
     const updateData = async () => {
       await fetchProyectos();
       setIsUpdating(false);
@@ -115,22 +114,6 @@ export function Projects() {
     }
   };
 
-  const handleAddProject = async (newProject) => {
-    try {
-      setIsUpdating(true);
-      const createdProject = await createProyecto(newProject);
-      if (createdProject) {
-        await fetchProyectos();
-        setSelectedProject(null);
-        setIsAddProjectModalOpen(false);
-      }
-    } catch (error) {
-      console.error("Error al crear proyecto:", error);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
   const handleDeleteProject = async (projectId) => {
     if (window.confirm("¿Estás seguro que deseas eliminar este proyecto?")) {
       try {
@@ -145,20 +128,20 @@ export function Projects() {
       }
     }
   };
-  
+
   const handleEditProject = (project) => {
     setProjectToEdit(project);
     setIsEditProjectModalOpen(true);
   };
-  
+
   const handleUpdateProject = async (projectId, updatedProject) => {
     try {
       setIsUpdating(true);
       const result = await updateProyecto(projectId, updatedProject);
-      
+
       if (result) {
         await fetchProyectos();
-        
+
         if (selectedProject && selectedProject.id === projectId) {
           const updatedSelectedProject = {
             ...updatedProject,
@@ -168,7 +151,7 @@ export function Projects() {
           setSelectedProject(updatedSelectedProject);
           await fetchMembers(projectId);
         }
-        
+
         setIsEditProjectModalOpen(false);
       }
     } catch (error) {
@@ -178,13 +161,26 @@ export function Projects() {
     }
   };
 
-  if (loading || isUpdating) return <LoaderCustom />;
+  if (loading || isUpdating) return <LoaderCustom/>;
   if (error) return <p>Error: {error}</p>;
 
   const enrichedSelectedProject = selectedProject && {
     ...selectedProject,
     dueno: projectOwner
   };
+
+  const createProject = async (data, clearErrors) => {
+    const newProject = {
+      nombre: data.nombre,
+      informacion: data.informacion,
+      img: data.img || null,
+      youtube: data.youtube || null,
+      dueno_id: Number.parseInt(data.dueno_id, 10),
+      integrantes: [],
+    }
+
+    return createProyecto(newProject)
+  }
 
   return (
     <main className="flex-1 overflow-auto p-8">
@@ -214,18 +210,20 @@ export function Projects() {
         />
       )}
       {isAddProjectModalOpen && (
-        <AddProjectModal 
-          onAddProject={handleAddProject} 
-          onClose={() => setIsAddProjectModalOpen(false)} 
+        <AddProjectModal
+          defaultValues={null}
+          onSubmit={createProject}
+          onClose={() => setIsAddProjectModalOpen(false)}
         />
       )}
       {isEditProjectModalOpen && projectToEdit && (
-        <EditProjectModal 
-          project={projectToEdit}
-          projectOwner={projectOwner}
-          onUpdateProject={(updatedProject) => handleUpdateProject(projectToEdit.id, updatedProject)}
-          onClose={() => setIsEditProjectModalOpen(false)} 
-        />
+        <>
+          <AddProjectModal
+            defaultValues={{ ...projectToEdit, dueno_id: projectToEdit.dueno?.carne || "" }}
+            onSubmit={async (updatedProject) => handleUpdateProject(projectToEdit.id, updatedProject)}
+            onClose={() => setIsEditProjectModalOpen(false)}
+          />
+        </>
       )}
     </main>
   );
