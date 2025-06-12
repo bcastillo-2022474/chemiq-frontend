@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { getColors } from "@/actions/personalization";
 
-export function ProjectList({ onProjectClick, onAddProject, projects }) {
+export function ProjectList({ onAddProject, projects }) {
   const [theme, setTheme] = useState({
     colors: {}, // Inicialmente vacío
   });
@@ -45,10 +46,10 @@ export function ProjectList({ onProjectClick, onAddProject, projects }) {
       <div className="overflow-y-auto max-h-[calc(100vh-12rem)] scrollbar-thin" style={{ scrollbarColor: `${theme.colors.Tertiary || '#5f5f5f'} ${theme.colors.Background || '#fff8f0'}` }}>
         <ul className="divide-y" style={{ borderColor: theme.colors.Tertiary || '#5f5f5f' }}>
           {projects.map(project => (
-            <li
+            <Link
+              to={`./${project.id}`}
               key={project.id}
               className="flex items-center p-6 cursor-pointer transition duration-150 ease-in-out"
-              onClick={() => onProjectClick(project)}
               style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#f5e8df'}
               onMouseLeave={(e) => e.target.style.backgroundColor = theme.colors.Background || '#fff8f0'}
@@ -69,7 +70,7 @@ export function ProjectList({ onProjectClick, onAddProject, projects }) {
                   Click to view details
                 </p>
               </div>
-            </li>
+            </Link>
           ))}
         </ul>
       </div>

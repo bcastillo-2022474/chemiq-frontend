@@ -1,106 +1,86 @@
-import { useState, useEffect } from "react"
+import { create } from "zustand";
 import {
   createProjectRequest,
   deleteProjectRequest,
   getProjectByIdRequest,
   getProjectsRequest,
   updateProjectRequest
-} from "@/actions/projects"
+} from "@/actions/projects";
 
-export function useProyectos() {
-  const [proyectos, setProyectos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export const useProyectosStore = create((set, get) => ({
+  proyectos: [],
+  loading: false,
+  error: null,
 
-  // Fetch all proyectos
-  const fetchProyectos = async () => {
-    setLoading(true);
-    setError(null);
+  setLoading: (loading) => set({ loading }),
+  setError: (error) => set({ error }),
+
+  fetchProyectos: async () => {
+    console.log("CALLED fetchProyectos");
+    set({ loading: true, error: null });
     try {
       const [error, projects] = await getProjectsRequest();
       if (error) {
-        setError(error.message);
+        set({ error: error.message });
       } else {
-        setProyectos(projects);
+        console.log("Updating proyectos state with fetched projects:", projects);
+        set({ proyectos: projects });
       }
     } catch (err) {
-      setError(err.message);
+      set({ error: err.message });
     } finally {
-      setLoading(false);
+      set({ loading: false });
     }
-  };
-  // Fetch a single proyecto by ID
-  const fetchProyectoById = async id => {
-    setLoading(true)
-    const [error, project] = await getProjectByIdRequest({ id })
+  },
+
+  fetchProyectoById: async (id) => {
+    const [error, project] = await getProjectByIdRequest({ id });
 
     if (error) {
-      setError(error.message)
-    } else {
-      setProyectos([project])
+      set({ error: error.message });
+      return null;
     }
-    setLoading(false)
-    return project
-  }
+    return project;
+  },
 
-  const createProyecto = async (projectDTO) => {
-    setError(null);
+  createProyecto: async (projectDTO) => {
+    set({ error: null });
     try {
       const [error, project] = await createProjectRequest(projectDTO);
       if (error) {
-        setError(error.message);
+        set({ error: error.message });
         return null;
       }
-      await fetchProyectos();
+      await get().fetchProyectos();
       return project;
     } catch (err) {
-      setError(err.message);
+      set({ error: err.message });
       return null;
     }
-  };
-  // Update a proyecto
-  const updateProyecto = async (id, projectDTO) => {
-    setError(null);
+  },
+
+  updateProyecto: async (id, projectDTO) => {
+    set({ error: null });
     try {
-      const [error, project] = await updateProjectRequest({
-        id,
-        project: projectDTO
-      });
+      const [error, project] = await updateProjectRequest({ id, project: projectDTO });
       if (error) {
-        setError(error.message);
+        set({ error: error.message });
         return null;
       }
-      await fetchProyectos();
+      await get().fetchProyectos();
       return project;
     } catch (err) {
-      setError(err.message);
+      set({ error: err.message });
       return null;
     }
-  }
+  },
 
-  // Delete a proyecto
-  const deleteProyecto = async id => {
-    const [error] = await deleteProjectRequest({ id })
+  deleteProyecto: async (id) => {
+    const [error] = await deleteProjectRequest({ id });
     if (error) {
-      setError(error.message)
-      return
+      set({ error: error.message });
+      return;
     }
-    void fetchProyectos()
-  }
-
-  // Fetch proyectos on component mount
-  useEffect(() => {
-    void fetchProyectos()
-  }, [])
-
-  return {
-    proyectos,
-    loading,
-    error,
-    fetchProyectos,
-    fetchProyectoById,
-    createProyecto,
-    updateProyecto,
-    deleteProyecto
-  }
-}
+    await get().fetchProyectos();
+  },
+}));
