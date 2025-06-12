@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { LayoutDashboard, Users, FlaskRoundIcon as Flask, Settings, LogOut, Newspaper, Podcast, X } from "lucide-react"
-import { useAuth } from "@/context/auth.jsx"
 import { getColors } from "@/actions/personalization"
 
 const navItems = [

@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/context/auth.jsx"
 import { useState, useEffect, useRef } from "react"
-import { BASE_URL } from "@/lib/constants.js"
-import { useUsers } from "@/hooks/useUsers.js"
 import { updateUserRequest } from "@/actions/users.js"
 import { uploadImageRequest } from "@/actions/image-bucket.js"
 import { getColors } from "@/actions/personalization"
@@ -50,7 +48,7 @@ export function Sidebar() {
   }, [])
 
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const location = useLocation()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({

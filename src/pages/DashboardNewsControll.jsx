@@ -60,7 +60,7 @@ export default function NewsHome() {
           confirmButtonColor: theme.colors.Primary || '#fc5000'
         });
       }
-    } catch (error) {
+    } catch {
       Swal.fire({
         title: "Error",
         text: "No se pudo crear la noticia",
@@ -102,7 +102,7 @@ export default function NewsHome() {
             confirmButtonColor: theme.colors.Primary || '#fc5000'
           });
         }
-      } catch (error) {
+      } catch {
         Swal.fire({
           title: "Error",
           text: "No se pudo eliminar la noticia",
@@ -129,7 +129,7 @@ export default function NewsHome() {
           confirmButtonColor: theme.colors.Primary || '#fc5000'
         });
       }
-    } catch (error) {
+    } catch {
       Swal.fire({
         title: "Error",
         text: "No se pudo actualizar la noticia",

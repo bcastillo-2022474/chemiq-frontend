@@ -62,7 +62,7 @@ const Reset = () => {
       setTimeout(() => {
         navigate("/login")
       }, 3000)
-    } catch (error) {
+    } catch {
       setStatus("error")
       setMessage("Ocurrió un error al restablecer la contraseña")
       void Swal.fire("Error", "Ocurrió un error al restablecer la contraseña", "error")

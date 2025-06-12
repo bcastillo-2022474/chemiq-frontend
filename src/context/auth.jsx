@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext } from "react"
 import { loginRequest, logoutRequest, verifyAuthRequest } from "@/actions/auth"
 import { useNavigate } from "react-router-dom"
+import { setUpInterceptors } from "../lib/http" // Update this import path
 
 const AuthContext = createContext(null)
 
@@ -9,26 +10,33 @@ export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     loading: true,
     authenticated: false,
-    user: null
+    user: null,
+    refreshing: false // Added refreshing state
   })
+
+  const setRefreshing = (refreshing) => {
+    setAuthState(prev => ({ ...prev, refreshing }))
+  }
 
   const verifyAuth = async () => {
     const [error, user] = await verifyAuthRequest()
 
     if (error) {
-      setAuthState({
+      setAuthState(prev => ({
+        ...prev,
         loading: false,
         authenticated: false,
         user: null
-      })
+      }))
       return null
     }
 
-    setAuthState({
+    setAuthState(prev => ({
+      ...prev,
       loading: false,
       authenticated: true,
       user
-    })
+    }))
     return user
   }
 
@@ -58,17 +66,29 @@ export const AuthProvider = ({ children }) => {
     setAuthState({
       loading: false,
       authenticated: false,
-      user: null
+      user: null,
+      refreshing: false
     })
     navigate("/login")
   }
+
+  // Set up interceptors with access to setRefreshing and verifyAuth
+  useEffect(() => {
+    setUpInterceptors(navigate, setRefreshing, verifyAuth)
+  }, [navigate])
 
   useEffect(() => {
     void verifyAuth()
   }, [])
 
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout, verifyAuth }}>
+    <AuthContext.Provider value={{
+      ...authState,
+      login,
+      logout,
+      verifyAuth,
+      setRefreshing
+    }}>
       {children}
     </AuthContext.Provider>
   )

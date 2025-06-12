@@ -55,7 +55,7 @@ export function NewsDetail() {
         month: "long",
         day: "numeric",
       })
-    } catch (err) {
+    } catch {
       return dateString
     }
   }

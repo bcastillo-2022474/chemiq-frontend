@@ -2,15 +2,12 @@ import { useAuth } from "@/context/auth";
 import { Navigate, Outlet } from "react-router-dom";
 
 export function Auth() {
-  const { authenticated, loading } = useAuth()
+  const { authenticated, loading, refreshing } = useAuth()
 
-  if (loading) return;
-
+  if (loading || refreshing) return <div>Loading...</div> // or your loading component
 
   if (!authenticated) {
-    // navigate("/login");
-
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" />
   }
 
   return <Outlet/>
