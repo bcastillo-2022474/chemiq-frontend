@@ -10,7 +10,7 @@ import LoaderCustom from "../components/ui/LoaderCustom";
 import { AddProjectModal } from "@/components/modals/project/ProjectModal.jsx";
 
 export function Projects() {
-  const { proyectos, loading, error, updateProyecto, fetchProyectos } = useProyectos();
+  const { proyectos, loading, error, createProyecto, updateProyecto, fetchProyectos } = useProyectos();
   const { users } = useUsers();
 
   const [selectedProject, setSelectedProject] = useState(null);
@@ -169,7 +169,7 @@ export function Projects() {
     dueno: projectOwner
   };
 
-  const createProject = async (data, clearErrors) => {
+  const createProject = async (data) => {
     const newProject = {
       nombre: data.nombre,
       informacion: data.informacion,
