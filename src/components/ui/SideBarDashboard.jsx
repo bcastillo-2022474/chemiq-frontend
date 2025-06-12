@@ -17,7 +17,6 @@ const navItems = [
 
 export function Sidebar() {
   const location = useLocation()
-  const { logout } = useAuth()
   const navigate = useNavigate()
   const [theme, setTheme] = useState({
     colors: {}, // Inicialmente vacío
@@ -74,8 +73,8 @@ export function Sidebar() {
       <button
         className="md:hidden self-end p-4"
         style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
-        onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-        onMouseLeave={(e) => e.target.style.color = theme.colors.Tertiary || '#5f5f5f'}
+        onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Primary || '#fc5000'}
+        onMouseLeave={(e) => e.currentTarget.style.color = theme.colors.Tertiary || '#5f5f5f'}
         onClick={() => window.dispatchEvent(new CustomEvent("closeSidebar"))}
       >
         <X className="h-6 w-6" style={{ color: theme.colors.Tertiary || '#5f5f5f' }} />
@@ -98,19 +97,14 @@ export function Sidebar() {
                   ? theme.colors.Primary || '#fc5000' 
                   : theme.colors.Tertiary || '#5f5f5f'
               }}
-              onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-              onMouseLeave={(e) => e.target.style.color = location.pathname === item.href 
-                ? theme.colors.Primary || '#fc5000' 
+              onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.Primary || '#fc5000'}
+              onMouseLeave={(e) => e.currentTarget.style.color = location.pathname === item.href
+                ? theme.colors.Primary || '#fc5000'
                 : theme.colors.Tertiary || '#5f5f5f'}
               onClick={closeSidebarOnMobile}
             >
               <item.icon 
                 className="h-5 w-5" 
-                style={{
-                  color: location.pathname === item.href 
-                    ? theme.colors.Primary || '#fc5000' 
-                    : theme.colors.Tertiary || '#5f5f5f'
-                }}
               />
               <span>{item.name}</span>
             </Link>
@@ -127,12 +121,12 @@ export function Sidebar() {
             color: theme.colors.Secondary || '#e4e4e4'
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = theme.colors.Accent || '#505050'
-            e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+            e.currentTarget.style.backgroundColor = theme.colors.Accent || '#505050'
+            e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = theme.colors.Primary || '#fc5000'
-            e.target.style.color = theme.colors.Secondary || '#e4e4e4'
+            e.currentTarget.style.backgroundColor = theme.colors.Primary || '#fc5000'
+            e.currentTarget.style.color = theme.colors.Secondary || '#e4e4e4'
           }}
         >
           <LogOut className="h-5 w-5" style={{ color: theme.colors.Secondary || '#e4e4e4' }} />
