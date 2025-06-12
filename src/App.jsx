@@ -61,7 +61,6 @@ function GeneralRoutes() {
           <Route path="/dashboard" element={<Dashboard/>}>
             <Route path="projects" element={<Projects/>}>
               <Route path=":projectId" element={<ProjectDetailsPage/>}/>
-
             </Route>
             <Route path="stats" element={<Stats/>}/>
             <Route path="users" element={<Home/>}/>

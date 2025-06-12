@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { Modal } from "../components/ui/DashboardModalEditUsers";
-import { NewsTable } from "../components/ui/DashboardTableNews";
 import { CreateNewsForm } from "../components/ui/CreateNewsForm";
 import { useNews } from "../hooks/useNews";
 import { EditNewsForm } from "../components/EditNewsForm";
 import LoaderCustom from "../components/ui/LoaderCustom";
 import { getColors } from "@/actions/personalization";
+import { NewsTable } from "@/pages/admin/news/NewsPage.dashboard.jsx";
 
 export default function NewsHome() {
   const {
