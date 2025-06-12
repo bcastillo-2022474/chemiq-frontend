@@ -33,12 +33,6 @@ export function ProjectDetailsPage() {
     void fetchProject();
   }, [projectId, users, isUpdating]);
 
-  // useEffect(() => {
-  //   if (isUpdating) {
-  //     fetchProyectos().finally(() => setIsUpdating(false));
-  //   }
-  // }, [isUpdating, fetchProyectos]);
-
   const fetchMembers = async (id) => {
     try {
       const [error, data] = await getMembersByProjectIdRequest({ id });
