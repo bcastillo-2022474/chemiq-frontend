@@ -8,6 +8,7 @@ export function ColorsProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    
     getColors()
       .then(setColors)
       .finally(() => setLoading(false));

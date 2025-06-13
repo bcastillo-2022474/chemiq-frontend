@@ -8,6 +8,7 @@ import { sendEmailToSelfRequest } from "@/actions/email"
 import NavBar from "../components/ui/NavLanding"
 import { getColors } from "../actions/personalization"
 import { getImages } from "../actions/image"
+import { ColorsProvider } from "../components/colorProvider"
 
 const Button = ({ children, className, variant = "" }) => (
   <button className={`px-4 py-2 rounded ${className} ${variant === "outline" ? "border border-current" : ""}`}>
@@ -127,6 +128,7 @@ const LandingPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
+      <ColorsProvider>
       <NavBar />
       <main className="flex-1 pt-16">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48" style={{ backgroundColor: theme.colors.Tertiary || '#fff8f0' }}>
@@ -399,6 +401,7 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+      </ColorsProvider>
     </div>
   )
 }
