@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { useColors } from "./colorProvider"
 
 // Componente base de Skeleton
 function Skeleton({ className, ...props }) {
