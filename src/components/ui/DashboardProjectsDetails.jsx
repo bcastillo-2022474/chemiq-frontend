@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Edit, Trash2 } from "lucide-react";
 import { getColors } from "@/actions/personalization";
+import { X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function ProjectDetails({ project, members, onAddMember, onDeleteProject, onEditProject, projectOwner }) {
   console.log("Project Details", projectOwner);
@@ -32,23 +34,28 @@ export function ProjectDetails({ project, members, onAddMember, onDeleteProject,
   const integrantes = Array.isArray(members) ? members : [];
   const youtubeVideoId = project.youtube
     ? project.youtube.split("youtu.be/")[1]?.split("?")[0] ||
-      project.youtube.split("v=")[1]?.split("&")[0]
+    project.youtube.split("v=")[1]?.split("&")[0]
     : null;
 
   return (
-    <div className="w-full lg:w-2/3 rounded-xl shadow-lg overflow-hidden" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
+    <div className="w-full lg:w-2/3 rounded-xl shadow-lg overflow-hidden"
+         style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
       <div className="relative h-64">
         <img
           src={project.img || "/placeholder.svg"}
           alt={project.nombre}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(95, 95, 95, 0.5)' }}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center"
+             style={{ backgroundColor: 'rgba(95, 95, 95, 0.5)' }}>
           <h2 className="text-3xl font-bold" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>
             {project.nombre}
           </h2>
           {ownerDetails && (
-            <div className="mt-2 px-3 py-1 rounded-full text-sm font-medium flex items-center" style={{ backgroundColor: theme.colors.Primary || '#fc5000', color: theme.colors.Secondary || '#e4e4e4' }}>
+            <div className="mt-2 px-3 py-1 rounded-full text-sm font-medium flex items-center" style={{
+              backgroundColor: theme.colors.Primary || '#fc5000',
+              color: theme.colors.Secondary || '#e4e4e4'
+            }}>
               {ownerDetails.img && (
                 <img
                   src={ownerDetails.img || "/placeholder.svg"}
@@ -60,6 +67,14 @@ export function ProjectDetails({ project, members, onAddMember, onDeleteProject,
             </div>
           )}
         </div>
+        <Link
+          to={"../"}
+          style={{
+            backgroundColor: theme.colors.Primary || '#fc5000',
+          }}
+          className="absolute size-10 rounded-full right-2 top-2 flex items-center justify-center cursor-pointer">
+          <X/>
+        </Link>
       </div>
       <div className="p-6">
         <div className="flex justify-end mb-4 space-x-2">
@@ -79,7 +94,7 @@ export function ProjectDetails({ project, members, onAddMember, onDeleteProject,
               e.target.style.color = theme.colors.Secondary || '#e4e4e4';
             }}
           >
-            <Edit className="w-4 h-4 mr-1" />
+            <Edit className="w-4 h-4 mr-1"/>
             Edit
           </button>
           <button
@@ -98,7 +113,7 @@ export function ProjectDetails({ project, members, onAddMember, onDeleteProject,
               e.target.style.color = theme.colors.Secondary || '#e4e4e4';
             }}
           >
-            <Trash2 className="w-4 h-4 mr-1" />
+            <Trash2 className="w-4 h-4 mr-1"/>
             Delete
           </button>
         </div>
@@ -112,7 +127,8 @@ export function ProjectDetails({ project, members, onAddMember, onDeleteProject,
               <span className="font-semibold mr-2" style={{ color: theme.colors.Primary || '#fc5000' }}>
                 Project Owner:
               </span>
-              <div className="flex items-center px-2 py-1 rounded-md" style={{ backgroundColor: '#fffaf5', color: theme.colors.Tertiary || '#5f5f5f' }}>
+              <div className="flex items-center px-2 py-1 rounded-md"
+                   style={{ backgroundColor: '#fffaf5', color: theme.colors.Tertiary || '#5f5f5f' }}>
                 {ownerDetails.img && (
                   <img
                     src={ownerDetails.img || "/placeholder.svg"}

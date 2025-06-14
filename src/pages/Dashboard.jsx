@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/ui/SideBarDashboard"
 import { Outlet } from "react-router-dom"

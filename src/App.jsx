@@ -12,11 +12,12 @@ import Home from '@/pages/DashboardUserControll';
 import Stats from '@/pages/DashboardStatsControll';
 import JuntaPage from '@/pages/JuntaPage';
 import { PortalRoutes } from '@/pages/UserPage';
-import { Projects } from '@/pages/DashboardProjectsControll';
 import { JuntaRoutes } from "@/routes/junta-routes";
 import { Dashboard } from "@/pages/Dashboard";
 import Podcast from './pages/DashboardPodcastControll';
 import NewsHome from './pages/DashboardNewsControll';
+import { ProjectDetailsPage } from "@/pages/admin/projects/id/ProjectDetailPage.dashboard.jsx";
+import { Projects } from "@/pages/admin/projects/ProjectsPage.dashboard.jsx";
 
 
 function App() {
@@ -58,12 +59,15 @@ function GeneralRoutes() {
         {/* @TODO: here goes the protected routes */}
         <Route path="" element={<JuntaRoutes/>}>
           <Route path="/dashboard" element={<Dashboard/>}>
-          <Route path="projects" element={<Projects/>}/>
-          <Route path="stats" element={<Stats/>}/>
-          <Route path="users" element={<Home/>}/>
-          <Route path="podcast" element={<Podcast/>}/>
-          <Route path="news" element={<NewsHome/>}/>
-        </Route>
+            <Route path="projects" element={<Projects/>}>
+              <Route path=":projectId" element={<ProjectDetailsPage/>}/>
+
+            </Route>
+            <Route path="stats" element={<Stats/>}/>
+            <Route path="users" element={<Home/>}/>
+            <Route path="podcast" element={<Podcast/>}/>
+            <Route path="news" element={<NewsHome/>}/>
+          </Route>
         </Route>
         {/*<UserRoutes/>*/}
         {/*<JuntaRoutes/>*/}
