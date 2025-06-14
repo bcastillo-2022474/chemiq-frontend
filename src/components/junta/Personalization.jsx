@@ -456,6 +456,7 @@ export default function Personalization() {
                                         ...prev,
                                         [key]: value, 
                                       }));
+                                      updateColor(key, value); 
                                     }}
                                     onBlur={() => {
                                       const hex = tempColors[key];
