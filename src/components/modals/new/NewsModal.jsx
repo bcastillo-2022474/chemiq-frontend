@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Youtube, User, Upload } from "lucide-react"
+import { Image, Type, FileText } from "lucide-react"
 
-import { useUsers } from "@/hooks/useUsers"
 import { getColors } from "@/actions/personalization"
 import { uploadImageRequest } from "@/actions/image-bucket.js"
 
@@ -11,18 +10,18 @@ import { FormField } from "@/components/form/FormField"
 import { TextInput } from "@/components/form/TextInput"
 import { TextArea } from "@/components/form/TextArea"
 import { Select } from "@/components/form/Select"
-import { projectSchema } from "@/components/modals/project/project.schema.js";
-import { ProjectModalHeader } from "@/components/modals/project/ProjectModalHeader.jsx";
-import { ErrorMessage } from "@/components/utils/ErrorMessage.jsx";
-import { ImageUpload } from "@/components/utils/ImageUpload.jsx";
-import { ActionButtons } from "@/components/modals/ActionButtons.jsx";
+import { newsSchema } from "@/components/modals/new/new.schema.js"
+import { NewsModalHeader } from "@/components/modals/new/NewsModalHeader.jsx"
+import { ErrorMessage } from "@/components/utils/ErrorMessage.jsx"
+import { ImageUpload } from "@/components/utils/ImageUpload.jsx"
+import { ActionButtons } from "@/components/modals/ActionButtons.jsx"
+import { Plus } from "lucide-react";
 
-export function AddProjectModal({ onClose, defaultValues, onSubmit }) {
+export function AddNewsModal({ onClose, defaultValues, onSubmit }) {
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(defaultValues?.img ?? null)
   const [isUploading, setIsUploading] = useState(false)
   const [theme, setTheme] = useState({ colors: {} })
-  const { users, loading: usersLoading, error: usersError } = useUsers()
 
   const {
     control,
@@ -32,31 +31,28 @@ export function AddProjectModal({ onClose, defaultValues, onSubmit }) {
     setError,
     clearErrors,
   } = useForm({
-    resolver: zodResolver(projectSchema),
+    resolver: zodResolver(newsSchema),
     defaultValues: defaultValues ?? {
-      nombre: "",
-      informacion: "",
+      titulo: "",
+      contenido: "",
       img: "",
-      youtube: "",
-      dueno_id: "",
+      tipo: "general",
     },
   })
 
   const submit = async (data) => {
     try {
       clearErrors()
-
       await onSubmit(data)
       onClose()
     } catch (error) {
       setError("root", {
         type: "server",
-        message: "Failed to process project. Please try again.",
+        message: "Failed to process news. Please try again.",
       })
-      console.error("Error al procesar el proyecto:", error)
+      console.error("Error al procesar la noticia:", error)
     }
   }
-
 
   useEffect(() => {
     const fetchColors = async () => {
@@ -145,26 +141,27 @@ export function AddProjectModal({ onClose, defaultValues, onSubmit }) {
         className="rounded-2xl w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto"
         style={{ backgroundColor: currentTheme.colors.Background }}
       >
-        <ProjectModalHeader onClose={onClose} theme={currentTheme}/>
+        <NewsModalHeader onClose={onClose} theme={currentTheme}/>
 
         <div className="p-6">
           <ErrorMessage error={errors.root} theme={currentTheme}/>
 
           <form onSubmit={handleSubmit(submit)} className="space-y-6">
             <FormField
-              label="Project Name"
-              error={errors.nombre}
+              label="Title"
+              error={errors.titulo}
               theme={currentTheme}
+              icon={Type}
               required
             >
               <Controller
-                name="nombre"
+                name="titulo"
                 control={control}
                 render={({ field }) => (
                   <TextInput
                     {...field}
-                    placeholder="Enter your project name"
-                    error={errors.nombre}
+                    placeholder="Enter news title"
+                    error={errors.titulo}
                     theme={currentTheme}
                   />
                 )}
@@ -172,30 +169,33 @@ export function AddProjectModal({ onClose, defaultValues, onSubmit }) {
             </FormField>
 
             <FormField
-              label="Project Information"
-              error={errors.informacion}
+              label="Content"
+              error={errors.contenido}
               theme={currentTheme}
+              icon={FileText}
               required
             >
               <Controller
-                name="informacion"
+                name="contenido"
                 control={control}
                 render={({ field }) => (
                   <TextArea
                     {...field}
-                    placeholder="Describe your project in detail..."
-                    error={errors.informacion}
+                    placeholder="Write your news content..."
+                    error={errors.contenido}
                     theme={currentTheme}
-                    rows={4}
+                    rows={6}
                   />
                 )}
               />
             </FormField>
 
             <FormField
-              label="Project Image"
+              label="News Image"
               error={errors.img}
               theme={currentTheme}
+              icon={Image}
+              required
             >
               <ImageUpload
                 onFileUpload={handleFileUpload}
@@ -209,54 +209,23 @@ export function AddProjectModal({ onClose, defaultValues, onSubmit }) {
             </FormField>
 
             <FormField
-              label="YouTube Link"
-              error={errors.youtube}
+              label="News Type"
+              error={errors.tipo}
               theme={currentTheme}
-              icon={Youtube}
-            >
-              <Controller
-                name="youtube"
-                control={control}
-                render={({ field }) => (
-                  <TextInput
-                    {...field}
-                    type="url"
-                    placeholder="https://youtube.com/watch?v=..."
-                    error={errors.youtube}
-                    theme={currentTheme}
-                  />
-                )}
-              />
-            </FormField>
-
-            <FormField
-              label="Project Owner"
-              error={errors.dueno_id}
-              theme={currentTheme}
-              icon={User}
               required
             >
               <Controller
-                name="dueno_id"
+                name="tipo"
                 control={control}
                 render={({ field }) => (
                   <Select
                     {...field}
-                    error={errors.dueno_id}
+                    error={errors.tipo}
                     theme={currentTheme}
                   >
-                    <option value="">Select an owner</option>
-                    {usersLoading ? (
-                      <option disabled>Loading users...</option>
-                    ) : usersError ? (
-                      <option disabled>Error loading users</option>
-                    ) : (
-                      users.map((usuario) => (
-                        <option key={usuario.carne} value={usuario.carne}>
-                          {usuario.nombre} ({usuario.carne})
-                        </option>
-                      ))
-                    )}
+                    <option value="general">General</option>
+                    <option value="evento">Event</option>
+                    <option value="noticia">News</option>
                   </Select>
                 )}
               />
@@ -267,9 +236,9 @@ export function AddProjectModal({ onClose, defaultValues, onSubmit }) {
               isSubmitting={isSubmitting}
               isUploading={isUploading}
               theme={currentTheme}
-              submitText="Add Project"
+              submitText="Create News"
               submittingText="Creating..."
-              icon={Upload}
+              icon={Plus}
             />
           </form>
         </div>

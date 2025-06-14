@@ -4,14 +4,18 @@ export function ActionButtons({
   onCancel,
   isSubmitting,
   isUploading,
-  theme
+  theme,
+  submitText = "Submit",
+  submittingText = "Submitting...",
+  uploadingText = "Uploading...",
+  icon: Icon = Upload
 }) {
   const isDisabled = isSubmitting || isUploading
 
   const getButtonText = () => {
-    if (isSubmitting) return "Creating..."
-    if (isUploading) return "Uploading..."
-    return "Add Project"
+    if (isSubmitting) return submittingText
+    if (isUploading) return uploadingText
+    return submitText
   }
 
   const getButtonIcon = () => {
@@ -23,7 +27,7 @@ export function ActionButtons({
         />
       )
     }
-    return <Upload className="w-4 h-4"/>
+    return <Icon className="w-4 h-4"/>
   }
 
   const handleCancelMouseEnter = (e) => {

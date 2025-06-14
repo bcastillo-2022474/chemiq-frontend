@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { 
-  getNewsRequest, 
-  getNewByIdRequest, 
-  createNewsRequest, 
-  updateNewsRequest, 
-  deleteNewsRequest 
+import {
+  getNewsRequest,
+  getNewByIdRequest,
+  createNewsRequest,
+  updateNewsRequest,
+  deleteNewsRequest
 } from "../actions/news";
 
 export const useNews = () => {
@@ -50,7 +50,10 @@ export const useNews = () => {
 
   const updateNews = async (id, newsData) => {
     setLoading(true);
-    const [err, data] = await updateNewsRequest(id, newsData);
+    const [err, data] = await updateNewsRequest({
+      id,
+      news: newsData,
+    });
     setLoading(false);
     if (err) {
       setError(err.message || "Error al actualizar la noticia");
@@ -62,7 +65,7 @@ export const useNews = () => {
 
   const deleteNews = async (id) => {
     setLoading(true);
-    const [err] = await deleteNewsRequest(id);
+    const [err] = await deleteNewsRequest({ id });
     setLoading(false);
     if (err) {
       setError(err.message || "Error al eliminar la noticia");

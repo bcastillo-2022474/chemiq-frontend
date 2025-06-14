@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { Modal } from "../components/ui/DashboardModalEditUsers";
-import { NewsTable } from "../components/ui/DashboardTableNews";
-import { CreateNewsForm } from "../components/ui/CreateNewsForm";
+import { AddNewsModal } from "@/components/modals/new/NewsModal.jsx";
 import { useNews } from "../hooks/useNews";
-import { EditNewsForm } from "../components/EditNewsForm";
 import LoaderCustom from "../components/ui/LoaderCustom";
 import { getColors } from "@/actions/personalization";
+import { NewsTable } from "@/pages/admin/news/NewsPage.dashboard.jsx";
 
 export default function NewsHome() {
   const {
@@ -17,13 +15,11 @@ export default function NewsHome() {
     updateNews,
     deleteNews
   } = useNews();
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const [isAddNewsModalOpen, setIsAddNewsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingNews, setEditingNews] = useState(null);
-  const [theme, setTheme] = useState({
-    colors: {}, // Inicialmente vacío
-  });
+  const [theme, setTheme] = useState({ colors: {} });
 
   const fetchColors = async () => {
     const [error, colors] = await getColors();
@@ -38,45 +34,39 @@ export default function NewsHome() {
       ...prevTheme,
       colors: formattedColors,
     }));
-    console.log("Fetched colors:", formattedColors);
   };
 
   useEffect(() => {
     fetchColors();
   }, []);
 
-  // Manejador para crear nueva noticia
-  const handleCreate = async (newsData) => {
-    try {
-      const success = await createNews(newsData);
-      if (success) {
-        setIsCreateModalOpen(false);
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "La noticia ha sido creada correctamente",
-          icon: "success",
-          timer: 2000,
-          showConfirmButton: false,
-          confirmButtonColor: theme.colors.Primary || '#fc5000'
-        });
-      }
-    } catch {
+  const handleCreateNews = async (data) => {
+    const newNews = {
+      titulo: data.titulo,
+      contenido: data.contenido,
+      img: data.img,
+      tipo: data.tipo,
+    };
+
+    const success = await createNews(newNews);
+    if (success) {
       Swal.fire({
-        title: "Error",
-        text: "No se pudo crear la noticia",
-        icon: "error",
+        title: "¡Éxito!",
+        text: "La noticia ha sido creada correctamente",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
         confirmButtonColor: theme.colors.Primary || '#fc5000'
       });
     }
+    return success;
   };
 
-  // Manejador para abrir el modal de edición
   const handleEdit = newsItem => {
     setEditingNews(newsItem);
-    setIsModalOpen(true);
+    setIsEditModalOpen(true);
   };
 
-  // Manejador para eliminar noticia
   const handleDelete = async (newsId) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
@@ -113,12 +103,11 @@ export default function NewsHome() {
     }
   };
 
-  // Manejador para guardar cambios en la edición
   const handleSave = async (updatedNews) => {
     try {
-      const success = await updateNews(updatedNews.id, updatedNews);
+      const success = await updateNews(editingNews.id, updatedNews);
       if (success) {
-        setIsModalOpen(false);
+        setIsEditModalOpen(false);
         setEditingNews(null);
         Swal.fire({
           title: "¡Éxito!",
@@ -139,14 +128,6 @@ export default function NewsHome() {
     }
   };
 
-  // Manejador para cerrar modales
-  const handleCloseModals = () => {
-    setIsModalOpen(false);
-    setIsCreateModalOpen(false);
-    setEditingNews(null);
-  };
-
-  // Renderizado condicional para error
   if (error) {
     return (
       <div className="flex justify-center items-center h-full">
@@ -160,13 +141,12 @@ export default function NewsHome() {
 
   return (
     <main className="flex-1 overflow-auto p-8" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
-      {/* Header con título y botón de crear */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold" style={{ color: theme.colors.Accent || '#505050' }}>
           Gestión de Noticias
         </h1>
         <button
-          onClick={() => setIsCreateModalOpen(true)}
+          onClick={() => setIsAddNewsModalOpen(true)}
           className="px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-2"
           style={{
             backgroundColor: theme.colors.Primary || '#fc5000',
@@ -181,63 +161,55 @@ export default function NewsHome() {
             e.target.style.color = theme.colors.Secondary || '#e4e4e4';
           }}
         >
-          <svg 
-            className="w-5 h-5" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M12 4v16m8-8H4" 
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
             />
           </svg>
           Crear Nueva Noticia
         </button>
       </div>
 
-      {/* Loader */}
       {loading ? (
-        <LoaderCustom />
+        <LoaderCustom/>
       ) : (
-        /* Tabla de noticias */
         <div className="rounded-lg shadow" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
-          <NewsTable 
-            news={news} 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
+          <NewsTable
+            news={news}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         </div>
       )}
 
-      {/* Modal para editar */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModals}
-        title="Editar Noticia"
-      >
-        {editingNews && (
-          <EditNewsForm
-            news={editingNews}
-            onSave={handleSave}
-            onCancel={handleCloseModals}
-          />
-        )}
-      </Modal>
-
-      {/* Modal para crear */}
-      <Modal
-        isOpen={isCreateModalOpen}
-        onClose={handleCloseModals}
-        title="Crear Nueva Noticia"
-      >
-        <CreateNewsForm
-          onSubmit={handleCreate}
-          onCancel={handleCloseModals}
+      {/* New Modal Pattern */}
+      {isAddNewsModalOpen && (
+        <AddNewsModal
+          defaultValues={null}
+          onSubmit={handleCreateNews}
+          onClose={() => setIsAddNewsModalOpen(false)}
         />
-      </Modal>
+      )}
+
+      {/* Keep existing edit modal for now */}
+      {isEditModalOpen && (
+        <AddNewsModal
+          defaultValues={editingNews}
+          onSubmit={handleSave}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingNews(null);
+          }}
+        />
+      )}
     </main>
   );
 }
