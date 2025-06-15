@@ -390,11 +390,11 @@ const LandingPage = () => {
                         <Sparkles className="w-4 h-4" />
                         Nuestra Historia
                       </div>
-                      <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
-                        Sobre
-                        <span className="block bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                          Nosotros
-                        </span>
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+                      Sobre{" "}
+                      <span className="bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                        Nosotros
+                      </span>
                       </h2>
                       <p className="text-xl md:text-2xl leading-relaxed text-gray-200 font-light">
                         La Asociación de Química nació con el propósito de dar respuesta a la necesidad de apoyo en el
@@ -677,8 +677,11 @@ function ContactSection({ loading }) {
               <Mail className="w-4 h-4" />
               Contáctanos
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-white leading-tight">
-              ¿Tienes alguna pregunta?
+            <h2 className="text-4xl mb-10 md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+              ¿Tienes alguna{" "}
+              <span className="bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                pregunta?
+              </span>
             </h2>
             <p className="text-xl md:text-2xl leading-relaxed text-gray-200 max-w-3xl mx-auto font-light">
               Si tienes alguna duda o comentario, no dudes en enviarnos un mensaje. Nos encanta escuchar tus sugerencias
