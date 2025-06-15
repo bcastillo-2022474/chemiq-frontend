@@ -16,6 +16,7 @@ import ProjectModal from "@/components/ProjectModal"
 import { BASE_URL } from "@/lib/constants"
 import { getColors } from "../../actions/personalization"
 import { getImages } from "../../actions/image"
+import { ChevronDown, Menu, X, Sparkles, ArrowRight, ExternalLink } from "lucide-react"
 
 const NavBar = ({ loading: initialLoading }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -27,60 +28,58 @@ const NavBar = ({ loading: initialLoading }) => {
   const [scrolled, setScrolled] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [theme, setTheme] = useState({
-    colors: {}, // Inicialmente vacío
-    images: {}, // Otros datos del tema
-  });
+    colors: {},
+    images: {},
+  })
 
   const fetchLogoImages = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const [error, images] = await getImages();
+      const [error, images] = await getImages()
       if (error) {
-        console.error("Error fetching images:", error);
-        setLoading(false);
-        return;
+        console.error("Error fetching images:", error)
+        setLoading(false)
+        return
       }
-  
-      const logoImages = images.filter((image) => image.tipo === "Logo");
-  
+
+      const logoImages = images.filter((image) => image.tipo === "Logo")
+
       setTheme((prevTheme) => ({
         ...prevTheme,
         images: {
           ...prevTheme.images,
-          logo: logoImages[0], 
+          logo: logoImages[0],
         },
-      }));
-  
-      console.log("Fetched logo images:", logoImages); 
+      }))
+
+      console.log("Fetched logo images:", logoImages)
     } catch (err) {
-      console.error("Unexpected error fetching images:", err);
+      console.error("Unexpected error fetching images:", err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchColors = async () => {
-    setLoading(true);
-    const [error, colors] = await getColors();
+    setLoading(true)
+    const [error, colors] = await getColors()
     if (error) {
-      console.error("Error fetching colors:", error);
-      setLoading(false);
-      return;
+      console.error("Error fetching colors:", error)
+      setLoading(false)
+      return
     }
-    const formattedColors = Object.fromEntries(
-      colors.map((color) => [color.nombre, color.hex])
-    );
+    const formattedColors = Object.fromEntries(colors.map((color) => [color.nombre, color.hex]))
     setTheme((prevTheme) => ({
       ...prevTheme,
       colors: formattedColors,
-    }));
-    setLoading(false);
-  };
+    }))
+    setLoading(false)
+  }
 
   useEffect(() => {
-    fetchColors();
-    fetchLogoImages();
-  }, []);
+    fetchColors()
+    fetchLogoImages()
+  }, [])
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -106,13 +105,13 @@ const NavBar = ({ loading: initialLoading }) => {
       const scrollPosition = window.scrollY
       const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
       const progress = (scrollPosition / windowHeight) * 100
-      
+
       setScrollProgress(progress)
       setScrolled(scrollPosition > 20)
     }
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
@@ -123,11 +122,13 @@ const NavBar = ({ loading: initialLoading }) => {
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: "smooth" })
     }
+    setIsMenuOpen(false)
   }
 
   const openProjectModal = (projectId) => {
     setSelectedProjectId(projectId)
     setModalOpen(true)
+    setIsMenuOpen(false)
   }
 
   const closeModal = () => {
@@ -137,22 +138,25 @@ const NavBar = ({ loading: initialLoading }) => {
 
   if (loading) {
     return (
-      <nav className="shadow-md fixed top-0 left-0 w-full z-50" style={{ backgroundColor: theme.colors.Primary || '#fc5000' }}>
+      <nav
+        className="fixed top-0 left-0 w-full z-50 backdrop-blur-md border-b border-white/10"
+        style={{ backgroundColor: `${theme.colors.Primary || "#fc5000"}CC` }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Skeleton className="w-[150px] h-[50px]" />
-              </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Skeleton className="w-[400px] h-[40px]" />
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-8">
+              <Skeleton className="w-12 h-12 rounded-xl" />
+              <div className="hidden md:flex space-x-6">
+                <Skeleton className="w-32 h-6 rounded-full" />
+                <Skeleton className="w-24 h-6 rounded-full" />
+                <Skeleton className="w-28 h-6 rounded-full" />
               </div>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center">
-              <Skeleton className="h-10 w-28" />
+            <div className="hidden md:flex items-center space-x-4">
+              <Skeleton className="w-32 h-10 rounded-xl" />
             </div>
-            <div className="flex items-center sm:hidden">
-              <Skeleton className="h-10 w-10" />
+            <div className="md:hidden">
+              <Skeleton className="w-10 h-10 rounded-lg" />
             </div>
           </div>
         </div>
@@ -162,36 +166,33 @@ const NavBar = ({ loading: initialLoading }) => {
 
   if (error) {
     return (
-      <nav className="shadow-md fixed top-0 left-0 w-full z-50" style={{ backgroundColor: theme.colors.Primary || '#fc5000' }}>
+      <nav
+        className="fixed top-0 left-0 w-full z-50 backdrop-blur-md border-b border-white/10"
+        style={{ backgroundColor: `${theme.colors.Primary || "#fc5000"}CC` }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <img src={theme.images.logo?.enlace || "https://via.placeholder.com/150x150"} alt="Logo" className="w-[50px] h-[50px]" />
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <img
+                  src={theme.images.logo?.enlace || "https://via.placeholder.com/150x150"}
+                  alt="Logo"
+                  className="w-12 h-12 rounded-xl shadow-lg"
+                />
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent" />
               </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8 items-center">
-                <p style={{ color: theme.colors.Secondary || '#e4e4e4' }}>Error al cargar los proyectos</p>
+              <div className="hidden md:block">
+                <p className="text-white/80 font-medium">Error al cargar los proyectos</p>
               </div>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            <div className="hidden md:flex items-center">
               <Link to="/login">
-                <Button 
-                  variant="quimica" 
-                  className="mr-2 rounded-md font-semibold"
-                  style={{ 
-                    backgroundColor: theme.colors.Background || '#fff8f0',
-                    color: theme.colors.Accent || '#505050'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = theme.colors.Accent || '#505050';
-                    e.target.style.color = theme.colors.Secondary || '#e4e4e4';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = theme.colors.Background || '#fff8f0';
-                    e.target.style.color = theme.colors.Accent || '#505050';
-                  }}
-                >
-                  Iniciar sesión
+                <Button className="group relative overflow-hidden px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
+                  <span className="relative z-10 flex items-center gap-2">
+                    Iniciar sesión
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </Link>
             </div>
@@ -203,270 +204,345 @@ const NavBar = ({ loading: initialLoading }) => {
 
   return (
     <>
-      <nav 
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          scrolled 
-            ? 'backdrop-blur-md shadow-lg' 
-            : 'shadow-md'
+      <nav
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-out ${
+          scrolled ? "backdrop-blur-xl shadow-2xl border-b border-white/10" : "backdrop-blur-md shadow-lg"
         }`}
         style={{
-          height: scrolled ? '64px' : '64px',
-          transform: `translateY(${scrolled && isMenuOpen ? '0' : '0'}px)`,
-          backgroundColor: theme.colors.Primary || '#fc5000'
+          backgroundColor: scrolled
+            ? `${theme.colors.Primary || "#fc5000"}E6`
+            : `${theme.colors.Primary || "#fc5000"}CC`,
         }}
       >
-        <div 
-          className="h-0.5" 
-          style={{ 
-            width: `${scrollProgress}%`, 
-            transition: 'width 0.2s ease-out',
-            backgroundColor: theme.colors.Accent || '#505050'
-          }}
-        />
-        
+        {/* Scroll Progress Bar */}
+        <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 transition-all duration-300 ease-out shadow-lg">
+          <div
+            className="h-full bg-gradient-to-r from-white via-yellow-200 to-white transition-all duration-200 ease-out"
+            style={{ width: `${scrollProgress}%` }}
+          />
+        </div>
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <span className="text-2xl font-bold">
-                  <img 
-                    src={theme.images.logo?.enlace || "https://via.placeholder.com/150x150"}
-                    alt="Logo" 
-                    className={`transition-all duration-300 ${
-                      scrolled ? 'w-[40px] h-[40px]' : 'w-[50px] h-[50px]'
-                    }`} 
-                  />
-                </span>
+          <div className="flex justify-between items-center h-20">
+            {/* Logo Section */}
+            <div className="flex items-center space-x-8">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <img
+                  src={theme.images.logo?.enlace || "https://via.placeholder.com/150x150"}
+                  alt="Logo"
+                  className={`transition-all duration-500 ease-out rounded-xl shadow-lg ${
+                    scrolled ? "w-10 h-10" : "w-12 h-12"
+                  } group-hover:scale-110`}
+                />
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent" />
               </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <NavigationMenu>
-                  <NavigationMenuList>
-                    <NavigationMenuItem>
-                      <NavigationMenuTrigger 
-                        className="transition-all duration-300"
-                        style={{ color: theme.colors.Accent || '#505050' }}
-                      >
-                        Proyectos Destacados
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]" style={{ backgroundColor: theme.colors.Background || '#fff8f0' }}>
-                          {projects.length > 0 && (
-                            <li className="row-span-3">
+
+                      <div className="hidden md:flex items-center space-x-2">
+                      <NavigationMenu>
+                        <NavigationMenuList className="space-x-2">
+                        <NavigationMenuItem>
+                          <NavigationMenuTrigger
+                          className="group bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-300
+                            hover:shadow-lg
+                            focus:outline-none
+                          "
+                          style={{
+                            backgroundColor: theme.colors.Primary
+                            ? `${theme.colors.Primary}22`
+                            : undefined,
+                          }}
+                          onMouseOver={e => {
+                            e.currentTarget.style.backgroundColor = theme.colors.Primary
+                            ? `${theme.colors.Primary}44`
+                            : "#fc500044"
+                          }}
+                          onMouseOut={e => {
+                            e.currentTarget.style.backgroundColor = theme.colors.Primary
+                            ? `${theme.colors.Primary}22`
+                            : "#fc500022"
+                          }}
+                          onFocus={e => {
+                            e.currentTarget.style.boxShadow = theme.colors.Primary
+                            ? `0 0 0 3px ${theme.colors.Primary}55`
+                            : "0 0 0 3px #fc500055"
+                            e.currentTarget.style.backgroundColor = theme.colors.Primary
+                            ? `${theme.colors.Primary}44`
+                            : "#fc500044"
+                          }}
+                          onBlur={e => {
+                            e.currentTarget.style.boxShadow = ""
+                            e.currentTarget.style.backgroundColor = theme.colors.Primary
+                            ? `${theme.colors.Primary}22`
+                            : "#fc500022"
+                          }}
+                          >
+                          <Sparkles className="w-4 h-4" />
+                          Proyectos Destacados
+                          <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                          <div
+                            className="w-[600px] p-6 rounded-2xl shadow-2xl border border-gray-200/20 backdrop-blur-xl"
+                            style={{ backgroundColor: `${theme.colors.Background || "#fff8f0"}F5` }}
+                          >
+                            <div className="grid gap-4 lg:grid-cols-2">
+                            {projects.length > 0 && (
+                              <div className="lg:col-span-1">
                               <NavigationMenuLink asChild>
-                                <a 
-                                  className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b p-6 no-underline outline-none focus:shadow-md" 
-                                  href="#" 
-                                  onClick={(e) => { e.preventDefault(); openProjectModal(projects[0].id) }}
-                                  style={{ 
-                                    background: `linear-gradient(to bottom, ${theme.colors.Primary || '#fc5000'}, ${theme.colors.Tertiary || '#5f5f5f'})`
-                                  }}
+                                <a
+                                className="group relative flex h-full w-full select-none flex-col justify-end rounded-xl p-6 no-underline outline-none focus:shadow-md overflow-hidden transition-all duration-300"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  openProjectModal(projects[0].id)
+                                }}
+                                style={{
+                                  background: `linear-gradient(135deg, ${
+                                  theme.colors.Primary || "#fc5000"
+                                  }, ${theme.colors.Tertiary || "#5f5f5f"})`,
+                                }}
+                                onMouseOver={e => {
+                                  e.currentTarget.style.filter = "brightness(1.08)"
+                                }}
+                                onMouseOut={e => {
+                                  e.currentTarget.style.filter = ""
+                                }}
+                                onFocus={e => {
+                                  e.currentTarget.style.boxShadow = theme.colors.Primary
+                                  ? `0 0 0 3px ${theme.colors.Primary}55`
+                                  : "0 0 0 3px #fc500055"
+                                }}
+                                onBlur={e => {
+                                  e.currentTarget.style.boxShadow = ""
+                                }}
                                 >
-                                  <div className="mt-4 text-lg font-medium" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>{projects[0].nombre}</div>
-                                  <p className="text-sm leading-tight" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>{projects[0].informacion.substring(0, 100)}...</p>
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                                <div className="relative z-10">
+                                  <div className="flex items-center gap-2 mb-3">
+                                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                  <span className="text-xs font-medium text-white/80 uppercase tracking-wider">
+                                    Proyecto Destacado
+                                  </span>
+                                  </div>
+                                  <div className="text-xl font-bold text-white mb-2 group-hover:text-yellow-200 transition-colors">
+                                  {projects[0].nombre}
+                                  </div>
+                                  <p className="text-sm leading-tight text-white/90 line-clamp-3">
+                                  {projects[0].informacion.substring(0, 120)}...
+                                  </p>
+                                  <div className="flex items-center gap-2 mt-4 text-white/80 group-hover:text-white transition-colors">
+                                  <span className="text-xs font-medium">Ver detalles</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                  </div>
+                                </div>
                                 </a>
                               </NavigationMenuLink>
-                            </li>
-                          )}
-                          {projects.slice(1).map((project) => (
-                            <li key={project.id}>
-                              <NavigationMenuLink asChild>
-                                <a 
-                                  className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent/10 focus:bg-accent/10" 
-                                  href="#" 
-                                  onClick={(e) => { e.preventDefault(); openProjectModal(project.id) }}
+                              </div>
+                            )}
+                            <div className="space-y-2">
+                              {projects.slice(1).map((project, index) => (
+                              <NavigationMenuLink key={project.id} asChild>
+                                <a
+                                className="group block select-none space-y-2 rounded-xl p-4 leading-none no-underline outline-none transition-all duration-300 border border-transparent"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  openProjectModal(project.id)
+                                }}
+                                style={{
+                                  backgroundColor: theme.colors.Primary
+                                  ? `${theme.colors.Primary}0A`
+                                  : "#fc50000A",
+                                }}
+                                onMouseOver={e => {
+                                  e.currentTarget.style.backgroundColor = theme.colors.Primary
+                                  ? `${theme.colors.Primary}22`
+                                  : "#fc500022"
+                                  e.currentTarget.style.borderColor = theme.colors.Primary
+                                  ? `${theme.colors.Primary}55`
+                                  : "#fc500055"
+                                }}
+                                onMouseOut={e => {
+                                  e.currentTarget.style.backgroundColor = theme.colors.Primary
+                                  ? `${theme.colors.Primary}0A`
+                                  : "#fc50000A"
+                                  e.currentTarget.style.borderColor = "transparent"
+                                }}
+                                onFocus={e => {
+                                  e.currentTarget.style.boxShadow = theme.colors.Primary
+                                  ? `0 0 0 2px ${theme.colors.Primary}55`
+                                  : "0 0 0 2px #fc500055"
+                                  e.currentTarget.style.backgroundColor = theme.colors.Primary
+                                  ? `${theme.colors.Primary}22`
+                                  : "#fc500022"
+                                  e.currentTarget.style.borderColor = theme.colors.Primary
+                                  ? `${theme.colors.Primary}55`
+                                  : "#fc500055"
+                                }}
+                                onBlur={e => {
+                                  e.currentTarget.style.boxShadow = ""
+                                  e.currentTarget.style.backgroundColor = theme.colors.Primary
+                                  ? `${theme.colors.Primary}0A`
+                                  : "#fc50000A"
+                                  e.currentTarget.style.borderColor = "transparent"
+                                }}
                                 >
-                                  <div className="text-sm font-medium leading-none" style={{ color: theme.colors.Secondary || '#e4e4e4' }}>{project.nombre}</div>
-                                  <p className="line-clamp-2 text-sm leading-snug" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>{project.informacion.substring(0, 60)}...</p>
+                                <div className="flex items-center justify-between">
+                                  <div className="text-sm font-semibold leading-none text-gray-900 group-hover:text-orange-600 transition-colors">
+                                  {project.nombre}
+                                  </div>
+                                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-all transform group-hover:translate-x-1" />
+                                </div>
+                                <p className="line-clamp-2 text-xs leading-snug text-gray-600 group-hover:text-gray-800 transition-colors">
+                                  {project.informacion.substring(0, 80)}...
+                                </p>
                                 </a>
                               </NavigationMenuLink>
-                            </li>
-                          ))}
-                          {projects.length === 0 && (
-                            <li className="col-span-2 p-4 text-center" style={{ color: theme.colors.Tertiary || '#5f5f5f' }}>No hay proyectos disponibles</li>
-                          )}
-                        </ul>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <a 
-                        href="#about" 
-                        onClick={(e) => handleSmoothScroll(e, "#about")} 
-                        className="transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium"
-                        style={{ 
-                          color: theme.colors.Secondary || '#e4e4e4',
-                          ':hover': { color: theme.colors.Primary || '#fc5000' }
-                        }}
-                        onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
-                      >
-                        Acerca de
-                      </a>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <a 
-                        href="#members" 
-                        onClick={(e) => handleSmoothScroll(e, "#members")} 
-                        className="transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium"
-                        style={{ 
-                          color: theme.colors.Secondary || '#e4e4e4',
-                          ':hover': { color: theme.colors.Primary || '#fc5000' }
-                        }}
-                        onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
-                      >
-                        Conócenos
-                      </a>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <a 
-                        href="#contact" 
-                        onClick={(e) => handleSmoothScroll(e, "#contact")} 
-                        className="transition-all duration-300 px-3 py-2 rounded-md text-sm font-medium"
-                        style={{ 
-                          color: theme.colors.Secondary || '#e4e4e4',
-                          ':hover': { color: theme.colors.Primary || '#fc5000' }
-                        }}
-                        onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-                        onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
-                      >
-                        Contacto
-                      </a>
-                    </NavigationMenuItem>
-                  </NavigationMenuList>
-                </NavigationMenu>
-              </div>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center">
+                              ))}
+                              {projects.length === 0 && (
+                              <div className="col-span-2 p-8 text-center">
+                                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                                <Sparkles className="w-8 h-8 text-gray-400" />
+                                </div>
+                                <p className="text-gray-500 font-medium">No hay proyectos disponibles</p>
+                              </div>
+                              )}
+                            </div>
+                            </div>
+                          </div>
+                          </NavigationMenuContent>
+                        </NavigationMenuItem>
+
+                        {[
+                          { href: "#about", text: "Acerca de" },
+                          { href: "#members", text: "Conócenos" },
+                          { href: "#contact", text: "Contacto" },
+                        ].map((item, index) => (
+                          <NavigationMenuItem key={index}>
+                          <a
+                            href={item.href}
+                            onClick={(e) => handleSmoothScroll(e, item.href)}
+                            className="group relative px-4 py-2 text-white font-medium rounded-xl transition-all duration-300 flex items-center gap-2"
+                            style={{
+                            backgroundColor: theme.colors.Primary
+                              ? `${theme.colors.Primary}0A`
+                              : "#fc50000A",
+                            }}
+                            onMouseOver={e => {
+                            e.currentTarget.style.backgroundColor = theme.colors.Primary
+                              ? `${theme.colors.Primary}22`
+                              : "#fc500022"
+                            }}
+                            onMouseOut={e => {
+                            e.currentTarget.style.backgroundColor = theme.colors.Primary
+                              ? `${theme.colors.Primary}0A`
+                              : "#fc50000A"
+                            }}
+                            onFocus={e => {
+                            e.currentTarget.style.boxShadow = theme.colors.Primary
+                              ? `0 0 0 2px ${theme.colors.Primary}55`
+                              : "0 0 0 2px #fc500055"
+                            e.currentTarget.style.backgroundColor = theme.colors.Primary
+                              ? `${theme.colors.Primary}22`
+                              : "#fc500022"
+                            }}
+                            onBlur={e => {
+                            e.currentTarget.style.boxShadow = ""
+                            e.currentTarget.style.backgroundColor = theme.colors.Primary
+                              ? `${theme.colors.Primary}0A`
+                              : "#fc50000A"
+                            }}
+                          >
+                            <span className="relative z-10">{item.text}</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </a>
+                          </NavigationMenuItem>
+                        ))}
+                        </NavigationMenuList>
+                      </NavigationMenu>
+                      </div>
+                    </div>
+
+            <div className="hidden md:flex items-center">
               <Link to="/login">
-                <Button 
-                  variant="quimica" 
-                  className="transition-all duration-300 mr-2 shadow-lg rounded-md font-semibold"
-                  style={{ 
-                    backgroundColor: theme.colors.Background || '#fff8f0',
-                    color: theme.colors.Accent || '#505050'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = theme.colors.Accent || '#505050';
-                    e.target.style.color = theme.colors.Secondary || '#e4e4e4';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = theme.colors.Background || '#fff8f0';
-                    e.target.style.color = theme.colors.Accent || '#505050';
-                  }}
-                >
-                  Iniciar sesión
+                <Button className="group relative overflow-hidden px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <span className="relative z-10 flex items-center gap-2">
+                    Iniciar sesión
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </Link>
             </div>
-            <div className="flex items-center sm:hidden">
-              <Button 
-                variant="ghost" 
-                className="transition-all duration-300" 
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                className="p-2 text-white hover:bg-white/10 rounded-xl transition-all duration-300"
                 onClick={toggleMenu}
-                style={{ color: theme.colors.Secondary || '#e4e4e4' }}
               >
-                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-                </svg>
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
             </div>
           </div>
+
+          {/* Mobile Menu */}
           {isMenuOpen && (
-            <div 
-              className="sm:hidden px-4 py-2 transition-all duration-300"
-              style={{ backgroundColor: theme.colors.Primary || '#fc5000' }}
-            >
-              <div className="flex flex-col space-y-2">
-                <a 
-                  href="#about" 
-                  className="px-3 py-2 rounded-md text-sm font-medium"
-                  style={{ 
-                    color: theme.colors.Secondary || '#e4e4e4',
-                    ':hover': { color: theme.colors.Primary || '#fc5000' }
-                  }}
-                  onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-                  onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
-                >
-                  Acerca de
-                </a>
-                <a 
-                  href="#contact" 
-                  className="px-3 py-2 rounded-md text-sm font-medium"
-                  style={{ 
-                    color: theme.colors.Secondary || '#e4e4e4',
-                    ':hover': { color: theme.colors.Primary || '#fc5000' }
-                  }}
-                  onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-                  onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
-                >
-                  Contacto
-                </a>
-                <a 
-                  href="#members" 
-                  className="px-3 py-2 rounded-md text-sm font-medium"
-                  style={{ 
-                    color: theme.colors.Secondary || '#e4e4e4',
-                    ':hover': { color: theme.colors.Primary || '#fc5000' }
-                  }}
-                  onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-                  onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
-                >
-                  Conócenos
-                </a>
-                <Link to="/login">
-                  <Button 
-                    variant="quimica" 
-                    className="rounded-md font-semibold w-full"
-                    style={{ 
-                      backgroundColor: theme.colors.Background || '#fff8f0',
-                      color: theme.colors.Accent || '#505050'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = theme.colors.Accent || '#505050';
-                      e.target.style.color = theme.colors.Secondary || '#e4e4e4';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = theme.colors.Background || '#fff8f0';
-                      e.target.style.color = theme.colors.Accent || '#505050';
-                    }}
+            <div className="md:hidden border-t border-white/10">
+              <div className="px-4 py-6 space-y-4 bg-black/20 backdrop-blur-sm rounded-b-2xl">
+                {[
+                  { href: "#about", text: "Acerca de" },
+                  { href: "#members", text: "Conócenos" },
+                  { href: "#contact", text: "Contacto" },
+                ].map((item, index) => (
+                  <a
+                    key={index}
+                    href={item.href}
+                    onClick={(e) => handleSmoothScroll(e, item.href)}
+                    className="block px-4 py-3 text-white font-medium rounded-xl hover:bg-white/10 transition-all duration-300"
                   >
-                    Iniciar sesión
-                  </Button>
-                </Link>
-                <div className="pt-2">
-                  <span 
-                    className="px-3 py-2 text-sm font-medium mr-10"
-                    style={{ color: theme.colors.Accent || '#505050' }}
-                  >
+                    {item.text}
+                  </a>
+                ))}
+
+                <div className="pt-4 border-t border-white/10">
+                  <div className="flex items-center gap-2 px-4 py-2 text-white/80 text-sm font-medium">
+                    <Sparkles className="w-4 h-4" />
                     Proyectos Destacados
-                  </span>
+                  </div>
                   <div className="pl-4 space-y-2">
                     {projects.length > 0 ? (
                       projects.map((project) => (
-                        <a 
-                          key={project.id} 
-                          href="#" 
-                          className="block px-3 py-2 rounded-md text-sm"
-                          style={{ 
-                            color: theme.colors.Secondary || '#e4e4e4',
-                            ':hover': { color: theme.colors.Primary || '#fc5000' }
+                        <a
+                          key={project.id}
+                          href="#"
+                          className="block px-4 py-2 text-white/90 text-sm rounded-lg hover:bg-white/10 transition-all duration-300"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            openProjectModal(project.id)
                           }}
-                          onClick={(e) => { e.preventDefault(); openProjectModal(project.id) }}
-                          onMouseEnter={(e) => e.target.style.color = theme.colors.Primary || '#fc5000'}
-                          onMouseLeave={(e) => e.target.style.color = theme.colors.Secondary || '#e4e4e4'}
                         >
                           {project.nombre}
                         </a>
                       ))
                     ) : (
-                      <p 
-                        className="px-3 py-2 text-sm"
-                        style={{ color: theme.colors.Tertiary || '#5f5f5f' }}
-                      >
-                        No hay proyectos disponibles
-                      </p>
+                      <p className="px-4 py-2 text-white/60 text-sm">No hay proyectos disponibles</p>
                     )}
                   </div>
+                </div>
+
+                <div className="pt-4">
+                  <Link to="/login">
+                    <Button className="w-full group relative overflow-hidden px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300">
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        Iniciar sesión
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
