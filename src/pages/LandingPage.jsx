@@ -252,13 +252,28 @@ const LandingPage = () => {
                         Bienvenidos a la comunidad científica
                       </div>
                       <h1
-                        className="text-4xl font-black tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
-                        style={{ color: theme.colors.Secondary || "#505050" }}
+                      className="text-4xl font-black tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent leading-tight"
+                      style={{ color: theme.colors.Secondary || "#505050" }}
                       >
-                        Asociación de
-                        <span className="block bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
-                          Química
-                        </span>
+                      Asociación de
+                      <span
+                        className="block bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent"
+                        style={{
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        textFillColor: "transparent",
+                        paddingBottom: "0.10em",
+                        lineHeight: 1.1,
+                        // Fix for descenders being clipped
+                        WebkitBoxDecorationBreak: "clone",
+                        boxDecorationBreak: "clone",
+                        display: "inline-block",
+                        }}
+                      >
+                        Ingenieria Química
+                        <span style={{ display: "inline-block", height: "0.3em", verticalAlign: "bottom" }}>&nbsp;</span>
+                      </span>
                       </h1>
                       <p
                         className="mx-auto max-w-4xl text-xl md:text-2xl leading-relaxed font-light"
