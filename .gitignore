@@ -26,3 +26,6 @@ dist-ssr
 
 # tsbuildinfo
 tsconfig.tsbuildinfo
+
+# 
+public/_redirects

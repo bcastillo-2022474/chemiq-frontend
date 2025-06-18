@@ -1,2 +1,2 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL || "https://backend-postgresql.vercel.app";
+export const BASE_URL = import.meta.env.PROD ? "/api" :import.meta.env.VITE_BASE_URL
 export const SUPABASE_TOKEN = import.meta.env.VITE_SUPABASE_TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqd2NhbmhhaW9seXpqd3V1eXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NjIxNzgsImV4cCI6MjA1OTEzODE3OH0.C88ffgcADWwukm5AT0DBdSFa7muucFVb8sp-TAokulY"
